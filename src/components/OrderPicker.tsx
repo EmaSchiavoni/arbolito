@@ -29,7 +29,7 @@ export function OrderPicker({ id, p, onChange }: OrderPickerProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor={id} className="shrink-0 text-sm text-muted-foreground">
+      <label htmlFor={id} className="shrink-0 text-xs text-muted-foreground">
         Orden p
       </label>
       {!custom ? (
