@@ -6,8 +6,9 @@ import { Badge } from '../components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../components/ui/sheet';
 import { ConfirmDialog } from '../components/ui/alert-dialog';
 import { BottomToolbar } from '../components/BottomToolbar';
-import { OrderPicker, ORDER_MAX, ORDER_MIN } from '../components/OrderPicker';
-import { TypeSelector } from '../components/TypeSelector';
+import { ORDER_MAX, ORDER_MIN } from '../components/OrderPicker';
+import { AppChrome, type ChromeProps } from '../components/AppChrome';
+import { TreeConfig } from '../components/TreeConfig';
 import { TreeCanvas } from '../components/TreeCanvas';
 import { validateManualTree, type ManualNode, type ValidationResult } from '../lib/validate';
 import type { Key } from '../lib/btree';
@@ -59,7 +60,7 @@ function fixSlots(keys: Key[], slots: (string | null)[]): (string | null)[] {
   return next;
 }
 
-export function PlayManual() {
+export function PlayManual(chrome: ChromeProps) {
   const [draft, setDraft] = React.useState<Draft>(() => {
     const saved = load<Draft | null>(KEYS.manual, null);
     if (saved && Array.isArray(saved.nodes)) {
@@ -415,6 +416,32 @@ export function PlayManual() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
+      <AppChrome
+        {...chrome}
+        info={
+          <>
+            <Badge>orden p = {p}</Badge>
+            <Badge variant="secondary">máx {p - 1} claves</Badge>
+            <Badge variant="secondary">mín {Math.ceil(p / 2) - 1} claves · {Math.ceil(p / 2)} punteros</Badge>
+            <Badge variant="secondary">{keyType === 'string' ? 'texto' : 'numérico'}</Badge>
+            {rootId ? <Badge variant="outline">raíz elegida</Badge> : <Badge variant="error">sin raíz</Badge>}
+            {result && (result.valid ? <Badge variant="ok">válido</Badge> : <Badge variant="error">{result.issues.length} errores</Badge>)}
+          </>
+        }
+        config={
+          <TreeConfig
+            id="orden-manual"
+            p={p}
+            onPChange={(next) => {
+              setDraft((d) => ({ ...d, p: next }));
+              setRedoStack([]);
+              setResult(null);
+            }}
+            keyType={keyType}
+            onKeyTypeChange={changeKeyType}
+          />
+        }
+      />
       <div className="relative min-h-0 flex-1">
       {nodes.length === 0 ? (
         <div className="flex h-full items-center justify-center p-3">
@@ -579,38 +606,13 @@ export function PlayManual() {
           }}
           />
       )}
-      <div className="pointer-events-none absolute left-2 top-2 z-10 flex max-w-[calc(100vw-190px)] flex-col gap-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge>orden p = {p}</Badge>
-              <Badge variant="secondary">máx {p - 1} claves</Badge>
-              <Badge variant="secondary">mín {Math.ceil(p / 2) - 1} claves · {Math.ceil(p / 2)} punteros</Badge>
-              <Badge variant="secondary">{keyType === 'string' ? 'texto' : 'numérico'}</Badge>
-              {rootId ? <Badge variant="outline">raíz elegida</Badge> : <Badge variant="error">sin raíz</Badge>}
-              {result && (result.valid ? <Badge variant="ok">válido</Badge> : <Badge variant="error">{result.issues.length} errores</Badge>)}
-            </div>
-            <div className="pointer-events-auto flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-2 rounded-2xl border bg-card/80 px-3 py-1.5 shadow-lg backdrop-blur">
-                <OrderPicker
-                  id="orden-manual"
-                  p={p}
-                  onChange={(next) => {
-                    setDraft((d) => ({ ...d, p: next }));
-                    setRedoStack([]);
-                    setResult(null);
-                  }}
-                />
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl border bg-card/80 px-3 py-1.5 shadow-lg backdrop-blur">
-                <span className="shrink-0 text-sm text-muted-foreground">Tipo de clave</span>
-                <TypeSelector value={keyType} onChange={changeKeyType} />
-              </div>
-            </div>
-            {linking && (
-              <p className="w-max max-w-full rounded-full bg-zinc-900/85 px-3 py-1 text-xs text-zinc-100 dark:bg-zinc-100/90 dark:text-zinc-900">
-                Tocá el icono <ArrowDownToLine className="inline size-3.5" /> del nodo destino · Esc o fondo para cancelar
-              </p>
-            )}
-          </div>
+      <div className={cn('pointer-events-none absolute left-2 z-10 flex max-w-[calc(100vw-190px)] flex-col gap-2', chrome.hidden ? 'top-12' : 'top-2')}>
+        {linking && (
+          <p className="w-max max-w-full rounded-full bg-zinc-900/85 px-3 py-1 text-xs text-zinc-100 dark:bg-zinc-100/90 dark:text-zinc-900">
+            Tocá el icono <ArrowDownToLine className="inline size-3.5" /> del nodo destino · Esc o fondo para cancelar
+          </p>
+        )}
+      </div>
         </div>
 
       <BottomToolbar>

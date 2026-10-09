@@ -1,13 +1,14 @@
 import * as React from 'react';
-import { Dices, Eraser, Plus, Search, Settings2, Trash2, ChevronRight, ListCollapse } from 'lucide-react';
+import { Dices, Eraser, Plus, Search, Trash2, ChevronRight, ListCollapse } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { ScrollArea } from '../components/ui/scroll-area';
+import { AppChrome, type ChromeProps } from '../components/AppChrome';
 import { BottomToolbar } from '../components/BottomToolbar';
-import { OrderPicker, ORDER_MAX, ORDER_MIN } from '../components/OrderPicker';
-import { TypeSelector } from '../components/TypeSelector';
+import { ORDER_MAX, ORDER_MIN } from '../components/OrderPicker';
+import { TreeConfig } from '../components/TreeConfig';
 import { TreeCanvas } from '../components/TreeCanvas';
 import { cmpKey, contains, countKeys, countNodes, createTree, deleteKeyLogged, formatStep, height, insertKey, insertKeyLogged, searchPath, toTreeKey, type BTree, type BTreePolicy, type Key } from '../lib/btree';
 import { layoutTree } from '../lib/layout';
@@ -76,7 +77,7 @@ function autoSlotX(x: number, slot: number): number {
   );
 }
 
-export function PlayAuto() {
+export function PlayAuto(chrome: ChromeProps) {
   const [p, setP] = React.useState<number>(() => load<number>(KEYS.autoP, 4));
   const [tree, setTree] = React.useState<BTree>(() => {
     const saved = load<{ p: number; root: BTree['root']; keyType?: BTree['keyType'] } | null>(KEYS.autoTree, null);
@@ -340,6 +341,28 @@ export function PlayAuto() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
+      <AppChrome
+        {...chrome}
+        info={
+          <>
+            <Badge>orden p = {p}</Badge>
+            <Badge variant="secondary">máx {p - 1} claves</Badge>
+            <Badge variant="secondary">mín {Math.ceil(p / 2) - 1} claves · {Math.ceil(p / 2)} punteros</Badge>
+            <Badge variant="secondary">altura {stats.h}</Badge>
+            <Badge variant="secondary">{stats.n} nodos · {stats.k} claves</Badge>
+          </>
+        }
+        config={
+          <TreeConfig
+            id="orden-auto"
+            p={p}
+            onPChange={changeP}
+            keyType={tree.keyType}
+            onKeyTypeChange={changeKeyType}
+            onOpenPolicy={() => setShowPolicy(true)}
+          />
+        }
+      />
       <div className="relative min-h-0 flex-1">
       {tree.root === null ? (
         <div className="flex h-full items-center justify-center p-3">
@@ -402,32 +425,13 @@ export function PlayAuto() {
           }}
           />
       )}
-      <div className="pointer-events-none absolute left-2 top-2 z-10 flex max-w-[calc(100vw-190px)] flex-col gap-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge>orden p = {p}</Badge>
-              <Badge variant="secondary">máx {p - 1} claves</Badge>
-              <Badge variant="secondary">mín {Math.ceil(p / 2) - 1} claves · {Math.ceil(p / 2)} punteros</Badge>
-              <Badge variant="secondary">altura {stats.h}</Badge>
-              <Badge variant="secondary">{stats.n} nodos · {stats.k} claves</Badge>
-            </div>
-            <div className="pointer-events-auto flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-2 rounded-2xl border bg-card/80 px-3 py-1.5 shadow-lg backdrop-blur">
-                <Button size="sm" variant="ghost" onClick={() => setShowPolicy(true)} title="Más configuraciones" aria-label="Más configuraciones" className="px-2"><Settings2 /></Button>
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl border bg-card/80 px-3 py-1.5 shadow-lg backdrop-blur">
-                <OrderPicker id="orden-auto" p={p} onChange={changeP} />
-              </div>
-              <div className="flex items-center gap-2 rounded-2xl border bg-card/80 px-3 py-1.5 shadow-lg backdrop-blur">
-                <span className="shrink-0 text-sm text-muted-foreground">Tipo de clave</span>
-                <TypeSelector value={tree.keyType} onChange={changeKeyType} />
-              </div>
-            </div>
-            {message && (
-              <p className="w-max max-w-full rounded-full bg-zinc-900/85 px-3 py-1 text-xs text-zinc-100 dark:bg-zinc-100/90 dark:text-zinc-900">
-                {message}
-              </p>
-            )}
-          </div>
+      <div className={cn('pointer-events-none absolute left-2 z-10 flex max-w-[calc(100vw-190px)] flex-col gap-2', chrome.hidden ? 'top-12' : 'top-2')}>
+        {message && (
+          <p className="w-max max-w-full rounded-full bg-zinc-900/85 px-3 py-1 text-xs text-zinc-100 dark:bg-zinc-100/90 dark:text-zinc-900">
+            {message}
+          </p>
+        )}
+      </div>
           <Dialog open={showHistory} onOpenChange={setShowHistory}>
             <DialogContent className="max-h-[70dvh] w-[calc(100vw-2rem)] sm:max-w-md">
               <DialogHeader>

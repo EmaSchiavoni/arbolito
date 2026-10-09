@@ -20,12 +20,24 @@
   }
 }
 
+@keyframes slide-down {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 @layer utilities {
   .animate-sheet-up {
     animation: sheet-up 0.25s ease-out;
   }
   .animate-fade-in {
     animation: fade-in 0.2s ease-out;
+  }
+  .animate-slide-down {
+    animation: slide-down 0.2s ease-out;
   }
 }
 

@@ -18,6 +18,7 @@ export function save(key: string, value: unknown): void {
 
 export const KEYS = {
   theme: 'arboles-b:tema',
+  headerHidden: 'arboles-b:header-hidden',
   autoP: 'arboles-b:auto-p',
   autoTree: 'arboles-b:auto-tree',
   autoHistory: 'arboles-b:auto-history',
