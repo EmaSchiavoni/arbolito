@@ -153,7 +153,7 @@ export function AppChrome({ hidden, onShowHeader, onHideHeader, tab, onToggleTab
         </>
       ) : (
         <header className="shrink-0 border-b bg-background">
-          <div className="flex flex-col gap-2 px-3 py-2">
+          <div className="flex flex-col gap-4 px-3 py-2">
             {isSmall ? (
               <div className="flex items-center gap-2">
                 <Logo />
@@ -173,7 +173,6 @@ export function AppChrome({ hidden, onShowHeader, onHideHeader, tab, onToggleTab
 
                   <div className="flex items-center gap-1">
                     <Button
-                      size="sm"
                       variant="ghost"
                       onClick={onToggleTab}
                       title={tab === 'auto' ? 'Ir a modo manual' : 'Ir a modo automático'}

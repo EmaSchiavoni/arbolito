@@ -15,11 +15,11 @@ interface TreeConfigProps {
 // Se usan tanto en el header como en el panel deslizante del modo inmersivo.
 export function TreeConfig({ id, p, onPChange, keyType, onKeyTypeChange, onOpenPolicy }: TreeConfigProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="flex items-center gap-2 rounded-full border bg-background px-3 py-1.5">
+    <div className="flex flex-wrap items-center gap-6 px-4">
+      <div className="flex items-center gap-2 bg-background">
         <OrderPicker id={id} p={p} onChange={onPChange} />
       </div>
-      <div className="flex items-center gap-2 rounded-full border bg-background px-3 py-1.5">
+      <div className="flex items-center gap-2 bg-background">
         <span className="shrink-0 text-xs text-muted-foreground">Tipo de clave</span>
         <TypeSelector value={keyType} onChange={onKeyTypeChange} />
       </div>
