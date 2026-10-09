@@ -2,7 +2,7 @@ import type { BTreePolicy } from '../lib/btree';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
 
-function PolicyRow<T extends string>({
+function SettingsRow<T extends string>({
   label,
   hint,
   value,
@@ -42,14 +42,14 @@ function PolicyRow<T extends string>({
   );
 }
 
-interface PolicyDialogProps {
+interface SettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  policy: BTreePolicy;
-  onChange: (policy: BTreePolicy) => void;
+  settings: BTreePolicy;
+  onChange: (settings: BTreePolicy) => void;
 }
 
-export function PolicyDialog({ open, onOpenChange, policy, onChange }: PolicyDialogProps) {
+export function SettingsDialog({ open, onOpenChange, settings, onChange }: SettingsDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[80dvh] w-[calc(100vw-2rem)] overflow-auto sm:max-w-md">
@@ -60,45 +60,45 @@ export function PolicyDialog({ open, onOpenChange, policy, onChange }: PolicyDia
           Qué lado priorizar ante ambigüedades del algoritmo. Rige para operaciones futuras.
         </p>
         <div className="space-y-4">
-          <PolicyRow
+          <SettingsRow
             label="Dividir nodo con dos medianas candidatas"
             hint="Cuál de las dos claves del medio sube al padre."
-            value={policy.splitMedian}
+            value={settings.splitMedian}
             options={[
               { v: 'left', label: 'Izquierda (menor)' },
               { v: 'right', label: 'Derecha (mayor)' },
             ]}
-            onPick={(v) => onChange({ ...policy, splitMedian: v })}
+            onPick={(v) => onChange({ ...settings, splitMedian: v })}
           />
-          <PolicyRow
+          <SettingsRow
             label="Pedir prestado ante subocupación"
             hint="A qué hermano pedirle una clave primero."
-            value={policy.borrowFrom}
+            value={settings.borrowFrom}
             options={[
               { v: 'left', label: 'Izquierdo' },
               { v: 'right', label: 'Derecho' },
             ]}
-            onPick={(v) => onChange({ ...policy, borrowFrom: v })}
+            onPick={(v) => onChange({ ...settings, borrowFrom: v })}
           />
-          <PolicyRow
+          <SettingsRow
             label="Fusionar ante subocupación"
             hint="Con qué hermano intentar fusionar primero."
-            value={policy.mergeWith}
+            value={settings.mergeWith}
             options={[
               { v: 'left', label: 'Izquierdo' },
               { v: 'right', label: 'Derecho' },
             ]}
-            onPick={(v) => onChange({ ...policy, mergeWith: v })}
+            onPick={(v) => onChange({ ...settings, mergeWith: v })}
           />
-          <PolicyRow
+          <SettingsRow
             label="Borrar clave de nodo interno"
             hint="Con qué clave de hoja intercambiarla antes de borrar."
-            value={policy.replaceWith}
+            value={settings.replaceWith}
             options={[
               { v: 'pred', label: 'Predecesor (izq.)' },
               { v: 'succ', label: 'Sucesor (der.)' },
             ]}
-            onPick={(v) => onChange({ ...policy, replaceWith: v })}
+            onPick={(v) => onChange({ ...settings, replaceWith: v })}
           />
         </div>
       </DialogContent>

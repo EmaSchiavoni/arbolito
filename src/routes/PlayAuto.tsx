@@ -3,12 +3,12 @@ import { Dices, Eraser, Plus, Search, Trash2 } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { ToolbarButton, ToolbarSeparator } from '../components/ui/toolbar';
 import { Badge } from '../components/ui/badge';
-import { AppChrome, type ChromeProps } from '../components/AppChrome';
+import { AppShell, type ShellProps } from '../components/AppShell';
 import { BottomToolbar } from '../components/BottomToolbar';
 import { CanvasNotice } from '../components/CanvasNotice';
 import { HistoryDialog, type HistoryItem } from '../components/HistoryDialog';
 import { ORDER_MAX, ORDER_MIN } from '../components/OrderPicker';
-import { PolicyDialog } from '../components/PolicyDialog';
+import { SettingsDialog } from '../components/SettingsDialog';
 import { TreeConfig } from '../components/TreeConfig';
 import { TreeCanvas } from '../components/TreeCanvas';
 import { cmpKey, contains, countKeys, countNodes, createTree, deleteKeyLogged, formatStep, height, insertKey, insertKeyLogged, searchPath, toTreeKey, type BTree, type BTreePolicy, type Key } from '../lib/btree';
@@ -34,7 +34,7 @@ function autoSlotX(x: number, slot: number): number {
   return x + slot * (AUTO_PTR_W + AUTO_KEY_W) + AUTO_PTR_W / 2;
 }
 
-export function PlayAuto(chrome: ChromeProps) {
+export function PlayAuto(shell: ShellProps) {
   const [p, setP] = React.useState<number>(() => load<number>(KEYS.autoP, 4));
   const [tree, setTree] = React.useState<BTree>(() => {
     const saved = load<{ p: number; root: BTree['root']; keyType?: BTree['keyType'] } | null>(KEYS.autoTree, null);
@@ -51,7 +51,7 @@ export function PlayAuto(chrome: ChromeProps) {
   const [showHistory, setShowHistory] = React.useState(false);
   const [confirmClear, setConfirmClear] = React.useState(false);
   const [confirmType, setConfirmType] = React.useState<BTree['keyType'] | null>(null);
-  const [showPolicy, setShowPolicy] = React.useState(false);
+  const [showSettings, setShowSettings] = React.useState(false);
 
   // Política del algoritmo (qué lado priorizar). Por defecto la cátedra.
   // Se aplica a las operaciones futuras y se conserva en localStorage.
@@ -278,8 +278,8 @@ export function PlayAuto(chrome: ChromeProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <AppChrome
-        {...chrome}
+      <AppShell
+        {...shell}
         info={
           <>
             <Badge>orden p = {p}</Badge>
@@ -296,7 +296,7 @@ export function PlayAuto(chrome: ChromeProps) {
             onPChange={changeP}
             keyType={tree.keyType}
             onKeyTypeChange={changeKeyType}
-            onOpenPolicy={() => setShowPolicy(true)}
+            onOpenSettings={() => setShowSettings(true)}
           />
         }
       />
@@ -362,7 +362,7 @@ export function PlayAuto(chrome: ChromeProps) {
           }}
           />
       )}
-      {message && <CanvasNotice hidden={chrome.hidden}>{message}</CanvasNotice>}
+      {message && <CanvasNotice hidden={shell.hidden}>{message}</CanvasNotice>}
       <HistoryDialog open={showHistory} onOpenChange={setShowHistory} history={history} />
     </div>
 
@@ -412,7 +412,7 @@ export function PlayAuto(chrome: ChromeProps) {
         confirmLabel="Vaciar y cambiar"
         onConfirm={confirmTypeChange}
       />
-      <PolicyDialog open={showPolicy} onOpenChange={setShowPolicy} policy={policy} onChange={setPolicy} />
+      <SettingsDialog open={showSettings} onOpenChange={setShowSettings} settings={policy} onChange={setPolicy} />
     </div>
   );
 }

@@ -8,7 +8,7 @@ import { ToolbarButton, ToolbarSeparator } from '../components/ui/toolbar';
 import { BottomToolbar } from '../components/BottomToolbar';
 import { CanvasNotice } from '../components/CanvasNotice';
 import { ORDER_MAX, ORDER_MIN } from '../components/OrderPicker';
-import { AppChrome, type ChromeProps } from '../components/AppChrome';
+import { AppShell, type ShellProps } from '../components/AppShell';
 import { TreeConfig } from '../components/TreeConfig';
 import { TreeCanvas } from '../components/TreeCanvas';
 import { validateManualTree, type ManualNode, type ValidationResult } from '../lib/validate';
@@ -62,7 +62,7 @@ function fixSlots(keys: Key[], slots: (string | null)[]): (string | null)[] {
   return next;
 }
 
-export function PlayManual(chrome: ChromeProps) {
+export function PlayManual(shell: ShellProps) {
   const [draft, setDraft] = React.useState<Draft>(() => {
     const saved = load<Draft | null>(KEYS.manual, null);
     if (saved && Array.isArray(saved.nodes)) {
@@ -398,8 +398,8 @@ export function PlayManual(chrome: ChromeProps) {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <AppChrome
-        {...chrome}
+      <AppShell
+        {...shell}
         info={
           <>
             <Badge>orden p = {p}</Badge>
@@ -589,7 +589,7 @@ export function PlayManual(chrome: ChromeProps) {
           />
       )}
       {linking && (
-        <CanvasNotice hidden={chrome.hidden}>
+        <CanvasNotice hidden={shell.hidden}>
           Tocá el icono <ArrowDownToLine className="inline size-3.5" /> del nodo destino · Esc o fondo para cancelar
         </CanvasNotice>
       )}

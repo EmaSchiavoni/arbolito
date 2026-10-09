@@ -25,7 +25,7 @@ export default function App() {
 
   const inAuto = tab === 'auto';
 
-  const chrome = {
+  const shell = {
     hidden: headerHidden,
     onShowHeader: () => setHeaderHidden(false),
     onHideHeader: () => setHeaderHidden(true),
@@ -40,7 +40,7 @@ export default function App() {
       <div className="flex h-dvh flex-col bg-background text-foreground">
         <main className="min-h-0 flex-1">
           <h1 className="sr-only">Playground de Árboles B: generá, explorá y validá árboles B</h1>
-          {inAuto ? <PlayAuto key="auto" {...chrome} /> : <PlayManual key="manual" {...chrome} />}
+          {inAuto ? <PlayAuto key="auto" {...shell} /> : <PlayManual key="manual" {...shell} />}
         </main>
         <Toaster />
       </div>

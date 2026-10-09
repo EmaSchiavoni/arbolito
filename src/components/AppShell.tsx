@@ -25,7 +25,7 @@ import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
 import { useMediaQuery } from '../lib/use-media-query';
 
-export interface ChromeProps {
+export interface ShellProps {
   hidden: boolean;
   onShowHeader: () => void;
   onHideHeader: () => void;
@@ -35,7 +35,7 @@ export interface ChromeProps {
   onToggleTheme: () => void;
 }
 
-interface AppChromeProps extends ChromeProps {
+interface AppShellProps extends ShellProps {
   info: React.ReactNode;
   config: React.ReactNode;
 }
@@ -107,7 +107,7 @@ function ChromeMenu({
 // controles en la primera fila, y badges en la segunda. En mobile (y en modo
 // inmersivo) concentra el resto en un menú de tres puntos; los badges quedan
 // siempre visibles.
-export function AppChrome({ hidden, onShowHeader, onHideHeader, tab, onToggleTab, dark, onToggleTheme, info, config }: AppChromeProps) {
+export function AppShell({ hidden, onShowHeader, onHideHeader, tab, onToggleTab, dark, onToggleTheme, info, config }: AppShellProps) {
   const [configOpen, setConfigOpen] = React.useState(false);
   const isSmall = useMediaQuery('(max-width: 639px)');
 

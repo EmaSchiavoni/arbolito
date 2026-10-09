@@ -8,12 +8,12 @@ interface TreeConfigProps {
   onPChange: (p: number) => void;
   keyType: KeyType;
   onKeyTypeChange: (v: KeyType) => void;
-  onOpenPolicy?: () => void;
+  onOpenSettings?: () => void;
 }
 
 // Controles de configuración del árbol (orden, tipo y ajustes del algoritmo).
 // Se usan tanto en el header como en el panel deslizante del modo inmersivo.
-export function TreeConfig({ id, p, onPChange, keyType, onKeyTypeChange, onOpenPolicy }: TreeConfigProps) {
+export function TreeConfig({ id, p, onPChange, keyType, onKeyTypeChange, onOpenSettings }: TreeConfigProps) {
   return (
     <div className="flex flex-wrap items-center gap-6 px-4">
       <div className="flex items-center gap-2 bg-background">
@@ -23,10 +23,10 @@ export function TreeConfig({ id, p, onPChange, keyType, onKeyTypeChange, onOpenP
         <span className="shrink-0 text-xs text-muted-foreground">Tipo de clave</span>
         <TypeSelector value={keyType} onChange={onKeyTypeChange} />
       </div>
-      {onOpenPolicy && (
+      {onOpenSettings && (
         <Button
           variant="outline"
-          onClick={onOpenPolicy}
+          onClick={onOpenSettings}
           title="Más configuraciones"
           aria-label="Más configuraciones"
         >

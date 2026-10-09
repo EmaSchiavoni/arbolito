@@ -44,10 +44,10 @@ Sin backend ni base de datos: toda la persistencia (tema, orden de cada playgrou
 - `src/lib/use-theme.ts`, `use-media-query.ts`, `use-is-overflowing.ts`, `use-view-persistence.ts`: hooks compartidos.
 - `src/routes/PlayAuto.tsx`: playground automático.
 - `src/routes/PlayManual.tsx`: editor manual.
-- `src/components/AppChrome.tsx`: header global y modo inmersivo.
+- `src/components/AppShell.tsx`: header global y modo inmersivo.
 - `src/components/HeaderBadges.tsx`: badges de información con plegado en mobile.
 - `src/components/TreeConfig.tsx`: controles de orden, tipo y política.
-- `src/components/HistoryDialog.tsx` y `PolicyDialog.tsx`: diálogos del modo automático.
+- `src/components/HistoryDialog.tsx` y `SettingsDialog.tsx`: diálogos del modo automático.
 - `src/components/TreeCanvas.tsx`: canvas compartido.
 - `src/components/BottomToolbar.tsx`: barra flotante inferior.
 - `src/components/ui/*`: primitivas shadcn/Radix.
