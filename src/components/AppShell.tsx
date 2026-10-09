@@ -17,10 +17,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import { Separator } from './ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from './ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
-import { HeaderBadges } from './HeaderBadges';
 import { Logo } from './Logo';
 import { ThemeToggle } from './ThemeToggle';
 import { useMediaQuery } from '../lib/use-media-query';
@@ -36,7 +34,6 @@ export interface ShellProps {
 }
 
 interface AppShellProps extends ShellProps {
-  info: React.ReactNode;
   config: React.ReactNode;
 }
 
@@ -103,11 +100,10 @@ function ChromeMenu({
   );
 }
 
-// Header global del playground. En desktop muestra logo, configuración y
-// controles en la primera fila, y badges en la segunda. En mobile (y en modo
-// inmersivo) concentra el resto en un menú de tres puntos; los badges quedan
-// siempre visibles.
-export function AppShell({ hidden, onShowHeader, onHideHeader, tab, onToggleTab, dark, onToggleTheme, info, config }: AppShellProps) {
+// Header global del playground. El logo queda centrado verticalmente a la
+// izquierda; a la derecha van los controles y la configuración. En mobile (y en
+// modo inmersivo) el resto se concentra en un menú de tres puntos.
+export function AppShell({ hidden, onShowHeader, onHideHeader, tab, onToggleTab, dark, onToggleTheme, config }: AppShellProps) {
   const [configOpen, setConfigOpen] = React.useState(false);
   const isSmall = useMediaQuery('(max-width: 639px)');
 
@@ -135,10 +131,6 @@ export function AppShell({ hidden, onShowHeader, onHideHeader, tab, onToggleTab,
     <>
       {hidden ? (
         <>
-          <div className="pointer-events-none fixed left-3 top-3 z-40 flex w-max max-w-[calc(100vw-7rem)] min-w-0 items-center gap-2">
-            <HeaderBadges align="start">{info}</HeaderBadges>
-          </div>
-
           {!configOpen && (
             <div className="fixed right-3 top-3 z-50 flex items-center gap-1 rounded-full border bg-card/95 p-1 shadow-lg backdrop-blur">
               <IconButton variant="ghost" onClick={showHeader} label="Salir de pantalla completa">
@@ -153,45 +145,35 @@ export function AppShell({ hidden, onShowHeader, onHideHeader, tab, onToggleTab,
         </>
       ) : (
         <header className="shrink-0 border-b bg-background">
-          <div className="flex flex-col gap-4 px-3 py-2">
+          <div className="flex items-center gap-2 px-3 py-2">
+            <Logo />
+
             {isSmall ? (
-              <div className="flex items-center gap-2">
-                <Logo />
-                <DropdownMenu>
-                  <MenuButton variant="outline" className="ml-auto" />
-                  {menu}
-                </DropdownMenu>
-              </div>
+              <DropdownMenu>
+                <MenuButton variant="outline" className="ml-auto" />
+                {menu}
+              </DropdownMenu>
             ) : (
-              <div className="flex flex-wrap items-center gap-2">
-                <Logo />
-
-                <div className="ml-auto flex min-w-0 flex-1 flex-wrap items-center justify-end gap-2">
-                  <div className="flex items-center gap-2">{config}</div>
-
-                  <Separator orientation="vertical" className="h-6" />
-
-                  <div className="flex items-center gap-1">
-                    <Button
-                      variant="ghost"
-                      onClick={onToggleTab}
-                      title={tab === 'auto' ? 'Ir a modo manual' : 'Ir a modo automático'}
-                      className="rounded-full"
-                    >
-                      {tab === 'auto' ? <PencilRuler /> : <Network />}
-                      <span className="hidden md:inline">{tab === 'auto' ? 'Ir a modo manual' : 'Ir a modo automático'}</span>
-                      <span className="md:hidden">{tab === 'auto' ? 'Manual' : 'Automático'}</span>
-                    </Button>
-                    <ThemeToggle dark={dark} onToggle={onToggleTheme} />
-                    <IconButton variant="outline" onClick={hideHeader} label="Pantalla completa">
-                      <Maximize />
-                    </IconButton>
-                  </div>
+              <div className="ml-auto flex min-w-0 flex-1 flex-col items-end gap-2">
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    onClick={onToggleTab}
+                    title={tab === 'auto' ? 'Ir a modo manual' : 'Ir a modo automático'}
+                    className="rounded-full"
+                  >
+                    {tab === 'auto' ? <PencilRuler /> : <Network />}
+                    <span>{tab === 'auto' ? 'Ir a modo manual' : 'Ir a modo automático'}</span>
+                  </Button>
+                  <ThemeToggle dark={dark} onToggle={onToggleTheme} />
+                  <IconButton variant="outline" onClick={hideHeader} label="Pantalla completa">
+                    <Maximize />
+                  </IconButton>
                 </div>
+
+                <div className="flex items-center gap-2">{config}</div>
               </div>
             )}
-
-            <HeaderBadges align="end">{info}</HeaderBadges>
           </div>
         </header>
       )}

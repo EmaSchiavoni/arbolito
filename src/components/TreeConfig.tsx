@@ -15,7 +15,7 @@ interface TreeConfigProps {
 // Se usan tanto en el header como en el panel deslizante del modo inmersivo.
 export function TreeConfig({ id, p, onPChange, keyType, onKeyTypeChange, onOpenSettings }: TreeConfigProps) {
   return (
-    <div className="flex flex-wrap items-center gap-6 px-4">
+    <div className="flex flex-wrap items-center gap-6 sm:gap-2 md:gap-6">
       <div className="flex items-center gap-2 bg-background">
         <OrderPicker id={id} p={p} onChange={onPChange} />
       </div>

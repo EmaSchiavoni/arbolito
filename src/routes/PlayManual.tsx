@@ -400,16 +400,6 @@ export function PlayManual(shell: ShellProps) {
     <div className="flex h-full min-h-0 flex-col">
       <AppShell
         {...shell}
-        info={
-          <>
-            <Badge>orden p = {p}</Badge>
-            <Badge variant="secondary">máx {p - 1} claves</Badge>
-            <Badge variant="secondary">mín {Math.ceil(p / 2) - 1} claves · {Math.ceil(p / 2)} punteros</Badge>
-            <Badge variant="secondary">{keyType === 'string' ? 'texto' : 'numérico'}</Badge>
-            {rootId ? <Badge variant="outline">raíz elegida</Badge> : <Badge variant="error">sin raíz</Badge>}
-            {result && (result.valid ? <Badge variant="ok">válido</Badge> : <Badge variant="error">{result.issues.length} errores</Badge>)}
-          </>
-        }
         config={
           <TreeConfig
             id="orden-manual"

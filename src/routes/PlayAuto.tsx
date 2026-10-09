@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Dices, Eraser, Plus, Search, Trash2 } from 'lucide-react';
 import { Input } from '../components/ui/input';
 import { ToolbarButton, ToolbarSeparator } from '../components/ui/toolbar';
-import { Badge } from '../components/ui/badge';
 import { AppShell, type ShellProps } from '../components/AppShell';
 import { BottomToolbar } from '../components/BottomToolbar';
 import { CanvasNotice } from '../components/CanvasNotice';
@@ -11,7 +10,7 @@ import { ORDER_MAX, ORDER_MIN } from '../components/OrderPicker';
 import { SettingsDialog } from '../components/SettingsDialog';
 import { TreeConfig } from '../components/TreeConfig';
 import { TreeCanvas } from '../components/TreeCanvas';
-import { cmpKey, contains, countKeys, countNodes, createTree, deleteKeyLogged, formatStep, height, insertKey, insertKeyLogged, searchPath, toTreeKey, type BTree, type BTreePolicy, type Key } from '../lib/btree';
+import { cmpKey, contains, countKeys, createTree, deleteKeyLogged, formatStep, insertKey, insertKeyLogged, searchPath, toTreeKey, type BTree, type BTreePolicy, type Key } from '../lib/btree';
 import { layoutTree } from '../lib/layout';
 import { KEYS, load, save } from '../lib/storage';
 import { useViewPersistence } from '../lib/use-view-persistence';
@@ -274,21 +273,11 @@ export function PlayAuto(shell: ShellProps) {
 
   const layout = React.useMemo(() => layoutTree(tree.root, autoTableWidth(p)), [tree.root, p]);
   const connected = React.useMemo(() => new Set(layout.edges.map((e) => `${e.from}:${e.slot}`)), [layout]);
-  const stats = { h: height(tree.root), n: countNodes(tree.root), k: countKeys(tree.root) };
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <AppShell
         {...shell}
-        info={
-          <>
-            <Badge>orden p = {p}</Badge>
-            <Badge variant="secondary">máx {p - 1} claves</Badge>
-            <Badge variant="secondary">mín {Math.ceil(p / 2) - 1} claves · {Math.ceil(p / 2)} punteros</Badge>
-            <Badge variant="secondary">altura {stats.h}</Badge>
-            <Badge variant="secondary">{stats.n} nodos · {stats.k} claves</Badge>
-          </>
-        }
         config={
           <TreeConfig
             id="orden-auto"
