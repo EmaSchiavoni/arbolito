@@ -15,10 +15,10 @@ export interface CanvasEdge {
   slot: number;
 }
 
-export function nodeWidth(keysCount: number): number {
+function nodeWidth(keysCount: number): number {
   return Math.max(96, keysCount * 40 + 48);
 }
-export const NODE_HEIGHT = 64;
+const NODE_HEIGHT = 64;
 
 interface Props<T extends CanvasNode> {
   nodes: T[];
@@ -97,7 +97,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     if (r.width === 0 || r.height === 0) return;
     didCenter.current = true;
     applyPan({ x: r.width / 2 - initialCenter.x, y: r.height / 2 - initialCenter.y, k: 1 });
-  }, [initialCenter]);
+  }, [initialCenter, initialView]);
 
   // Zoom que mantiene fijo el punto (sx, sy) relativo al contenedor.
   function zoomAt(sx: number, sy: number, factor: number) {

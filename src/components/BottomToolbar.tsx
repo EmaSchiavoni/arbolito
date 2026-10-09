@@ -1,11 +1,22 @@
 import * as React from 'react';
+import { Toolbar } from './ui/toolbar';
 import { cn } from '../lib/utils';
 
 // Barra de acciones flotante, abajo y centrada, con ancho mínimo.
 // No usar top bars ni sidebars para acciones: todo pasa por acá.
-export function BottomToolbar({ children, className }: { children: React.ReactNode; className?: string }) {
+export function BottomToolbar({
+  children,
+  className,
+  label,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  label: string;
+}) {
   return (
-    <div
+    <Toolbar
+      orientation="horizontal"
+      aria-label={label}
       className={cn(
         'fixed bottom-3 left-1/2 z-40 w-max max-w-[calc(100vw-1rem)] -translate-x-1/2',
         'mb-[env(safe-area-inset-bottom)] flex flex-wrap items-center justify-center gap-2',
@@ -17,6 +28,6 @@ export function BottomToolbar({ children, className }: { children: React.ReactNo
       )}
     >
       {children}
-    </div>
+    </Toolbar>
   );
 }

@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Slider } from './ui/slider';
 
 export const ORDER_MIN = 3;
 export const ORDER_SLIDER_MAX = 8;
@@ -17,6 +19,7 @@ interface OrderPickerProps {
 export function OrderPicker({ id, p, onChange }: OrderPickerProps) {
   const [custom, setCustom] = React.useState(() => p < ORDER_MIN || p > ORDER_SLIDER_MAX);
   const [draft, setDraft] = React.useState(String(p));
+  const labelId = `${id}-label`;
 
   function applyCustom(raw: string) {
     const v = Number(raw);
@@ -29,19 +32,20 @@ export function OrderPicker({ id, p, onChange }: OrderPickerProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor={id} className="shrink-0 text-xs text-muted-foreground">
+      <Label id={labelId} htmlFor={custom ? id : undefined} className="shrink-0 text-xs font-normal text-muted-foreground">
         Orden p
-      </label>
+      </Label>
       {!custom ? (
         <>
-          <input
+          <Slider
             id={id}
-            type="range"
+            aria-labelledby={labelId}
             min={ORDER_MIN}
             max={ORDER_SLIDER_MAX}
-            value={Math.min(ORDER_SLIDER_MAX, Math.max(ORDER_MIN, p))}
-            onChange={(e) => onChange(Number(e.target.value))}
-            className="h-2 w-40 accent-zinc-900 dark:accent-zinc-100"
+            step={1}
+            value={[Math.min(ORDER_SLIDER_MAX, Math.max(ORDER_MIN, p))]}
+            onValueChange={([v]) => onChange(v)}
+            className="w-40"
           />
           <span className="min-w-6 text-sm font-medium">{p}</span>
           <Button
@@ -60,6 +64,7 @@ export function OrderPicker({ id, p, onChange }: OrderPickerProps) {
         <>
           <Input
             id={id}
+            aria-labelledby={labelId}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onBlur={(e) => applyCustom(e.target.value)}

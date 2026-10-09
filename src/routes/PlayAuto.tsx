@@ -1,28 +1,24 @@
 import * as React from 'react';
-import { Dices, Eraser, Plus, Search, Trash2, ChevronRight, ListCollapse } from 'lucide-react';
-import { Button } from '../components/ui/button';
+import { Dices, Eraser, Plus, Search, Trash2 } from 'lucide-react';
 import { Input } from '../components/ui/input';
+import { ToolbarButton, ToolbarSeparator } from '../components/ui/toolbar';
 import { Badge } from '../components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
-import { ScrollArea } from '../components/ui/scroll-area';
 import { AppChrome, type ChromeProps } from '../components/AppChrome';
 import { BottomToolbar } from '../components/BottomToolbar';
+import { CanvasNotice } from '../components/CanvasNotice';
+import { HistoryDialog, type HistoryItem } from '../components/HistoryDialog';
 import { ORDER_MAX, ORDER_MIN } from '../components/OrderPicker';
+import { PolicyDialog } from '../components/PolicyDialog';
 import { TreeConfig } from '../components/TreeConfig';
 import { TreeCanvas } from '../components/TreeCanvas';
 import { cmpKey, contains, countKeys, countNodes, createTree, deleteKeyLogged, formatStep, height, insertKey, insertKeyLogged, searchPath, toTreeKey, type BTree, type BTreePolicy, type Key } from '../lib/btree';
 import { layoutTree } from '../lib/layout';
-import { KEYS, load, loadView, save } from '../lib/storage';
+import { KEYS, load, save } from '../lib/storage';
+import { useViewPersistence } from '../lib/use-view-persistence';
 import { parseKeyList } from '../lib/keys';
 import { toast } from '../components/ui/use-toast';
 import { ConfirmDialog } from '../components/ui/alert-dialog';
 import { cn } from '../lib/utils';
-
-interface HistItem {
-  id: number;
-  text: string;
-  steps?: string[];
-}
 
 // Tabla completa siempre visible: p columnas de puntero (delgadas) + p-1
 // celdas de clave. Las celdas vacías se muestran como cajas vacías.
@@ -38,45 +34,6 @@ function autoSlotX(x: number, slot: number): number {
   return x + slot * (AUTO_PTR_W + AUTO_KEY_W) + AUTO_PTR_W / 2;
 }
 
-  function SegRow<T extends string>({
-    label,
-    hint,
-    value,
-    options,
-    onPick,
-  }: {
-    label: string;
-    hint: string;
-    value: T;
-    options: { v: T; label: string }[];
-    onPick: (v: T) => void;
-  }) {
-    return (
-      <div className="space-y-1.5">
-        <p className="text-sm font-medium">{label}</p>
-        <p className="text-xs text-muted-foreground">{hint}</p>
-        <div className="flex w-max max-w-full items-center gap-1 rounded-full border bg-card p-1" role="group" aria-label={label}>
-        {options.map((o) => (
-          <button
-            key={o.v}
-            type="button"
-            onClick={() => onPick(o.v)}
-            aria-pressed={value === o.v}
-            className={cn(
-              'rounded-full px-3 py-1 text-xs font-medium transition-colors',
-              value === o.v
-                ? 'bg-zinc-900 text-zinc-50 dark:bg-zinc-50 dark:text-zinc-900'
-                : 'text-muted-foreground hover:text-foreground',
-            )}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function PlayAuto(chrome: ChromeProps) {
   const [p, setP] = React.useState<number>(() => load<number>(KEYS.autoP, 4));
   const [tree, setTree] = React.useState<BTree>(() => {
@@ -86,7 +43,7 @@ export function PlayAuto(chrome: ChromeProps) {
     }
     return createTree(load<number>(KEYS.autoP, 4));
   });
-  const [history, setHistory] = React.useState<HistItem[]>(() => load<HistItem[]>(KEYS.autoHistory, []));
+  const [history, setHistory] = React.useState<HistoryItem[]>(() => load<HistoryItem[]>(KEYS.autoHistory, []));
   const [keyInput, setKeyInput] = React.useState('');
   const [highlight, setHighlight] = React.useState<Set<string>>(new Set());
   const [lastKey, setLastKey] = React.useState<Key | null>(null);
@@ -94,7 +51,6 @@ export function PlayAuto(chrome: ChromeProps) {
   const [showHistory, setShowHistory] = React.useState(false);
   const [confirmClear, setConfirmClear] = React.useState(false);
   const [confirmType, setConfirmType] = React.useState<BTree['keyType'] | null>(null);
-  const [openSteps, setOpenSteps] = React.useState<number | null>(null);
   const [showPolicy, setShowPolicy] = React.useState(false);
 
   // Política del algoritmo (qué lado priorizar). Por defecto la cátedra.
@@ -115,26 +71,7 @@ export function PlayAuto(chrome: ChromeProps) {
 
   // Vista del canvas (paneo/zoom): se restaura al abrir y se guarda con
   // debounce en cada cambio (más un volcado al desmontar por cambio de modo).
-  const [initialView] = React.useState(() => loadView(KEYS.autoView) ?? { x: 16, y: 150, k: 1 });
-  const viewRef = React.useRef({ x: 16, y: 16, k: 1 });
-  const viewTimer = React.useRef<number | null>(null);
-  function handleViewChange(v: { x: number; y: number; k: number; w: number; h: number }) {
-    viewRef.current = v;
-    if (viewTimer.current !== null) window.clearTimeout(viewTimer.current);
-    viewTimer.current = window.setTimeout(() => {
-      save(KEYS.autoView, { x: v.x, y: v.y, k: v.k });
-    }, 400);
-  }
-  React.useEffect(
-    () => () => {
-      if (viewTimer.current !== null) {
-        window.clearTimeout(viewTimer.current);
-        const v = viewRef.current;
-        save(KEYS.autoView, { x: v.x, y: v.y, k: v.k });
-      }
-    },
-    [],
-  );
+  const { initialView, handleViewChange } = useViewPersistence(KEYS.autoView, { x: 16, y: 150, k: 1 });
 
   React.useEffect(() => {
     save(KEYS.autoP, p);
@@ -425,61 +362,11 @@ export function PlayAuto(chrome: ChromeProps) {
           }}
           />
       )}
-      <div className={cn('pointer-events-none absolute left-2 z-10 flex max-w-[calc(100vw-190px)] flex-col gap-2', chrome.hidden ? 'top-12' : 'top-2')}>
-        {message && (
-          <p className="w-max max-w-full rounded-full bg-zinc-900/85 px-3 py-1 text-xs text-zinc-100 dark:bg-zinc-100/90 dark:text-zinc-900">
-            {message}
-          </p>
-        )}
-      </div>
-          <Dialog open={showHistory} onOpenChange={setShowHistory}>
-            <DialogContent className="max-h-[70dvh] w-[calc(100vw-2rem)] sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Historial</DialogTitle>
-              </DialogHeader>
-              {history.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Todavía no hay operaciones.</p>
-              ) : (
-                <ScrollArea className="max-h-[50dvh] pr-3">
-                  <ul className="space-y-1 text-sm text-muted-foreground">
-                    {history.map((h) => (
-                      <li key={h.id} className="rounded-2xl border px-2 py-1">
-                        <div className="flex items-center gap-1">
-                          <span className="min-w-0 flex-1">· {h.text}</span>
-                          {h.steps && h.steps.length > 0 && (
-                            <button
-                              type="button"
-                              title={openSteps === h.id ? 'Ocultar pasos' : 'Ver pasos'}
-                              onClick={() => setOpenSteps((o) => (o === h.id ? null : h.id))}
-                              className="flex shrink-0 items-center gap-0.5 rounded-full border px-1.5 py-0.5 text-[11px] hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                            >
-                              <ListCollapse className="size-3" />
-                              pasos
-                            </button>
-                          )}
-                        </div>
-                        {openSteps === h.id && h.steps && h.steps.length > 0 && (
-                          <div className="mt-1 flex flex-wrap items-center gap-1">
-                            {h.steps.map((s, i) => (
-                              <span key={i} className="contents">
-                                {i > 0 && <ChevronRight className="size-3 shrink-0 text-zinc-400 dark:text-zinc-500" />}
-                                <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-[11px] dark:bg-zinc-800">
-                                  {s}
-                                </span>
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </ScrollArea>
-              )}
-            </DialogContent>
-          </Dialog>
-        </div>
+      {message && <CanvasNotice hidden={chrome.hidden}>{message}</CanvasNotice>}
+      <HistoryDialog open={showHistory} onOpenChange={setShowHistory} history={history} />
+    </div>
 
-      <BottomToolbar>
+      <BottomToolbar label="Acciones del playground automático">
         <div className="flex items-center justify-center gap-2 max-[510px]:w-full">
           <Input
             value={keyInput}
@@ -490,16 +377,17 @@ export function PlayAuto(chrome: ChromeProps) {
             aria-label="Claves (una sola o lista separada por coma, punto, guion o espacio)"
             className="w-36"
           />
-          <Button size="sm" onClick={doInsert} title="Insertar" aria-label="Insertar" className="px-2"><Plus /></Button>
-          <Button size="sm" variant="secondary" onClick={doDelete} title="Eliminar" aria-label="Eliminar" className="px-2"><Trash2 /></Button>
-          <Button size="sm" variant="outline" onClick={doSearch} title="Buscar" aria-label="Buscar" className="px-2"><Search /></Button>
+          <ToolbarButton size="sm" onClick={doInsert} title="Insertar" aria-label="Insertar" className="px-2"><Plus /></ToolbarButton>
+          <ToolbarButton size="sm" variant="secondary" onClick={doDelete} title="Eliminar" aria-label="Eliminar" className="px-2"><Trash2 /></ToolbarButton>
+          <ToolbarButton size="sm" variant="outline" onClick={doSearch} title="Buscar" aria-label="Buscar" className="px-2"><Search /></ToolbarButton>
         </div>
+        <ToolbarSeparator className="mx-0.5 max-[510px]:hidden" />
         <div className="flex items-center justify-center gap-2 max-[510px]:w-full">
-          <Button size="sm" variant="ghost" onClick={doRandom} title="Insertar clave aleatoria"><Dices />Azar</Button>
-          <Button size="sm" variant="ghost" onClick={() => setConfirmClear(true)} title="Vaciar árbol"><Eraser />Vaciar</Button>
-          <Button size="sm" variant="outline" onClick={() => setShowHistory(true)}>
+          <ToolbarButton size="sm" variant="ghost" onClick={doRandom} title="Insertar clave aleatoria"><Dices />Azar</ToolbarButton>
+          <ToolbarButton size="sm" variant="ghost" onClick={() => setConfirmClear(true)} title="Vaciar árbol"><Eraser />Vaciar</ToolbarButton>
+          <ToolbarButton size="sm" variant="outline" onClick={() => setShowHistory(true)}>
             Historial
-          </Button>
+          </ToolbarButton>
         </div>
       </BottomToolbar>
 
@@ -524,58 +412,7 @@ export function PlayAuto(chrome: ChromeProps) {
         confirmLabel="Vaciar y cambiar"
         onConfirm={confirmTypeChange}
       />
-      <Dialog open={showPolicy} onOpenChange={setShowPolicy}>
-        <DialogContent className="max-h-[80dvh] w-[calc(100vw-2rem)] overflow-auto sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Más configuraciones</DialogTitle>
-          </DialogHeader>
-          <p className="text-xs text-muted-foreground">
-            Qué lado priorizar ante ambigüedades del algoritmo. Rige para operaciones futuras.
-          </p>
-          <div className="space-y-4">
-            <SegRow
-              label="Dividir nodo con dos medianas candidatas"
-              hint="Cuál de las dos claves del medio sube al padre."
-              value={policy.splitMedian}
-              options={[
-                { v: 'left', label: 'Izquierda (menor)' },
-                { v: 'right', label: 'Derecha (mayor)' },
-              ]}
-              onPick={(v) => setPolicy((pol) => ({ ...pol, splitMedian: v }))}
-            />
-            <SegRow
-              label="Pedir prestado ante subocupación"
-              hint="A qué hermano pedirle una clave primero."
-              value={policy.borrowFrom}
-              options={[
-                { v: 'left', label: 'Izquierdo' },
-                { v: 'right', label: 'Derecho' },
-              ]}
-              onPick={(v) => setPolicy((pol) => ({ ...pol, borrowFrom: v }))}
-            />
-            <SegRow
-              label="Fusionar ante subocupación"
-              hint="Con qué hermano intentar fusionar primero."
-              value={policy.mergeWith}
-              options={[
-                { v: 'left', label: 'Izquierdo' },
-                { v: 'right', label: 'Derecho' },
-              ]}
-              onPick={(v) => setPolicy((pol) => ({ ...pol, mergeWith: v }))}
-            />
-            <SegRow
-              label="Borrar clave de nodo interno"
-              hint="Con qué clave de hoja intercambiarla antes de borrar."
-              value={policy.replaceWith}
-              options={[
-                { v: 'pred', label: 'Predecesor (izq.)' },
-                { v: 'succ', label: 'Sucesor (der.)' },
-              ]}
-              onPick={(v) => setPolicy((pol) => ({ ...pol, replaceWith: v }))}
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <PolicyDialog open={showPolicy} onOpenChange={setShowPolicy} policy={policy} onChange={setPolicy} />
     </div>
   );
 }

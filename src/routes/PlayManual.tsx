@@ -1,18 +1,20 @@
 import * as React from 'react';
 import { ArrowDownToLine, Crown, GripVertical, Plus, Trash2, X, ShieldCheck, Eraser, Undo2, Redo2 } from 'lucide-react';
-import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../components/ui/sheet';
 import { ConfirmDialog } from '../components/ui/alert-dialog';
+import { ToolbarButton, ToolbarSeparator } from '../components/ui/toolbar';
 import { BottomToolbar } from '../components/BottomToolbar';
+import { CanvasNotice } from '../components/CanvasNotice';
 import { ORDER_MAX, ORDER_MIN } from '../components/OrderPicker';
 import { AppChrome, type ChromeProps } from '../components/AppChrome';
 import { TreeConfig } from '../components/TreeConfig';
 import { TreeCanvas } from '../components/TreeCanvas';
 import { validateManualTree, type ManualNode, type ValidationResult } from '../lib/validate';
 import type { Key } from '../lib/btree';
-import { KEYS, load, loadView, save } from '../lib/storage';
+import { KEYS, load, save } from '../lib/storage';
+import { useViewPersistence } from '../lib/use-view-persistence';
 import { cn } from '../lib/utils';
 
 // Tabla completa siempre visible: p columnas de puntero (delgadas) + p-1
@@ -77,9 +79,6 @@ export function PlayManual(chrome: ChromeProps) {
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [confirmType, setConfirmType] = React.useState<'number' | 'string' | null>(null);
   const dragRef = React.useRef<{ id: string; nx: number; ny: number; sx: number; sy: number; snap: Draft } | null>(null);
-  // Vista actual del canvas (con su tamaño): los nodos nuevos nacen en el
-  // centro del viewport para no perderse fuera de vista.
-  const viewRef = React.useRef({ x: 16, y: 16, k: 1, w: 0, h: 0 });
 
   const { nodes, rootId, p, keyType } = draft;
   const isStr = keyType === 'string';
@@ -113,25 +112,8 @@ export function PlayManual(chrome: ChromeProps) {
 
   // Vista del canvas (paneo/zoom): se restaura al abrir y se guarda con
   // debounce en cada cambio (más un volcado al desmontar por cambio de modo).
-  const [initialView] = React.useState(() => loadView(KEYS.manualView));
-  const viewTimer = React.useRef<number | null>(null);
-  function handleViewChange(v: { x: number; y: number; k: number; w: number; h: number }) {
-    viewRef.current = v;
-    if (viewTimer.current !== null) window.clearTimeout(viewTimer.current);
-    viewTimer.current = window.setTimeout(() => {
-      save(KEYS.manualView, { x: v.x, y: v.y, k: v.k });
-    }, 400);
-  }
-  React.useEffect(
-    () => () => {
-      if (viewTimer.current !== null) {
-        window.clearTimeout(viewTimer.current);
-        const v = viewRef.current;
-        save(KEYS.manualView, { x: v.x, y: v.y, k: v.k });
-      }
-    },
-    [],
-  );
+  // El ref expone el tamaño/zoom actual para ubicar nodos nuevos.
+  const { initialView, viewRef, handleViewChange } = useViewPersistence(KEYS.manualView);
 
   // Centroide de los nodos al abrir (una sola vez): el canvas centra la
   // vista ahí para que los nodos aparezcan centrados en su nueva posición.
@@ -606,30 +588,29 @@ export function PlayManual(chrome: ChromeProps) {
           }}
           />
       )}
-      <div className={cn('pointer-events-none absolute left-2 z-10 flex max-w-[calc(100vw-190px)] flex-col gap-2', chrome.hidden ? 'top-12' : 'top-2')}>
-        {linking && (
-          <p className="w-max max-w-full rounded-full bg-zinc-900/85 px-3 py-1 text-xs text-zinc-100 dark:bg-zinc-100/90 dark:text-zinc-900">
-            Tocá el icono <ArrowDownToLine className="inline size-3.5" /> del nodo destino · Esc o fondo para cancelar
-          </p>
-        )}
-      </div>
+      {linking && (
+        <CanvasNotice hidden={chrome.hidden}>
+          Tocá el icono <ArrowDownToLine className="inline size-3.5" /> del nodo destino · Esc o fondo para cancelar
+        </CanvasNotice>
+      )}
         </div>
 
-      <BottomToolbar>
-        <Button size="sm" onClick={addNode}><Plus />Nodo</Button>
-        <Button size="sm" variant="secondary" onClick={doValidate}><ShieldCheck />Validar</Button>
+      <BottomToolbar label="Acciones del editor manual">
+        <ToolbarButton size="sm" onClick={addNode}><Plus />Nodo</ToolbarButton>
+        <ToolbarButton size="sm" variant="secondary" onClick={doValidate}><ShieldCheck />Validar</ToolbarButton>
         {undoStack.length > 0 && (
-          <Button size="sm" variant="outline" onClick={doUndo} title="Deshacer última acción (Ctrl+Z)">
+          <ToolbarButton size="sm" variant="outline" onClick={doUndo} title="Deshacer última acción (Ctrl+Z)">
             <Undo2 />Deshacer
-          </Button>
+          </ToolbarButton>
         )}
         {redoStack.length > 0 && (
-          <Button size="sm" variant="outline" onClick={doRedo} title="Rehacer acción (Ctrl+Shift+Z)">
+          <ToolbarButton size="sm" variant="outline" onClick={doRedo} title="Rehacer acción (Ctrl+Shift+Z)">
             <Redo2 />Rehacer
-          </Button>
+          </ToolbarButton>
         )}
-        {linking && <Button size="sm" variant="outline" onClick={() => setLinking(null)}><X />Cancelar</Button>}
-        <Button size="sm" variant="ghost" onClick={doClear} title="Borrar todo"><Eraser /></Button>
+        {linking && <ToolbarButton size="sm" variant="outline" onClick={() => setLinking(null)}><X />Cancelar</ToolbarButton>}
+        <ToolbarSeparator className="mx-1 max-[510px]:hidden" />
+        <ToolbarButton size="sm" variant="ghost" onClick={doClear} title="Borrar todo"><Eraser /></ToolbarButton>
       </BottomToolbar>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>

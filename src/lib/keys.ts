@@ -54,7 +54,7 @@ function parseIntegerList(text: string): number[] | null {
 // Un "-" al inicio o tras otro separador/espacio, seguido de dígito, es
 // signo y no separador: se protege con un centinela ASCII antes de partir.
 const MINUS_SENTINEL = '<MINUS/>';
-const MINUS_SIGN_RE = /(?<=^|[\s,.\-])-(?=\d)/g;
+const MINUS_SIGN_RE = /(?<=^|[\s,.-])-(?=\d)/g;
 
 // Partición por un único separador. Devuelve null si hay mezcla o vacíos.
 function splitUniform(text: string): string[] | null {

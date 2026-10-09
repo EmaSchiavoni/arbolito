@@ -22,7 +22,7 @@ El validador comprueba: claves ordenadas y sin duplicados (dentro de cada nodo y
 
 ## Interfaz
 
-Componentes estilo shadcn con Tailwind, paleta monocromática (zinc) y radios completamente redondeados. Soporta tema claro y oscuro con persistencia. Diseño mobile-first sin barra superior: el cambio de modo y el tema van en botones flotantes arriba a la derecha. El diagrama ocupa toda la pantalla, sin bordes; se navega arrastrando el fondo y con zoom (pellizco en móvil, `Ctrl` + rueda o `Ctrl` + `+`/`-` en PC, con indicador de % editable abajo a la derecha —en móvil el indicador aparece unos segundos debajo de los botones superiores al cambiar el zoom—); los chips de información, los controles de orden y tipo, los mensajes y el historial o resultado de la validación flotan sobre el diagrama para no ocupar espacio del layout. Las barras de herramientas son flotantes, están fijadas abajo, centradas y con ancho mínimo.
+Componentes shadcn/Radix con Tailwind, paleta monocromática (zinc) y bordes redondeados. Soporta tema claro y oscuro con persistencia. Header global de ancho completo con logo, configuración del árbol y controles; los badges de información van en una segunda fila. El header puede ocultarse (modo inmersivo persistido): quedan flotando los badges arriba a la izquierda y los controles arriba a la derecha. En mobile el logo se mantiene y las acciones se agrupan en un menú de tres puntos. El diagrama ocupa el resto de la pantalla, sin bordes; se navega arrastrando el fondo y con zoom (pellizco en móvil, `Ctrl` + rueda o `Ctrl` + `+`/`-` en PC, con indicador de % editable abajo a la derecha —en móvil el indicador aparece unos segundos debajo de los botones superiores al cambiar el zoom—); los mensajes y el historial o resultado de la validación flotan sobre el diagrama. Las barras de herramientas usan `Toolbar` de shadcn/Radix, son flotantes, están fijadas abajo, centradas y con ancho mínimo.
 
 ## Uso
 
@@ -41,7 +41,13 @@ Sin backend ni base de datos: toda la persistencia (tema, orden de cada playgrou
 - `src/lib/validate.ts`: validación de árboles manuales.
 - `src/lib/layout.ts`: cálculo de posiciones por niveles.
 - `src/lib/storage.ts`: acceso a `localStorage`.
+- `src/lib/use-theme.ts`, `use-media-query.ts`, `use-is-overflowing.ts`, `use-view-persistence.ts`: hooks compartidos.
 - `src/routes/PlayAuto.tsx`: playground automático.
 - `src/routes/PlayManual.tsx`: editor manual.
+- `src/components/AppChrome.tsx`: header global y modo inmersivo.
+- `src/components/HeaderBadges.tsx`: badges de información con plegado en mobile.
+- `src/components/TreeConfig.tsx`: controles de orden, tipo y política.
+- `src/components/HistoryDialog.tsx` y `PolicyDialog.tsx`: diálogos del modo automático.
 - `src/components/TreeCanvas.tsx`: canvas compartido.
 - `src/components/BottomToolbar.tsx`: barra flotante inferior.
+- `src/components/ui/*`: primitivas shadcn/Radix.
