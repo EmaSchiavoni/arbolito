@@ -8,13 +8,13 @@
 // enteros (con signo opcional); en modo texto todo es cadena, incluso lo que
 // son solo dígitos.
 
-import type { Key } from './btree';
+import type { Key, KeyType } from '../types';
 
 export type KeyListError = 'empty' | 'invalid';
 
 export type KeyListResult = { ok: true; keys: Key[] } | { ok: false; reason: KeyListError };
 
-export type KeyMode = 'number' | 'string';
+export type KeyMode = KeyType;
 
 const TOKEN_RE = /[+-]?\d+/g;
 const SEPARATORS = new Set([',', '.', '-']);
