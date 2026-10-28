@@ -243,6 +243,7 @@ export function AutoPlayground() {
           if (n.right) out.push(n.right);
           return out;
         },
+        childSlots: (n) => [n.left, n.right],
         width: () => AVL_W,
       }),
     [tree.root],

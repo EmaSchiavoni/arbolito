@@ -6,6 +6,10 @@ export interface LayoutAdapter<T> {
   id: (node: T) => string;
   children: (node: T) => T[];
   width: (node: T) => number;
+  // Slots posicionales opcionales. A diferencia de `children`, incluyen null
+  // para los hijos ausentes: reservan su columna y evitan que un único hijo
+  // quede centrado debajo del padre. AVL los usa para sus dos lados.
+  childSlots?: (node: T) => (T | null)[];
 }
 
 export interface PlacedNode<T> {
@@ -40,13 +44,29 @@ export function layoutTree<T>(
   const unitX = new Map<T, number>();
   let cursor = 0;
 
+  function reserveSlot(): number {
+    const x = cursor;
+    cursor += 1;
+    return x;
+  }
+
   function firstPass(node: T): number {
-    const children = adapter.children(node);
-    if (children.length === 0) {
-      const x = cursor;
-      cursor += 1;
+    const slots = adapter.childSlots?.(node);
+    if (slots) {
+      if (slots.every((slot) => slot === null)) {
+        unitX.set(node, reserveSlot());
+        return unitX.get(node) as number;
+      }
+      const xs = slots.map((slot) => (slot ? firstPass(slot) : reserveSlot()));
+      const x = (xs[0] + xs[xs.length - 1]) / 2;
       unitX.set(node, x);
       return x;
+    }
+
+    const children = adapter.children(node);
+    if (children.length === 0) {
+      unitX.set(node, reserveSlot());
+      return unitX.get(node) as number;
     }
     const xs = children.map(firstPass);
     const x = (xs[0] + xs[xs.length - 1]) / 2;
@@ -56,7 +76,6 @@ export function layoutTree<T>(
 
   function secondPass(node: T, depth: number) {
     const id = adapter.id(node);
-    const children = adapter.children(node);
     nodes.push({
       node,
       id,
@@ -64,7 +83,18 @@ export function layoutTree<T>(
       y: depth * (NODE_H + levelGap),
       depth,
     });
-    children.forEach((child, slot) => {
+
+    const slots = adapter.childSlots?.(node);
+    if (slots) {
+      slots.forEach((child, slot) => {
+        if (!child) return;
+        edges.push({ from: id, to: adapter.id(child), slot });
+        secondPass(child, depth + 1);
+      });
+      return;
+    }
+
+    adapter.children(node).forEach((child, slot) => {
       edges.push({ from: id, to: adapter.id(child), slot });
       secondPass(child, depth + 1);
     });
