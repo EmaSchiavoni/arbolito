@@ -1,10 +1,8 @@
 import * as React from 'react';
-import type { Key } from '../lib/btree';
 import { cn } from '../lib/utils';
 
 export interface CanvasNode {
   id: string;
-  keys: Key[];
   x: number;
   y: number;
 }
@@ -15,9 +13,7 @@ export interface CanvasEdge {
   slot: number;
 }
 
-function nodeWidth(keysCount: number): number {
-  return Math.max(96, keysCount * 40 + 48);
-}
+const DEFAULT_NODE_WIDTH = 120;
 const NODE_HEIGHT = 64;
 
 interface Props<T extends CanvasNode> {
@@ -29,9 +25,10 @@ interface Props<T extends CanvasNode> {
   linking?: boolean;
   onBackgroundClick?: () => void;
   extraSvg?: React.ReactNode;
-  // Geometría opcional: ancho del nodo según cantidad de claves y coordenada
-  // x absoluta del ancla de cada slot de salida (inicio de la flecha).
-  getNodeWidth?: (keysCount: number) => number;
+  // Geometría opcional: ancho del nodo y coordenada x absoluta del ancla de
+  // cada slot de salida (inicio de la flecha).
+  getNodeWidth?: (node: T) => number;
+  getSlotCount?: (node: T) => number;
   getSlotX?: (node: T, slot: number) => number;
   // Alto del nodo (de dónde sale la flecha). Por defecto NODE_HEIGHT.
   nodeHeight?: number;
@@ -44,7 +41,7 @@ interface Props<T extends CanvasNode> {
   onViewChange?: (view: { x: number; y: number; k: number; w: number; h: number }) => void;
 }
 
-export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotX, nodeHeight, initialCenter, initialView, onViewChange }: Props<T>) {
+export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotCount, getSlotX, nodeHeight, initialCenter, initialView, onViewChange }: Props<T>) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [pan, setPan] = React.useState(() => initialView ?? { x: 16, y: 16, k: 1 });
   const panRef = React.useRef(pan);
@@ -259,17 +256,17 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
 
   const byId = React.useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
 
-  const widthOf = getNodeWidth ?? nodeWidth;
+  const widthOf = getNodeWidth ?? (() => DEFAULT_NODE_WIDTH);
   const heightOf = nodeHeight ?? NODE_HEIGHT;
-  const contentW = Math.max(600, ...nodes.map((n) => n.x + widthOf(n.keys.length) + 80));
+  const contentW = Math.max(600, ...nodes.map((n) => n.x + widthOf(n) + 80));
   const contentH = Math.max(400, ...nodes.map((n) => n.y + heightOf + 120));
 
   function edgePath(from: T, to: T, slot: number): string {
-    const fw = widthOf(from.keys.length);
-    const slotCount = from.keys.length + 1;
+    const fw = widthOf(from);
+    const slotCount = getSlotCount ? getSlotCount(from) : 1;
     const x1 = getSlotX ? getSlotX(from, slot) : from.x + ((slot + 0.5) / Math.max(1, slotCount)) * fw;
     const y1 = from.y + heightOf;
-    const tw = widthOf(to.keys.length);
+    const tw = widthOf(to);
     const x2 = to.x + tw / 2;
     const y2 = to.y;
     const mid = (y1 + y2) / 2;
@@ -324,7 +321,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
           {extraSvg}
         </svg>
         {nodes.map((n) => (
-          <div key={n.id} className="absolute" style={{ left: n.x, top: n.y, width: widthOf(n.keys.length) }}>
+          <div key={n.id} className="absolute" style={{ left: n.x, top: n.y, width: widthOf(n) }}>
             {renderNode(n)}
           </div>
         ))}

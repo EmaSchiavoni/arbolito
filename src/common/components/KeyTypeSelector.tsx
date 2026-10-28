@@ -1,15 +1,14 @@
 import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
+import type { KeyType } from '../types';
 
-export type KeyType = 'number' | 'string';
-
-interface TypeSelectorProps {
+interface KeyTypeSelectorProps {
   value: KeyType;
   onChange: (v: KeyType) => void;
 }
 
 // Segmentado 123 | Abc para elegir el tipo de clave. Siempre activo: si el
 // árbol ya tiene claves, el padre pide confirmación (vaciar) antes de cambiar.
-export function TypeSelector({ value, onChange }: TypeSelectorProps) {
+export function KeyTypeSelector({ value, onChange }: KeyTypeSelectorProps) {
   return (
     <ToggleGroup
       type="single"
