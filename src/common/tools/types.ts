@@ -1,5 +1,4 @@
-import type { PointerEvent as ReactPointerEvent } from 'react';
-import type { LucideIcon } from 'lucide-react';
+import type { ComponentType, PointerEvent as ReactPointerEvent } from 'react';
 
 // Punto de interacción de una herramienta de canvas. `x`/`y` ya vienen en
 // coordenadas del mundo (paneo y zoom descontados), así que una tool no
@@ -23,7 +22,7 @@ export interface ToolPoint {
 export interface CanvasTool {
   id: string;
   label: string;
-  icon: LucideIcon;
+  icon: ComponentType<{ className?: string }>;
   // Valor CSS de cursor mientras la tool está activa (ej. 'crosshair').
   cursor?: string;
   onPress?: (point: ToolPoint) => void;

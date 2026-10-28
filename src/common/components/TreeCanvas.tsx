@@ -53,9 +53,11 @@ interface Props<T extends CanvasNode> {
   onViewChange?: (view: { x: number; y: number; k: number; w: number; h: number }) => void;
   // Herramienta activa: captura los gestos del fondo y define el cursor.
   tool?: CanvasTool | null;
+  // Recuadro de selección en coordenadas del mundo (paneo/zoom ya aplicados).
+  marquee?: { x: number; y: number; w: number; h: number } | null;
 }
 
-export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, highlightEdges, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotCount, getSlotX, nodeHeight, animateNodes, animationDurationMs = 300, gridBackground, fadeEdges, edgeFadeKey, initialCenter, initialView, onViewChange, tool }: Props<T>) {
+export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, highlightEdges, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotCount, getSlotX, nodeHeight, animateNodes, animationDurationMs = 300, gridBackground, fadeEdges, edgeFadeKey, initialCenter, initialView, onViewChange, tool, marquee }: Props<T>) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [pan, setPan] = React.useState(() => initialView ?? { x: 16, y: 16, k: 1 });
   const panRef = React.useRef(pan);
@@ -468,6 +470,12 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
           </defs>
           {extraSvg}
         </svg>
+        {marquee && (
+          <div
+            className="pointer-events-none absolute rounded-sm border border-dashed border-zinc-500 bg-zinc-500/10 dark:border-zinc-400 dark:bg-zinc-400/10"
+            style={{ left: marquee.x, top: marquee.y, width: marquee.w, height: marquee.h }}
+          />
+        )}
         {nodes.map((n) => {
           const pos = positionOf(n);
           return (
