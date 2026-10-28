@@ -1,23 +1,35 @@
 import * as React from 'react';
 import { Dices, Eraser, Plus, Search, Trash2 } from 'lucide-react';
-import { Input } from '../components/ui/input';
-import { ToolbarButton, ToolbarSeparator } from '../components/ui/toolbar';
-import { AppShell, type ShellProps } from '../components/AppShell';
-import { BottomToolbar } from '../components/BottomToolbar';
-import { CanvasNotice } from '../components/CanvasNotice';
-import { HistoryDialog, type HistoryItem } from '../components/HistoryDialog';
-import { ORDER_MAX, ORDER_MIN } from '../components/OrderPicker';
-import { SettingsDialog } from '../components/SettingsDialog';
-import { TreeConfig } from '../components/TreeConfig';
-import { TreeCanvas } from '../components/TreeCanvas';
-import { cmpKey, contains, countKeys, createTree, deleteKeyLogged, formatStep, insertKey, insertKeyLogged, searchPath, toTreeKey, type BTree, type BTreePolicy, type Key } from '../lib/btree';
-import { layoutTree } from '../lib/layout';
-import { KEYS, load, save } from '../lib/storage';
-import { useViewPersistence } from '../lib/use-view-persistence';
-import { parseKeyList } from '../lib/keys';
-import { toast } from '../components/ui/use-toast';
-import { ConfirmDialog } from '../components/ui/alert-dialog';
-import { cn } from '../lib/utils';
+import { Input } from '../../../common/components/ui/input';
+import { ToolbarButton, ToolbarSeparator } from '../../../common/components/ui/toolbar';
+import { AppShell } from '../../../app/AppShell';
+import { useChrome } from '../../../app/use-chrome';
+import { BottomToolbar } from '../../../common/components/BottomToolbar';
+import { CanvasNotice } from '../../../common/components/CanvasNotice';
+import { HistoryDialog, type HistoryItem } from '../../../common/components/HistoryDialog';
+import { ORDER_MAX, ORDER_MIN } from '../../../common/components/OrderPicker';
+import { SettingsDialog } from './SettingsDialog';
+import { BTreeConfig } from './BTreeConfig';
+import { TreeCanvas } from '../../../common/components/TreeCanvas';
+import { cmpKey, contains, countKeys, createTree, deleteKeyLogged, formatStep, insertKey, insertKeyLogged, searchPath, toTreeKey, type BTree, type BTreePolicy, type Key } from '../model/btree';
+import { layoutTree } from '../../../common/tree/layout';
+import { createScopedStorage } from '../../../common/storage/storage';
+import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
+import { parseKeyList } from '../../../common/keys/parse-key-list';
+import { toast } from '../../../common/components/ui/use-toast';
+import { ConfirmDialog } from '../../../common/components/ui/alert-dialog';
+import { cn } from '../../../common/lib/utils';
+
+const storage = createScopedStorage('btree');
+const KEYS = {
+  autoP: storage.key('auto-p'),
+  autoTree: storage.key('auto-tree'),
+  autoHistory: storage.key('auto-history'),
+  autoPolicy: storage.key('auto-policy'),
+  autoView: storage.key('auto-view'),
+};
+const load = storage.load;
+const save = storage.save;
 
 // Tabla completa siempre visible: p columnas de puntero (delgadas) + p-1
 // celdas de clave. Las celdas vacías se muestran como cajas vacías.
@@ -33,7 +45,8 @@ function autoSlotX(x: number, slot: number): number {
   return x + slot * (AUTO_PTR_W + AUTO_KEY_W) + AUTO_PTR_W / 2;
 }
 
-export function PlayAuto(shell: ShellProps) {
+export function AutoPlayground() {
+  const { hidden } = useChrome();
   const [p, setP] = React.useState<number>(() => load<number>(KEYS.autoP, 4));
   const [tree, setTree] = React.useState<BTree>(() => {
     const saved = load<{ p: number; root: BTree['root']; keyType?: BTree['keyType'] } | null>(KEYS.autoTree, null);
@@ -271,15 +284,24 @@ export function PlayAuto(shell: ShellProps) {
     pushHistory(`orden p=${clamped} → reconstruido con ${keys.length} claves`);
   }
 
-  const layout = React.useMemo(() => layoutTree(tree.root, autoTableWidth(p)), [tree.root, p]);
+  const layout = React.useMemo(
+    () =>
+      layoutTree(tree.root, {
+        id: (n) => n.id,
+        children: (n) => n.children,
+        width: () => autoTableWidth(p),
+      }),
+    [tree.root, p],
+  );
   const connected = React.useMemo(() => new Set(layout.edges.map((e) => `${e.from}:${e.slot}`)), [layout]);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <AppShell
-        {...shell}
+        playgroundId="btree"
+        mode="auto"
         config={
-          <TreeConfig
+          <BTreeConfig
             id="orden-auto"
             p={p}
             onPChange={changeP}
@@ -306,8 +328,9 @@ export function PlayAuto(shell: ShellProps) {
           nodeHeight={AUTO_H}
           initialView={initialView}
           onViewChange={handleViewChange}
-          renderNode={(n) => {
-            const hot = highlight.has(n.id);
+          renderNode={(placed) => {
+            const n = placed.node;
+            const hot = highlight.has(placed.id);
             const cols: string[] = [];
             for (let s = 0; s < p; s += 1) {
               cols.push(`${AUTO_PTR_W}px`);
@@ -351,7 +374,7 @@ export function PlayAuto(shell: ShellProps) {
           }}
           />
       )}
-      {message && <CanvasNotice hidden={shell.hidden}>{message}</CanvasNotice>}
+      {message && <CanvasNotice hidden={hidden}>{message}</CanvasNotice>}
       <HistoryDialog open={showHistory} onOpenChange={setShowHistory} history={history} />
     </div>
 

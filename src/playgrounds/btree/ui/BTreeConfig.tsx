@@ -1,8 +1,9 @@
-import { Button } from './ui/button';
-import { OrderPicker } from './OrderPicker';
-import { TypeSelector, type KeyType } from './TypeSelector';
+import { Button } from '../../../common/components/ui/button';
+import { OrderPicker } from '../../../common/components/OrderPicker';
+import { KeyTypeSelector } from '../../../common/components/KeyTypeSelector';
+import type { KeyType } from '../../../common/types';
 
-interface TreeConfigProps {
+interface BTreeConfigProps {
   id: string;
   p: number;
   onPChange: (p: number) => void;
@@ -11,9 +12,8 @@ interface TreeConfigProps {
   onOpenSettings?: () => void;
 }
 
-// Controles de configuración del árbol (orden, tipo y ajustes del algoritmo).
-// Se usan tanto en el header como en el panel deslizante del modo inmersivo.
-export function TreeConfig({ id, p, onPChange, keyType, onKeyTypeChange, onOpenSettings }: TreeConfigProps) {
+// Controles de configuración del Árbol B (orden, tipo y ajustes del algoritmo).
+export function BTreeConfig({ id, p, onPChange, keyType, onKeyTypeChange, onOpenSettings }: BTreeConfigProps) {
   return (
     <div className="flex flex-wrap items-center gap-6 sm:gap-2 md:gap-6">
       <div className="flex items-center gap-2 bg-background">
@@ -21,7 +21,7 @@ export function TreeConfig({ id, p, onPChange, keyType, onKeyTypeChange, onOpenS
       </div>
       <div className="flex items-center gap-2 bg-background">
         <span className="shrink-0 text-xs text-muted-foreground">Tipo de clave</span>
-        <TypeSelector value={keyType} onChange={onKeyTypeChange} />
+        <KeyTypeSelector value={keyType} onChange={onKeyTypeChange} />
       </div>
       {onOpenSettings && (
         <Button

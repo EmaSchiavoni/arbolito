@@ -1,6 +1,6 @@
-import type { BTreePolicy } from '../lib/btree';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
+import type { BTreePolicy } from '../model/btree';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../common/components/ui/dialog';
+import { ToggleGroup, ToggleGroupItem } from '../../../common/components/ui/toggle-group';
 
 function SettingsRow<T extends string>({
   label,

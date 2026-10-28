@@ -1,21 +1,30 @@
 import * as React from 'react';
 import { ArrowDownToLine, Crown, GripVertical, Plus, Trash2, X, ShieldCheck, Eraser, Undo2, Redo2 } from 'lucide-react';
-import { Input } from '../components/ui/input';
-import { Badge } from '../components/ui/badge';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../components/ui/sheet';
-import { ConfirmDialog } from '../components/ui/alert-dialog';
-import { ToolbarButton, ToolbarSeparator } from '../components/ui/toolbar';
-import { BottomToolbar } from '../components/BottomToolbar';
-import { CanvasNotice } from '../components/CanvasNotice';
-import { ORDER_MAX, ORDER_MIN } from '../components/OrderPicker';
-import { AppShell, type ShellProps } from '../components/AppShell';
-import { TreeConfig } from '../components/TreeConfig';
-import { TreeCanvas } from '../components/TreeCanvas';
-import { validateManualTree, type ManualNode, type ValidationResult } from '../lib/validate';
-import type { Key } from '../lib/btree';
-import { KEYS, load, save } from '../lib/storage';
-import { useViewPersistence } from '../lib/use-view-persistence';
-import { cn } from '../lib/utils';
+import { Input } from '../../../common/components/ui/input';
+import { Badge } from '../../../common/components/ui/badge';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../../../common/components/ui/sheet';
+import { ConfirmDialog } from '../../../common/components/ui/alert-dialog';
+import { ToolbarButton, ToolbarSeparator } from '../../../common/components/ui/toolbar';
+import { BottomToolbar } from '../../../common/components/BottomToolbar';
+import { CanvasNotice } from '../../../common/components/CanvasNotice';
+import { ORDER_MAX, ORDER_MIN } from '../../../common/components/OrderPicker';
+import { AppShell } from '../../../app/AppShell';
+import { useChrome } from '../../../app/use-chrome';
+import { BTreeConfig } from './BTreeConfig';
+import { TreeCanvas } from '../../../common/components/TreeCanvas';
+import { validateManualTree, type ManualNode, type ValidationResult } from '../model/validate';
+import type { Key, KeyType } from '../../../common/types';
+import { createScopedStorage } from '../../../common/storage/storage';
+import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
+import { cn } from '../../../common/lib/utils';
+
+const storage = createScopedStorage('btree');
+const KEYS = {
+  manual: storage.key('manual-draft'),
+  manualView: storage.key('manual-view'),
+};
+const load = storage.load;
+const save = storage.save;
 
 // Tabla completa siempre visible: p columnas de puntero (delgadas) + p-1
 // celdas de clave, una al lado de otra (nodo lleno: 2p-1 columnas). La columna
@@ -43,7 +52,7 @@ interface Draft {
   nodes: ManualNode[];
   rootId: string | null;
   p: number;
-  keyType: 'number' | 'string';
+  keyType: KeyType;
 }
 
 function seed(): Draft {
@@ -62,7 +71,8 @@ function fixSlots(keys: Key[], slots: (string | null)[]): (string | null)[] {
   return next;
 }
 
-export function PlayManual(shell: ShellProps) {
+export function ManualPlayground() {
+  const { hidden } = useChrome();
   const [draft, setDraft] = React.useState<Draft>(() => {
     const saved = load<Draft | null>(KEYS.manual, null);
     if (saved && Array.isArray(saved.nodes)) {
@@ -85,7 +95,7 @@ export function PlayManual(shell: ShellProps) {
 
   // Cambiar el tipo sin claves es directo; con claves pide confirmación
   // porque vacía los nodos (se puede deshacer).
-  function changeKeyType(next: 'number' | 'string') {
+  function changeKeyType(next: KeyType) {
     if (next === keyType) return;
     if (!nodes.some((n) => n.keys.length > 0)) {
       setDraft((d) => ({ ...d, keyType: next }));
@@ -399,9 +409,10 @@ export function PlayManual(shell: ShellProps) {
   return (
     <div className="flex h-full min-h-0 flex-col">
       <AppShell
-        {...shell}
+        playgroundId="btree"
+        mode="manual"
         config={
-          <TreeConfig
+          <BTreeConfig
             id="orden-manual"
             p={p}
             onPChange={(next) => {
@@ -579,7 +590,7 @@ export function PlayManual(shell: ShellProps) {
           />
       )}
       {linking && (
-        <CanvasNotice hidden={shell.hidden}>
+        <CanvasNotice hidden={hidden}>
           Tocá el icono <ArrowDownToLine className="inline size-3.5" /> del nodo destino · Esc o fondo para cancelar
         </CanvasNotice>
       )}
