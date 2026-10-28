@@ -1,4 +1,4 @@
-# Árboles · Playgrounds
+# arbolito
 
 Aplicación web estática para experimentar con estructuras de árbol. Cada estructura es un **playground** con modo automático (opera y explica el algoritmo) y modo manual (se construye y valida a mano). Hoy incluye **Árbol B** y **Árbol AVL**; la arquitectura está preparada para sumar árboles n-arios.
 
@@ -6,7 +6,7 @@ Demo en línea: https://arbolito.schiavoni.dev/ (despliegue automático a GitHub
 
 ## Rutas
 
-- `/` redirige al último playground usado (o a `/btree/auto`).
+- `/` es la landing page; desde ahí se accede al último playground usado (o a `/btree/auto`).
 - `/btree/auto` y `/btree/manual`.
 - `/avl/auto` y `/avl/manual`.
 - Las rutas son limpias (`BrowserRouter`); el build copia `dist/index.html` a `dist/404.html` para que los deep links funcionen en GitHub Pages.
@@ -26,6 +26,7 @@ En este proyecto, el orden `p` es la cantidad máxima de punteros de árbol por 
 ## Estructura del código
 
 - `src/app/`: `App`/router, `registry.ts` (playgrounds y rutas), `AppShell` (header y modo inmersivo) y contexto de tema/header.
+- `src/landing/`: landing page (`/`), grilla interactiva en canvas, arte SVG animado y estilos propios.
 - `src/common/`: canvas compartido (`TreeCanvas`, `layoutTree`), storage con namespaces y migración, parseo de claves, validación estructural, hooks y primitivas shadcn.
 - `src/playgrounds/btree/`: modelo puro (`model/btree.ts`, `model/validate.ts`) y UI del playground.
 - `src/playgrounds/avl/`: modelo puro (`model/avl.ts`, `model/validate.ts`) y UI del playground.

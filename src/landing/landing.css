@@ -1,0 +1,405 @@
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+.landing-root .landing-card {
+  border-radius: 0 !important;
+  border: 0 !important;
+  outline: 0 !important;
+}
+
+.landing-root .landing-card.collab-panel {
+  border-radius: 8px !important;
+  background: linear-gradient(45deg, #0000004a, #000 30%, #000000c9 60%, #000);
+}
+
+.dark .landing-root .landing-card.collab-panel {
+  background: linear-gradient(45deg, #ffffff4a, #fff 30%, #ffffffc9 60%, #ffffff);
+}
+
+.landing-grid {
+  background-image:
+    linear-gradient(to right, rgb(0 0 0 / 0.052) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.052) 1px, transparent 1px);
+}
+
+.dark .landing-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.045) 1px, transparent 1px);
+}
+
+.landing-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(28px);
+  will-change: transform;
+  animation: landing-blob-drift var(--duration, 110s) ease-in-out infinite alternate;
+  animation-delay: var(--delay, 0s);
+}
+
+.landing-blob--mask {
+  background: radial-gradient(
+    circle at center,
+    hsl(var(--background)) 0%,
+    hsl(var(--background) / 0.86) 38%,
+    hsl(var(--background) / 0.36) 58%,
+    transparent 72%
+  );
+}
+
+.landing-blob--tint {
+  background: radial-gradient(
+    circle at center,
+    hsl(0 0% 48% / 0.11) 0%,
+    hsl(0 0% 48% / 0.055) 45%,
+    transparent 70%
+  );
+}
+
+.dark .landing-blob--tint {
+  background: radial-gradient(
+    circle at center,
+    hsl(0 0% 84% / 0.075) 0%,
+    hsl(0 0% 84% / 0.035) 45%,
+    transparent 70%
+  );
+}
+
+.landing-vignette {
+  background: radial-gradient(
+    ellipse at 50% 20%,
+    transparent 0%,
+    transparent 55%,
+    hsl(var(--background) / 0.3) 100%
+  );
+}
+
+.hero-scene {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(var(--my, 0) * -4deg)) rotateY(calc(var(--mx, 0) * 7deg));
+  transition: transform 140ms linear;
+}
+
+.hero-card {
+  transform: translate3d(
+    calc(var(--mx, 0) * var(--dx, 16px)),
+    calc(var(--my, 0) * var(--dy, 12px) + var(--p, 0px)),
+    0
+  );
+  transform-style: preserve-3d;
+  transition: transform 160ms ease-out;
+  will-change: transform;
+}
+
+.hero-float {
+  animation: landing-float 9s ease-in-out infinite;
+}
+
+.parallax-y {
+  transform: translate3d(0, var(--p, 0px), 0);
+}
+
+.hero-stagger > * {
+  opacity: 0;
+  animation: landing-rise 850ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.hero-stagger > *:nth-child(1) {
+  animation-delay: 60ms;
+}
+
+.hero-stagger > *:nth-child(2) {
+  animation-delay: 140ms;
+}
+
+.hero-stagger > *:nth-child(3) {
+  animation-delay: 260ms;
+}
+
+.hero-stagger > *:nth-child(4) {
+  animation-delay: 360ms;
+}
+
+.hero-stagger > *:nth-child(5) {
+  animation-delay: 460ms;
+}
+
+.hero-stagger > *:nth-child(6) {
+  animation-delay: 560ms;
+}
+
+.hero-stagger > *:nth-child(7) {
+  animation-delay: 640ms;
+}
+
+.hero-letter {
+  display: inline-block;
+  font-weight: var(--weight, 400);
+  animation: hero-letter-in 900ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  transition:
+    font-weight 500ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 500ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hero-letter:hover {
+  font-weight: 900;
+  transform: translateY(-0.08em) rotate(-2deg);
+}
+
+.landing-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 800ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 800ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.landing-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+.tilt-card {
+  transform: perspective(1000px) rotateX(calc(var(--ty, 0) * -7deg)) rotateY(calc(var(--tx, 0) * 7deg));
+  transform-style: preserve-3d;
+  transition: transform 180ms ease-out;
+  will-change: transform;
+}
+
+.tree-edge {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.is-visible .tree-edge {
+  animation: tree-draw 1100ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.tree-node {
+  opacity: 0;
+  transform: scale(0.35);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.is-visible .tree-node {
+  animation: tree-node-in 520ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.flow-line {
+  stroke-dasharray: 4 10;
+  animation: flow-dash 1400ms linear infinite;
+}
+
+.flow-dot {
+  animation: flow-dot 1800ms ease-in-out infinite;
+}
+
+.orbit-slow {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: landing-spin 26s linear infinite;
+}
+
+.orbit-slow-reverse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: landing-spin 34s linear infinite reverse;
+}
+
+.soft-pulse {
+  animation: soft-pulse 2600ms ease-in-out infinite;
+}
+
+.landing-scan {
+  background-image: linear-gradient(to bottom, transparent, hsl(var(--foreground) / 0.12), transparent);
+  background-position: 0 -25%;
+  background-repeat: no-repeat;
+  background-size: 100% 14%;
+  animation: landing-scan 9s ease-in-out infinite;
+}
+
+.scroll-line {
+  background: linear-gradient(to bottom, hsl(var(--foreground) / 0.5), transparent);
+  animation: scroll-line 2200ms ease-in-out infinite;
+}
+
+@keyframes landing-blob-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(var(--dx, 6vw), var(--dy, -4vh), 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(calc(var(--dx, 6vw) * -0.7), calc(var(--dy, -4vh) * 0.55), 0) scale(0.96);
+  }
+}
+
+@keyframes landing-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0) rotate(0.6deg);
+  }
+}
+
+@keyframes landing-rise {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hero-letter-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.4em) rotate(5deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes tree-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes tree-node-in {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes flow-dash {
+  to {
+    stroke-dashoffset: -28;
+  }
+}
+
+@keyframes flow-dot {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes landing-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes landing-scan {
+  0%,
+  100% {
+    background-position: 0 -25%;
+    opacity: 0;
+  }
+  20%,
+  80% {
+    opacity: 1;
+  }
+  50% {
+    background-position: 0 115%;
+  }
+}
+
+@keyframes scroll-line {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    transform-origin: top;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-blob,
+  .hero-scene,
+  .hero-card,
+  .hero-float,
+  .hero-stagger > *,
+  .hero-letter,
+  .tree-edge,
+  .tree-node,
+  .flow-line,
+  .flow-dot,
+  .orbit-slow,
+  .orbit-slow-reverse,
+  .soft-pulse,
+  .landing-scan,
+  .scroll-line {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  .landing-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .hero-stagger > *,
+  .hero-letter {
+    opacity: 1;
+  }
+
+  .parallax-y {
+    transform: none;
+  }
+
+  .tree-edge {
+    stroke-dashoffset: 0;
+  }
+
+  .tree-node {
+    opacity: 1;
+    transform: none;
+  }
+
+  .tilt-card {
+    transform: none;
+  }
+
+  .motion-dot {
+    display: none;
+  }
+}
