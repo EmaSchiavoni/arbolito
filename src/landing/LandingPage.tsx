@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { getPlayground, PLAYGROUNDS } from '../app/registry';
 import { useChrome } from '../app/use-chrome';
+import { setNavSource, trackLandingCta, trackOutbound, trackUi } from '../common/analytics';
 import { Logo } from '../common/components/Logo';
 import { ThemeToggle } from '../common/components/ThemeToggle';
 import { buttonVariants } from '../common/components/ui/button-variants';
@@ -142,6 +143,7 @@ function LandingHeader({ last }: { last: PlaygroundDefinition }) {
             href="https://schiavoni.dev/?utm_source=arbolito&utm_medium=header"
             target="_blank"
             rel="me noreferrer"
+            onClick={() => trackOutbound('schiavoni.dev', 'header')}
             className="rounded-full px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
             Autor
@@ -149,18 +151,29 @@ function LandingHeader({ last }: { last: PlaygroundDefinition }) {
         </nav>
 
         <div className="ml-auto flex items-center gap-1 md:ml-0">
-          <ThemeToggle dark={dark} onToggle={toggleTheme} />
+          <ThemeToggle
+            dark={dark}
+            onToggle={() => {
+              trackUi('theme', { value: dark ? 'light' : 'dark' });
+              toggleTheme();
+            }}
+          />
           <a
             href={REPO_URL}
             target="_blank"
             rel="noreferrer"
             aria-label="Ver el repositorio en GitHub"
+            onClick={() => trackOutbound('github', 'header')}
             className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'px-3')}
           >
             <GithubMark className="size-4" />
             <span className="hidden sm:inline">GitHub</span>
           </a>
-          <Link to={`/${last.id}/auto`} className={cn(buttonVariants({ size: 'sm' }), 'px-3')}>
+          <Link
+            to={`/${last.id}/auto`}
+            onClick={() => setNavSource('landing')}
+            className={cn(buttonVariants({ size: 'sm' }), 'px-3')}
+          >
             <span className="hidden sm:inline">Abrir</span>
             <ArrowUpRight />
           </Link>
@@ -270,7 +283,11 @@ function Hero() {
         </p>
 
         <div className="mt-7 flex w-full flex-col items-center justify-center gap-2 sm:mt-9 sm:w-auto sm:flex-row">
-          <a href="#playgrounds" className={cn(buttonVariants({ size: 'lg' }), 'w-full px-6 sm:w-auto')}>
+          <a
+            href="#playgrounds"
+            onClick={() => trackLandingCta('playgrounds', 'hero')}
+            className={cn(buttonVariants({ size: 'lg' }), 'w-full px-6 sm:w-auto')}
+          >
             Ver playgrounds
             <ArrowRight />
           </a>
@@ -278,6 +295,7 @@ function Hero() {
             href={REPO_URL}
             target="_blank"
             rel="noreferrer"
+            onClick={() => trackOutbound('github', 'hero')}
             className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'w-full px-6 sm:w-auto')}
           >
             <GithubMark className="size-4" />
@@ -335,7 +353,7 @@ function AboutSection() {
     {
       icon: Zap,
       title: 'Ejecución local',
-      text: 'La aplicación no requiere backend ni cuentas. Los datos se guardan en localStorage y no se envían a ningún servidor.',
+      text: 'La aplicación no requiere backend ni cuentas. Los árboles se guardan en el navegador y no se envían a ningún servidor; solo se registran métricas de uso anónimas, sin cookies.',
     },
   ];
 
@@ -592,6 +610,7 @@ function PlaygroundsSection() {
                   <Link
                     key={mode}
                     to={`/${selected.id}/${mode}`}
+                    onClick={() => setNavSource('landing')}
                     className={cn(
                       buttonVariants({ variant: mode === 'auto' ? 'default' : 'outline', size: 'lg' }),
                       'justify-between px-4',
@@ -674,6 +693,7 @@ function OpenSourceSection() {
                   href={REPO_URL}
                   target="_blank"
                   rel="noreferrer"
+                  onClick={() => trackOutbound('github', 'open_source')}
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-background px-5 text-sm font-medium text-foreground transition-opacity hover:opacity-90"
                 >
                   <GithubMark className="size-4" />
@@ -684,6 +704,7 @@ function OpenSourceSection() {
                   href={REPO_ISSUES_URL}
                   target="_blank"
                   rel="noreferrer"
+                  onClick={() => trackOutbound('github_issues', 'open_source')}
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-background/25 px-5 text-sm font-medium text-background transition-colors hover:bg-background/10"
                 >
                   Abrir un issue
@@ -764,12 +785,18 @@ function ClosingSection({ last }: { last: PlaygroundDefinition }) {
               automático.
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-2 sm:flex-row">
-              <Link to={`/${last.id}/auto`} className={cn(buttonVariants({ size: 'lg' }), 'w-full px-6 sm:w-auto')}>
+              <Link
+                to={`/${last.id}/auto`}
+                onClick={() => setNavSource('landing')}
+                className={cn(buttonVariants({ size: 'lg' }), 'w-full px-6 sm:w-auto')}
+              >
                 Abrir {last.title}
                 <ArrowRight />
               </Link>
+
               <a
                 href="#playgrounds"
+                onClick={() => trackLandingCta('playgrounds', 'closing')}
                 className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'w-full px-6 sm:w-auto')}
               >
                 Ver todos los playgrounds
@@ -806,6 +833,7 @@ function LandingFooter() {
               href="https://schiavoni.dev/?utm_source=arbolito&utm_medium=footer"
               target="_blank"
               rel="me noreferrer"
+              onClick={() => trackOutbound('schiavoni.dev', 'footer')}
               className="text-foreground underline-offset-4 hover:underline"
             >
               Emanuel Schiavoni
@@ -815,6 +843,7 @@ function LandingFooter() {
               href="https://schiavoni.dev/?utm_source=arbolito&utm_medium=footer"
               target="_blank"
               rel="me noreferrer"
+              onClick={() => trackOutbound('schiavoni.dev', 'footer')}
               className="underline-offset-4 hover:text-foreground hover:underline"
             >
               SCHIAVONI.DEV
@@ -830,6 +859,7 @@ function LandingFooter() {
               <li key={playground.id}>
                 <Link
                   to={`/${playground.id}/auto`}
+                  onClick={() => setNavSource('footer')}
                   className="group block text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
                 >
                   <span className="block">Practicar con {playground.title}</span>
@@ -844,6 +874,7 @@ function LandingFooter() {
                 href={REPO_URL}
                 target="_blank"
                 rel="noreferrer"
+                onClick={() => trackOutbound('github', 'footer')}
                 className="inline-flex items-center gap-2 text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
               >
                 <GithubMark className="size-4" />

@@ -25,6 +25,7 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from '../common/com
 import { Tooltip, TooltipContent, TooltipTrigger } from '../common/components/ui/tooltip';
 import { Logo } from '../common/components/Logo';
 import { ThemeToggle } from '../common/components/ThemeToggle';
+import { setNavSource, trackUi } from '../common/analytics';
 import { useMediaQuery } from '../common/hooks/use-media-query';
 import type { Mode, PlaygroundDefinition } from '../common/playground';
 import { useChrome } from './use-chrome';
@@ -86,7 +87,11 @@ function PlaygroundMenu({ playground, mode }: { playground: PlaygroundDefinition
         <DropdownMenuLabel>Playgrounds</DropdownMenuLabel>
         {PLAYGROUNDS.map((p) => (
           <DropdownMenuItem key={p.id} asChild>
-            <Link to={`/${p.id}/${mode}`} className={p.id === playground.id ? 'font-medium' : undefined}>
+            <Link
+              to={`/${p.id}/${mode}`}
+              onClick={() => setNavSource('header')}
+              className={p.id === playground.id ? 'font-medium' : undefined}
+            >
               <span className="min-w-0 flex-1">
                 <span className="block">{p.title}</span>
                 <span className="block truncate text-xs text-muted-foreground">{p.description}</span>
@@ -121,17 +126,27 @@ function ChromeMenu({
         Cambiar de playground
       </DropdownMenuItem>
       <DropdownMenuItem asChild>
-        <Link to={`/${playground.id}/${other}`}>
+        <Link to={`/${playground.id}/${other}`} onClick={() => setNavSource('header')}>
           <OtherIcon />
           Ir a modo {playground.modes[other].label.toLowerCase()}
         </Link>
       </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem onSelect={toggleTheme}>
+      <DropdownMenuItem
+        onSelect={() => {
+          trackUi('theme', { value: dark ? 'light' : 'dark' });
+          toggleTheme();
+        }}
+      >
         {dark ? <Sun /> : <Moon />}
         {dark ? 'Tema claro' : 'Tema oscuro'}
       </DropdownMenuItem>
-      <DropdownMenuItem onSelect={onOpenConfig}>
+      <DropdownMenuItem
+        onSelect={() => {
+          trackUi('settings_open', { source: 'menu' });
+          onOpenConfig();
+        }}
+      >
         <SlidersHorizontal />
         Mostrar configuración
       </DropdownMenuItem>
@@ -153,12 +168,14 @@ export function AppShell({ playgroundId, mode, config }: AppShellProps) {
   function showHeaderTop() {
     setConfigOpen(false);
     setPlaygroundsOpen(false);
+    trackUi('fullscreen', { value: 'off' });
     showHeader();
   }
 
   function hideHeaderTop() {
     setConfigOpen(false);
     setPlaygroundsOpen(false);
+    trackUi('fullscreen', { value: 'on' });
     hideHeader();
   }
 
@@ -209,12 +226,19 @@ export function AppShell({ playgroundId, mode, config }: AppShellProps) {
                   <Link
                     to={`/${playground.id}/${other}`}
                     title={`Ir a modo ${playground.modes[other].label.toLowerCase()}`}
+                    onClick={() => setNavSource('header')}
                     className={cn(buttonVariants({ variant: 'ghost' }), 'rounded-full')}
                   >
                     <OtherIcon />
                     <span>Ir a modo {playground.modes[other].label.toLowerCase()}</span>
                   </Link>
-                  <ThemeToggle dark={dark} onToggle={toggleTheme} />
+                  <ThemeToggle
+                    dark={dark}
+                    onToggle={() => {
+                      trackUi('theme', { value: dark ? 'light' : 'dark' });
+                      toggleTheme();
+                    }}
+                  />
                   <IconButton variant="outline" onClick={hideHeaderTop} label="Pantalla completa">
                     <Maximize />
                   </IconButton>
@@ -275,7 +299,10 @@ export function AppShell({ playgroundId, mode, config }: AppShellProps) {
               <Link
                 key={p.id}
                 to={`/${p.id}/${mode}`}
-                onClick={() => setPlaygroundsOpen(false)}
+                onClick={() => {
+                  setNavSource('header');
+                  setPlaygroundsOpen(false);
+                }}
                 className="flex items-start gap-2 rounded-xl px-2 py-2 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               >
                 <span className="mt-0.5 font-mono text-xs font-bold">{p.short}</span>

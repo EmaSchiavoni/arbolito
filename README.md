@@ -40,6 +40,15 @@ Sin backend ni base de datos. Todo vive en `localStorage`:
 - Estado por playground: `arboles:v2:<id>:<nombre>` (árbol automático, historial, borrador manual, vista con paneo/zoom).
 - `src/common/storage/migrate.ts` migra una sola vez el formato anterior de almacenamiento y conserva las claves viejas como respaldo.
 
+## Analítica
+
+El sitio envía métricas de uso anónimas a una instancia propia de Umami (sin cookies ni identificadores persistentes): pageviews, apertura de playgrounds, herramientas usadas y clics salientes. **Nunca** se envían claves, árboles ni contenido editado.
+
+- Código: `src/common/analytics` (cola de eventos, opt-out y `tool_use` contextualizado por playground/modo).
+- Eventos: `playground_open`, `session_engaged`, `tool_use`, `ui_action`, `config_change`, `outbound_click`, `landing_cta`.
+- El tracker se carga en `index.html` y solo se activa en `arbolito.schiavoni.dev` (`data-domains`).
+- Opt-out: abrir cualquier ruta con `?no-track=1` (queda guardado en `localStorage` como `arboles:analytics-opt-out`).
+
 ## Uso
 
 ```bash

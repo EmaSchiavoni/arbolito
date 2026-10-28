@@ -12,6 +12,7 @@ import { Label } from '../../../common/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '../../../common/components/ui/radio-group';
 import { Slider } from '../../../common/components/ui/slider';
 import { ToolbarButton } from '../../../common/components/ui/toolbar';
+import { track } from '../../../common/analytics';
 import type { AvlNode } from '../model/avl';
 import { TRAVERSAL_LABELS, traverseAvl, type TraversalKind } from '../model/traversal';
 
@@ -101,7 +102,9 @@ export function TraversalDrawer({ root, disabled = false, onHighlightChange }: T
 
   function handleOpenChange(next: boolean) {
     setOpen(next);
-    if (!next) {
+    if (next) {
+      track('tool_use', { playground: 'avl', mode: 'auto', tool: 'traversal', phase: 'open' });
+    } else {
       reset();
       setKind('pre');
       setSpeed(DEFAULT_SPEED);
@@ -112,6 +115,7 @@ export function TraversalDrawer({ root, disabled = false, onHighlightChange }: T
     setKind(next);
     setStatus('idle');
     setIndex(0);
+    track('tool_use', { playground: 'avl', mode: 'auto', tool: 'traversal', phase: 'kind', kind: next });
   }
 
   function handlePlay() {
@@ -126,6 +130,7 @@ export function TraversalDrawer({ root, disabled = false, onHighlightChange }: T
     if (total === 0) return;
     setIndex(0);
     setStatus('running');
+    track('tool_use', { playground: 'avl', mode: 'auto', tool: 'traversal', phase: 'play', kind });
   }
 
   const playLabel = running ? 'Pausar' : status === 'paused' ? 'Reanudar' : 'Reproducir';

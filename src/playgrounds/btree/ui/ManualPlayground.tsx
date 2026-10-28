@@ -14,6 +14,7 @@ import { BTreeConfig } from './BTreeConfig';
 import { TreeCanvas } from '../../../common/components/TreeCanvas';
 import { validateManualTree, type ManualNode, type ValidationResult } from '../model/validate';
 import type { Key, KeyType } from '../../../common/types';
+import { trackConfig, trackThrottled, useToolTracker } from '../../../common/analytics';
 import { createScopedStorage } from '../../../common/storage/storage';
 import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
 import { cn } from '../../../common/lib/utils';
@@ -73,6 +74,7 @@ function fixSlots(keys: Key[], slots: (string | null)[]): (string | null)[] {
 
 export function ManualPlayground() {
   const { hidden } = useChrome();
+  const trackTool = useToolTracker('btree', 'manual');
   const [draft, setDraft] = React.useState<Draft>(() => {
     const saved = load<Draft | null>(KEYS.manual, null);
     if (saved && Array.isArray(saved.nodes)) {
@@ -100,6 +102,7 @@ export function ManualPlayground() {
     if (!nodes.some((n) => n.keys.length > 0)) {
       setDraft((d) => ({ ...d, keyType: next }));
       setResult(null);
+      trackConfig('key_type', next, { playground: 'btree', mode: 'manual' });
       return;
     }
     setConfirmType(next);
@@ -118,6 +121,7 @@ export function ManualPlayground() {
     setSheetOpen(false);
     setLinking(null);
     setConfirmType(null);
+    trackConfig('key_type', confirmType, { playground: 'btree', mode: 'manual', emptied: true });
   }
 
   // Vista del canvas (paneo/zoom): se restaura al abrir y se guarda con
@@ -207,6 +211,7 @@ export function ManualPlayground() {
     setResult(null);
     setSheetOpen(false);
     setLinking(null);
+    trackTool('undo');
   }
 
   function doRedo() {
@@ -219,6 +224,7 @@ export function ManualPlayground() {
     setResult(null);
     setSheetOpen(false);
     setLinking(null);
+    trackTool('redo');
   }
 
   function addNode() {
@@ -241,6 +247,7 @@ export function ManualPlayground() {
       if (!d.rootId) d.rootId = n.id;
       return d;
     });
+    trackTool('node_add');
   }
 
   function deleteNode(id: string) {
@@ -251,10 +258,12 @@ export function ManualPlayground() {
       return d;
     });
     if (linking?.nodeId === id) setLinking(null);
+    trackTool('node_delete');
   }
 
   function setRoot(id: string) {
     update((d) => ({ ...d, rootId: id }));
+    trackTool('root_set');
   }
 
   function parseCell(raw: string): Key | null {
@@ -281,6 +290,7 @@ export function ManualPlayground() {
       t.slots = fixSlots(t.keys, t.slots);
       return d;
     });
+    trackTool('key_add');
   }
 
   // Lleva el foco a la primera celda de clave vacía del nodo.
@@ -297,6 +307,7 @@ export function ManualPlayground() {
       n.slots = fixSlots(n.keys, n.slots);
       return d;
     });
+    trackTool('key_remove');
   }
 
   // Foco a restaurar tras un commit que remonta inputs (p. ej. al tabular
@@ -322,6 +333,7 @@ export function ManualPlayground() {
       n.keys[index] = v;
       return d;
     });
+    trackThrottled('btree:manual:key_edit', 'tool_use', { playground: 'btree', mode: 'manual', tool: 'key_edit' });
   }
 
   // Commit de una celda con clave al perder el foco: celda vaciada = clave
@@ -340,6 +352,7 @@ export function ManualPlayground() {
 
   function startLink(nodeId: string, slot: number) {
     setLinking({ nodeId, slot });
+    trackTool('link_start');
   }
 
   function completeLink(targetId: string) {
@@ -355,6 +368,7 @@ export function ManualPlayground() {
       return d;
     });
     setLinking(null);
+    trackTool('link_add');
   }
 
   function removeLink(nodeId: string, slot: number) {
@@ -363,11 +377,14 @@ export function ManualPlayground() {
       if (n) n.slots[slot] = null;
       return d;
     });
+    trackTool('link_remove');
   }
 
   function doValidate() {
-    setResult(validateManualTree(nodes, p, rootId, keyType));
+    const next = validateManualTree(nodes, p, rootId, keyType);
+    setResult(next);
     setSheetOpen(true);
+    trackTool('validate', { valid: next.valid, errors: next.issues.length });
   }
 
   function doClear() {
@@ -377,6 +394,7 @@ export function ManualPlayground() {
     setResult(null);
     setSheetOpen(false);
     setLinking(null);
+    trackTool('clear');
   }
 
   function onNodePointerDown(e: React.PointerEvent, id: string) {
@@ -419,6 +437,7 @@ export function ManualPlayground() {
               setDraft((d) => ({ ...d, p: next }));
               setRedoStack([]);
               setResult(null);
+              trackConfig('order_p', next, { playground: 'btree', mode: 'manual' });
             }}
             keyType={keyType}
             onKeyTypeChange={changeKeyType}

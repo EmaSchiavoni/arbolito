@@ -18,6 +18,7 @@ import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
 import { parseKeyList } from '../../../common/keys/parse-key-list';
 import { toast } from '../../../common/components/ui/use-toast';
 import { ConfirmDialog } from '../../../common/components/ui/alert-dialog';
+import { trackConfig, trackUi, useToolTracker } from '../../../common/analytics';
 import { cn } from '../../../common/lib/utils';
 
 const storage = createScopedStorage('btree');
@@ -47,6 +48,7 @@ function autoSlotX(x: number, slot: number): number {
 
 export function AutoPlayground() {
   const { hidden } = useChrome();
+  const trackTool = useToolTracker('btree', 'auto');
   const [p, setP] = React.useState<number>(() => load<number>(KEYS.autoP, 4));
   const [tree, setTree] = React.useState<BTree>(() => {
     const saved = load<{ p: number; root: BTree['root']; keyType?: BTree['keyType'] } | null>(KEYS.autoTree, null);
@@ -130,6 +132,7 @@ export function AutoPlayground() {
       setTree({ p, root: null, keyType: next });
       setHighlight(new Set());
       setLastKey(null);
+      trackConfig('key_type', next, { playground: 'btree', mode: 'auto' });
       return;
     }
     setConfirmType(next);
@@ -142,6 +145,7 @@ export function AutoPlayground() {
     setLastKey(null);
     setMessage(`Tipo cambiado a ${confirmType === 'string' ? 'texto' : 'numérico'}. Árbol vaciado.`);
     pushHistory(`tipo → ${confirmType === 'string' ? 'texto' : 'numérico'} (árbol vaciado)`);
+    trackConfig('key_type', confirmType, { playground: 'btree', mode: 'auto', emptied: true });
     setConfirmType(null);
   }
 
@@ -178,6 +182,12 @@ export function AutoPlayground() {
       setMessage(parts.join(', ') + '.');
     }
     setKeyInput('');
+    trackTool('insert', {
+      keys: ks.length,
+      inserted,
+      duplicates: dups,
+      key_type: tree.keyType,
+    });
   }
 
   function doDelete() {
@@ -209,6 +219,7 @@ export function AutoPlayground() {
       setMessage(parts.join(', ') + '.');
     }
     setKeyInput('');
+    trackTool('delete', { keys: ks.length, deleted, missing });
   }
 
   function doSearch() {
@@ -238,6 +249,7 @@ export function AutoPlayground() {
       if (lost.length > 0) parts.push(`no encontradas: ${lost.join(', ')}`);
       setMessage(parts.join('. ') + '.');
     }
+    trackTool('search', { keys: ks.length, found: found.length, missing: lost.length });
   }
 
   function doRandom() {
@@ -253,6 +265,7 @@ export function AutoPlayground() {
     setLastKey(kk);
     pushHistory(`insertar ${kk} → ok (aleatorio)`, steps.map(formatStep));
     setMessage(`Clave ${kk} insertada (aleatorio).`);
+    trackTool('random');
   }
 
   function doClear() {
@@ -262,6 +275,7 @@ export function AutoPlayground() {
     setLastKey(null);
     setMessage('Árbol vaciado.');
     pushHistory('limpiar → árbol vacío');
+    trackTool('clear');
   }
 
   function changeP(next: number) {
@@ -282,6 +296,7 @@ export function AutoPlayground() {
     setHighlight(new Set());
     setLastKey(null);
     pushHistory(`orden p=${clamped} → reconstruido con ${keys.length} claves`);
+    trackConfig('order_p', clamped, { playground: 'btree', mode: 'auto' });
   }
 
   const layout = React.useMemo(
@@ -307,7 +322,10 @@ export function AutoPlayground() {
             onPChange={changeP}
             keyType={tree.keyType}
             onKeyTypeChange={changeKeyType}
-            onOpenSettings={() => setShowSettings(true)}
+            onOpenSettings={() => {
+              trackUi('settings_open', { playground: 'btree', mode: 'auto' });
+              setShowSettings(true);
+            }}
           />
         }
       />
@@ -398,7 +416,14 @@ export function AutoPlayground() {
         <div className="flex items-center justify-center gap-2 max-[665px]:w-full">
           <ToolbarButton size="sm" variant="ghost" onClick={doRandom} title="Insertar clave aleatoria"><Dices />Azar</ToolbarButton>
           <ToolbarButton size="sm" variant="ghost" onClick={() => setConfirmClear(true)} title="Vaciar árbol"><Eraser />Vaciar</ToolbarButton>
-          <ToolbarButton size="sm" variant="outline" onClick={() => setShowHistory(true)}>
+          <ToolbarButton
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              trackTool('history');
+              setShowHistory(true);
+            }}
+          >
             Historial
           </ToolbarButton>
         </div>

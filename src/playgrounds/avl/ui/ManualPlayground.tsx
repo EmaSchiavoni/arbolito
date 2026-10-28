@@ -13,6 +13,7 @@ import { AvlConfig } from './AvlConfig';
 import { validateManualAvl, type AvlManualNode } from '../model/validate';
 import type { ValidationResult } from '../../../common/validate/graph';
 import type { Key, KeyType } from '../../../common/types';
+import { trackConfig, trackThrottled, useToolTracker } from '../../../common/analytics';
 import { createScopedStorage } from '../../../common/storage/storage';
 import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
 import { cn } from '../../../common/lib/utils';
@@ -54,6 +55,7 @@ function seed(): Draft {
 
 export function ManualPlayground() {
   const { hidden } = useChrome();
+  const trackTool = useToolTracker('avl', 'manual');
   const [draft, setDraft] = React.useState<Draft>(() => {
     const saved = load<Draft | null>(KEYS.manual, null);
     if (saved && Array.isArray(saved.nodes)) {
@@ -152,6 +154,7 @@ export function ManualPlayground() {
     setResult(null);
     setSheetOpen(false);
     setLinking(null);
+    trackTool('undo');
   }
 
   function doRedo() {
@@ -163,6 +166,7 @@ export function ManualPlayground() {
     setResult(null);
     setSheetOpen(false);
     setLinking(null);
+    trackTool('redo');
   }
 
   function changeKeyType(next: KeyType) {
@@ -170,6 +174,7 @@ export function ManualPlayground() {
     if (!nodes.some((n) => n.key !== null)) {
       setDraft((d) => ({ ...d, keyType: next }));
       setResult(null);
+      trackConfig('key_type', next, { playground: 'avl', mode: 'manual' });
       return;
     }
     setConfirmType(next);
@@ -184,6 +189,7 @@ export function ManualPlayground() {
     }));
     setLinking(null);
     setConfirmType(null);
+    trackConfig('key_type', confirmType, { playground: 'avl', mode: 'manual', emptied: true });
   }
 
   function addNode() {
@@ -204,6 +210,7 @@ export function ManualPlayground() {
       if (!d.rootId) d.rootId = n.id;
       return d;
     });
+    trackTool('node_add');
   }
 
   function deleteNode(id: string) {
@@ -214,10 +221,12 @@ export function ManualPlayground() {
       return d;
     });
     if (linking?.nodeId === id) setLinking(null);
+    trackTool('node_delete');
   }
 
   function setRoot(id: string) {
     update((d) => ({ ...d, rootId: id }));
+    trackTool('root_set');
   }
 
   function parseCell(raw: string): Key | null {
@@ -239,10 +248,13 @@ export function ManualPlayground() {
       if (n) n.key = v;
       return d;
     });
+    if (v === null) trackTool('key_remove');
+    else trackThrottled('avl:manual:key_edit', 'tool_use', { playground: 'avl', mode: 'manual', tool: 'key_edit' });
   }
 
   function startLink(nodeId: string, slot: number) {
     setLinking({ nodeId, slot });
+    trackTool('link_start');
   }
 
   function completeLink(targetId: string) {
@@ -255,6 +267,7 @@ export function ManualPlayground() {
       return d;
     });
     setLinking(null);
+    trackTool('link_add');
   }
 
   function removeLink(nodeId: string, slot: number) {
@@ -263,16 +276,20 @@ export function ManualPlayground() {
       if (n) n.slots[slot] = null;
       return d;
     });
+    trackTool('link_remove');
   }
 
   function doValidate() {
-    setResult(validateManualAvl(nodes, rootId, keyType));
+    const next = validateManualAvl(nodes, rootId, keyType);
+    setResult(next);
     setSheetOpen(true);
+    trackTool('validate', { valid: next.valid, errors: next.issues.length });
   }
 
   function doClear() {
     update((d) => ({ ...d, nodes: [], rootId: null }));
     setLinking(null);
+    trackTool('clear');
   }
 
   function focusKey(id: string) {

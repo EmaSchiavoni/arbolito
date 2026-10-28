@@ -39,6 +39,7 @@ import { layoutTree } from '../../../common/tree/layout';
 import { createScopedStorage } from '../../../common/storage/storage';
 import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
 import { parseKeyList } from '../../../common/keys/parse-key-list';
+import { trackConfig, trackUi, useToolTracker } from '../../../common/analytics';
 import { cn } from '../../../common/lib/utils';
 
 const storage = createScopedStorage('avl');
@@ -63,6 +64,7 @@ function formatSpeed(speed: number): string {
 
 export function AutoPlayground() {
   const { hidden } = useChrome();
+  const trackTool = useToolTracker('avl', 'auto');
   const [tree, setTree] = React.useState<AvlTree>(() => {
     const saved = load<AvlTree | null>(KEYS.autoTree, null);
     if (saved && (saved.keyType === 'string' || saved.keyType === 'number')) {
@@ -185,6 +187,7 @@ export function AutoPlayground() {
       setTree({ root: null, keyType: next });
       setHighlight(new Set());
       setLastKey(null);
+      trackConfig('key_type', next, { playground: 'avl', mode: 'auto' });
       return;
     }
     setConfirmType(next);
@@ -197,6 +200,7 @@ export function AutoPlayground() {
     setLastKey(null);
     setMessage(`Tipo cambiado a ${confirmType === 'string' ? 'texto' : 'numérico'}. Árbol vaciado.`);
     pushHistory(`tipo → ${confirmType === 'string' ? 'texto' : 'numérico'} (árbol vaciado)`);
+    trackConfig('key_type', confirmType, { playground: 'avl', mode: 'auto', emptied: true });
     setConfirmType(null);
   }
 
@@ -246,6 +250,7 @@ export function AutoPlayground() {
       lastKey: lastK,
     });
     setKeyInput('');
+    trackTool('insert', { keys: ks.length, inserted, duplicates: dups, key_type: tree.keyType });
   }
 
   function doDelete() {
@@ -289,6 +294,7 @@ export function AutoPlayground() {
       lastKey: null,
     });
     setKeyInput('');
+    trackTool('delete', { keys: ks.length, deleted, missing });
   }
 
 
@@ -320,6 +326,7 @@ export function AutoPlayground() {
       if (lost.length > 0) parts.push(`no encontradas: ${lost.join(', ')}`);
       setMessage(parts.join('. ') + '.');
     }
+    trackTool('search', { keys: ks.length, found: found.length, missing: lost.length });
   }
 
   function doRandom() {
@@ -337,6 +344,7 @@ export function AutoPlayground() {
       i === 0 ? { ...entry, text: `insertar ${kk} → ok (aleatorio)` } : entry,
     );
     startAnimation({ ...built, history: historyEntries, finalMessage: `Clave ${kk} insertada (aleatorio).` });
+    trackTool('random');
   }
 
   function doClear() {
@@ -346,6 +354,7 @@ export function AutoPlayground() {
     setLastKey(null);
     setMessage('Árbol vaciado.');
     pushHistory('limpiar → árbol vacío');
+    trackTool('clear');
   }
 
 
@@ -394,7 +403,10 @@ export function AutoPlayground() {
           <AvlConfig
             keyType={tree.keyType}
             onKeyTypeChange={changeKeyType}
-            onOpenSettings={() => setShowSettings(true)}
+            onOpenSettings={() => {
+              trackUi('settings_open', { playground: 'avl', mode: 'auto' });
+              setShowSettings(true);
+            }}
           />
         }
       />
@@ -518,7 +530,14 @@ export function AutoPlayground() {
           <ToolbarButton size="sm" variant="ghost" onClick={doRandom} disabled={animating} title="Insertar clave aleatoria"><Dices />Azar</ToolbarButton>
           <ToolbarButton size="sm" variant="ghost" onClick={() => setConfirmClear(true)} disabled={animating} title="Vaciar árbol"><Eraser />Vaciar</ToolbarButton>
           <TraversalDrawer root={tree.root} disabled={animating} onHighlightChange={setTraversalHighlight} />
-          <ToolbarButton size="sm" variant="outline" onClick={() => setShowHistory(true)}>
+          <ToolbarButton
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              trackTool('history');
+              setShowHistory(true);
+            }}
+          >
             Historial
           </ToolbarButton>
         </div>

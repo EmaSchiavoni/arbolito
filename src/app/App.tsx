@@ -3,6 +3,7 @@ import { BrowserRouter, Link, Route, Routes, useLocation } from 'react-router-do
 import { Toaster } from '../common/components/ui/toast';
 import { TooltipProvider } from '../common/components/ui/tooltip';
 import { MODES, type Mode } from '../common/playground';
+import { takeNavSource, track, useSessionEngaged } from '../common/analytics';
 import { GLOBAL_KEYS } from '../common/storage/keys';
 import { save } from '../common/storage/storage';
 import LandingPage from '../landing/LandingPage';
@@ -12,8 +13,17 @@ import { getPlayground, PLAYGROUNDS } from './registry';
 function RouteTracker() {
   const location = useLocation();
   React.useEffect(() => {
-    const id = location.pathname.split('/')[1];
-    if (getPlayground(id)) save(GLOBAL_KEYS.lastPlayground, id);
+    const [id, mode] = location.pathname.split('/').filter(Boolean);
+    const playground = getPlayground(id);
+    const source = takeNavSource();
+    if (playground) {
+      save(GLOBAL_KEYS.lastPlayground, playground.id);
+      track('playground_open', {
+        playground: playground.id,
+        mode: mode === 'manual' ? 'manual' : 'auto',
+        source,
+      });
+    }
     window.scrollTo({ top: 0, behavior: 'auto' });
   }, [location.pathname]);
   return null;
@@ -56,6 +66,8 @@ function AppFrame() {
 }
 
 export default function App() {
+  useSessionEngaged();
+
   return (
     <TooltipProvider delayDuration={300}>
       <ChromeProvider>
