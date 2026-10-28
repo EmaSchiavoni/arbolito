@@ -1,7 +1,10 @@
 // Validador de Árbol B manual. Trabaja sobre un grafo libre de nodos
 // donde cada nodo guarda ids de hijos por slot (null = sin puntero).
 
-import { cmpKey, type Key } from './btree';
+import { cmpKey, type Key, type KeyType } from '../../../common/types';
+import { checkGraphStructure, type ValidationResult } from '../../../common/validate/graph';
+
+export type { ValidationIssue, ValidationResult } from '../../../common/validate/graph';
 
 export interface ManualNode {
   id: string;
@@ -11,36 +14,21 @@ export interface ManualNode {
   y: number;
 }
 
-export interface ValidationIssue {
-  nodeId?: string;
-  message: string;
-}
-
-export interface ValidationResult {
-  valid: boolean;
-  issues: ValidationIssue[];
-}
-
 export function validateManualTree(
   nodes: ManualNode[],
   p: number,
   rootId: string | null,
-  keyType: 'number' | 'string' = 'number',
+  keyType: KeyType = 'number',
 ): ValidationResult {
-  const issues: ValidationIssue[] = [];
+  if (nodes.length === 0) return { valid: true, issues: [] };
+  const { byId, issues } = checkGraphStructure(nodes, rootId);
+  if (!rootId || !byId.has(rootId)) return { valid: false, issues };
+
   const minPtr = Math.ceil(p / 2); // punteros mínimos en nodos no-raíz no-hoja
   const min = minPtr - 1; // claves mínimas en nodos no-raíz
   const max = p - 1;
 
-  if (nodes.length === 0) return { valid: true, issues: [] };
-  const byId = new Map(nodes.map((n) => [n.id, n]));
-
-  if (!rootId || !byId.has(rootId)) {
-    issues.push({ message: 'Elegí un nodo raíz para validar el árbol.' });
-    return { valid: false, issues };
-  }
-
-  // 1. Claves ordenadas, sin duplicados, enteros, y slots coherentes.
+  // 1. Claves ordenadas, sin duplicados, enteras, y slots coherentes.
   for (const n of nodes) {
     if (n.keys.length > max) {
       issues.push({ nodeId: n.id, message: `Tiene ${n.keys.length} claves, el máximo con p=${p} es ${max}.` });
@@ -77,34 +65,8 @@ export function validateManualTree(
     }
   }
 
-  // 2. Punteros: destinos existentes, sin ciclos, un solo padre, hijos exactos.
-  const parentOf = new Map<string, string>();
-  for (const n of nodes) {
-    const outs = n.slots.filter((s): s is string => s !== null);
-    for (const target of outs) {
-      if (!byId.has(target)) {
-        issues.push({ nodeId: n.id, message: 'Un puntero apunta a un nodo que no existe.' });
-        continue;
-      }
-      if (target === n.id) {
-        issues.push({ nodeId: n.id, message: 'Un nodo no puede apuntarse a sí mismo.' });
-      }
-      if (parentOf.has(target)) {
-        issues.push({ nodeId: target, message: 'Un nodo tiene dos padres. Cada nodo (salvo la raíz) debe tener un solo padre.' });
-      } else {
-        parentOf.set(target, n.id);
-      }
-    }
-  }
-  for (const n of nodes) {
-    if (n.id === rootId) continue;
-    if (!parentOf.has(n.id)) {
-      issues.push({ nodeId: n.id, message: 'El nodo está suelto: nadie apunta hacia él.' });
-    }
-  }
-
-  // Hijos: 0 o keys+1 (contando solo slots conectados; los null deben ser todos o ninguno).
-  // Raíz no única: si tiene hijos, como mínimo 2 punteros.
+  // 2. Hijos: 0 o keys+1 (todos los slots conectados o ninguno). La raíz no
+  // única, si tiene hijos, debe tener al menos 2 punteros.
   for (const n of nodes) {
     const connected = n.slots.filter((s) => s !== null).length;
     if (connected !== 0 && connected !== n.slots.length) {
@@ -115,37 +77,14 @@ export function validateManualTree(
     }
   }
 
-  // 3. Alcanzabilidad desde la raíz + ciclos.
-  const visited = new Set<string>();
-  const stack = new Set<string>();
-  let hasCycle = false;
-  function dfs(id: string) {
-    if (stack.has(id)) {
-      hasCycle = true;
-      return;
-    }
-    if (visited.has(id)) return;
-    visited.add(id);
-    stack.add(id);
-    const n = byId.get(id);
-    if (n) {
-      for (const t of n.slots) if (t) dfs(t);
-    }
-    stack.delete(id);
-  }
-  dfs(rootId);
-  if (hasCycle) issues.push({ message: 'Hay un ciclo de punteros. Un Árbol B no puede tener ciclos.' });
-  for (const n of nodes) {
-    if (!visited.has(n.id)) {
-      issues.push({ nodeId: n.id, message: 'No es alcanzable desde la raíz.' });
-    }
-  }
-
-  // 4. Orden de claves entre padre e hijos + hojas a igual profundidad.
+  // 3. Orden de claves entre padre e hijos + hojas a igual profundidad.
   // Los extremos null significan "sin cota" (funciona en ambos modos).
   const leafDepths = new Set<number>();
+  const walked = new Set<string>();
   function checkOrder(nodeId: string, low: Key | null, high: Key | null, depth: number) {
-    const n = byId.get(nodeId);
+    if (walked.has(nodeId)) return;
+    walked.add(nodeId);
+    const n = byId.get(nodeId) as ManualNode | undefined;
     if (!n) return;
     for (const k of n.keys) {
       if (!((low === null || cmpKey(low, k) < 0) && (high === null || cmpKey(k, high) < 0))) {
@@ -154,7 +93,7 @@ export function validateManualTree(
         issues.push({ nodeId: n.id, message: `La clave ${k} está fuera del rango permitido (${lo}, ${hi}).` });
       }
     }
-    const connected = n.slots.filter((s) => s !== null);
+    const connected = n.slots.filter((s): s is string => s !== null);
     if (connected.length === 0) {
       leafDepths.add(depth);
       return;
@@ -175,7 +114,7 @@ export function validateManualTree(
     issues.push({ message: 'No todas las hojas están a la misma profundidad.' });
   }
 
-  // 5. Duplicados globales.
+  // 4. Duplicados globales.
   const seen = new Map<Key, string>();
   for (const n of nodes) {
     for (const k of n.keys) {

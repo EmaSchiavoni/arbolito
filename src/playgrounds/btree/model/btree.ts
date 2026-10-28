@@ -4,7 +4,10 @@
 // (o sea, ceil(p/2)-1 claves). Raíz: 2..p punteros, salvo nodo único
 // (hoja con 1..p-1 claves). Hijos: 0 o |claves|+1. Hojas al mismo nivel.
 
-export type Key = number | string;
+import { cmpKey, toKey, type Key, type KeyType } from '../../../common/types';
+
+export type { Key, KeyType } from '../../../common/types';
+export { cmpKey } from '../../../common/types';
 
 export interface BNode {
   id: string;
@@ -16,21 +19,13 @@ export interface BTree {
   root: BNode | null;
   p: number;
   // Modo del árbol, elegido por adelantado: las comparaciones difieren.
-  keyType: 'number' | 'string';
-}
-
-// Comparador para claves homogéneas de cualquier modo.
-export function cmpKey(a: Key, b: Key): number {
-  if (typeof a === 'number' && typeof b === 'number') return a - b;
-  const x = String(a);
-  const y = String(b);
-  return x < y ? -1 : x > y ? 1 : 0;
+  keyType: KeyType;
 }
 
 // Normaliza una clave entrante al modo del árbol (defensivo: la UI no
 // debería enviar claves de otro modo).
 export function toTreeKey(tree: BTree, key: Key): Key {
-  return tree.keyType === 'string' ? String(key) : key;
+  return toKey(tree.keyType, key);
 }
 
 // Política del algoritmo: qué lado priorizar ante ambigüedades. Por defecto
