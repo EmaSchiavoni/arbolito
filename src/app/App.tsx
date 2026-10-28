@@ -41,18 +41,20 @@ export default function App() {
       <ChromeProvider>
         <BrowserRouter>
           <RouteTracker />
-          <React.Suspense fallback={<div className="flex h-dvh items-center justify-center text-sm text-muted-foreground">Cargando…</div>}>
-            <Routes>
-              <Route path="/" element={<HomeRedirect />} />
-              {PLAYGROUNDS.flatMap((playground) =>
-                MODES.map((mode: Mode) => {
-                  const Component = playground.modes[mode].component;
-                  return <Route key={`${playground.id}/${mode}`} path={`/${playground.id}/${mode}`} element={<Component />} />;
-                }),
-              )}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </React.Suspense>
+          <div className="flex h-dvh min-h-0 flex-col">
+            <React.Suspense fallback={<div className="flex h-full items-center justify-center text-sm text-muted-foreground">Cargando…</div>}>
+              <Routes>
+                <Route path="/" element={<HomeRedirect />} />
+                {PLAYGROUNDS.flatMap((playground) =>
+                  MODES.map((mode: Mode) => {
+                    const Component = playground.modes[mode].component;
+                    return <Route key={`${playground.id}/${mode}`} path={`/${playground.id}/${mode}`} element={<Component />} />;
+                  }),
+                )}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </React.Suspense>
+          </div>
         </BrowserRouter>
         <Toaster />
       </ChromeProvider>
