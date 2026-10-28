@@ -6,36 +6,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
-    <title>Árboles B · Playground interactivo</title>
+    <title>Árboles · Playgrounds interactivos</title>
     <meta
       name="description"
-      content="Playground interactivo de Árboles B: generá árboles insertando, eliminando y buscando claves con orden configurable, o armalos a mano y validá si cumplen las reglas. Gratis, en español, sin registro."
+      content="Playgrounds interactivos de Árboles B y AVL: generá árboles insertando, eliminando y buscando claves, o armalos a mano y validá si cumplen las reglas. Gratis, en español, sin registro."
     />
-    <meta name="keywords" content="árboles B, B-tree, estructura de datos, playground, algoritmos, informática, orden" />
+    <meta name="keywords" content="árboles B, B-tree, árbol AVL, AVL, estructura de datos, playground, algoritmos, informática, orden, balance" />
     <meta name="author" content="Emanuel Schiavoni" />
     <meta name="robots" content="index, follow" />
     <meta name="google-site-verification" content="HIMQUWuo2Ovqw2z_SJOVm6v7fwW3soUDIC7I5iU-Uaw" />
     <link rel="canonical" href="https://arbolesb.schiavoni.dev/" />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Árboles B · Playground" />
-    <meta property="og:title" content="Árboles B · Playground interactivo" />
+    <meta property="og:site_name" content="Árboles · Playgrounds" />
+    <meta property="og:title" content="Árboles · Playgrounds interactivos" />
     <meta
       property="og:description"
-      content="Generá Árboles B automáticamente o armalos a mano y validá si cumplen las reglas. Gratis, en español, sin registro."
+      content="Generá Árboles B y AVL automáticamente o armalos a mano y validá si cumplen las reglas. Gratis, en español, sin registro."
     />
     <meta property="og:url" content="https://arbolesb.schiavoni.dev/" />
     <meta property="og:locale" content="es_AR" />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Árboles B · Playground interactivo" />
+    <meta name="twitter:title" content="Árboles · Playgrounds interactivos" />
     <meta
       name="twitter:description"
-      content="Generá Árboles B automáticamente o armalos a mano y validá si cumplen las reglas."
+      content="Generá Árboles B y AVL automáticamente o armalos a mano y validá si cumplen las reglas."
     />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        "name": "Árboles B · Playground",
+        "name": "Árboles · Playgrounds",
         "url": "https://arbolesb.schiavoni.dev/",
         "applicationCategory": "EducationalApplication",
         "operatingSystem": "Web",
@@ -45,7 +45,7 @@
     </script>
     <script>
       try {
-        var t = localStorage.getItem('arboles-b:tema');
+        var t = localStorage.getItem('arboles:theme') || localStorage.getItem('arboles-b:tema');
         var d = t ? JSON.parse(t) === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
         if (d) document.documentElement.classList.add('dark');
       } catch (e) {}
