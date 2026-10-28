@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { cn } from '../lib/utils';
+import type { CanvasTool, ToolPoint } from '../tools/types';
 
 export interface CanvasNode {
   id: string;
@@ -50,15 +51,20 @@ interface Props<T extends CanvasNode> {
   initialView?: { x: number; y: number; k: number } | null;
   // Notifica cada cambio de vista (paneo/zoom) al padre.
   onViewChange?: (view: { x: number; y: number; k: number; w: number; h: number }) => void;
+  // Herramienta activa: captura los gestos del fondo y define el cursor.
+  tool?: CanvasTool | null;
 }
 
-export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, highlightEdges, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotCount, getSlotX, nodeHeight, animateNodes, animationDurationMs = 300, gridBackground, fadeEdges, edgeFadeKey, initialCenter, initialView, onViewChange }: Props<T>) {
+export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, highlightEdges, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotCount, getSlotX, nodeHeight, animateNodes, animationDurationMs = 300, gridBackground, fadeEdges, edgeFadeKey, initialCenter, initialView, onViewChange, tool }: Props<T>) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [pan, setPan] = React.useState(() => initialView ?? { x: 16, y: 16, k: 1 });
   const panRef = React.useRef(pan);
   const drag = React.useRef<{ sx: number; sy: number; px: number; py: number; active: boolean }>({ sx: 0, sy: 0, px: 0, py: 0, active: false });
   const pointers = React.useRef(new Map<number, { x: number; y: number; node: boolean }>());
   const pinchStart = React.useRef<{ d: number } | null>(null);
+  const toolGesture = React.useRef<{ pointerId: number; startX: number; startY: number; onNode: boolean; dragged: boolean } | null>(null);
+
+  const TOOL_DRAG_THRESHOLD = 4;
 
   const MIN_K = 0.25;
   const MAX_K = 3;
@@ -169,7 +175,26 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     return { x: e.clientX - (r?.left ?? 0), y: e.clientY - (r?.top ?? 0) };
   }
 
+  // Coordenadas para una tool: pantalla relativa al canvas y mundo con el
+  // paneo/zoom actuales ya descontados.
+  function toolPoint(e: React.PointerEvent, onNode: boolean, dragged: boolean): ToolPoint {
+    const p = local(e);
+    const view = panRef.current;
+    return {
+      x: (p.x - view.x) / view.k,
+      y: (p.y - view.y) / view.k,
+      screenX: p.x,
+      screenY: p.y,
+      clientX: e.clientX,
+      clientY: e.clientY,
+      onNode,
+      dragged,
+      event: e,
+    };
+  }
+
   function onPointerDown(e: React.PointerEvent) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
     const p = local(e);
     const inert = !!(e.target as HTMLElement).closest('[data-node],input,button');
     pointers.current.set(e.pointerId, { ...p, node: inert });
@@ -181,6 +206,8 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
         pinchStart.current = { d };
         drag.current.active = false;
       }
+      // Un segundo dedo inicia pinch: se cancela el gesto de la herramienta.
+      toolGesture.current = null;
     }
     if (inert) return;
     document.getSelection()?.removeAllRanges();
@@ -188,6 +215,13 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     } catch {
       // noop
+    }
+    if (tool) {
+      // La herramienta captura el fondo: no se panea mientras haya una activa.
+      toolGesture.current = { pointerId: e.pointerId, startX: e.clientX, startY: e.clientY, onNode: inert, dragged: false };
+      tool.onPress?.(toolPoint(e, inert, false));
+      drag.current = { sx: 0, sy: 0, px: 0, py: 0, active: false };
+      return;
     }
     const cur = panRef.current;
     drag.current = { sx: e.clientX, sy: e.clientY, px: cur.x, py: cur.y, active: pinchStart.current === null };
@@ -211,10 +245,29 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
       pinchStart.current = { d };
       return;
     }
+    const gesture = toolGesture.current;
+    if (gesture && gesture.pointerId === e.pointerId) {
+      if (!gesture.dragged && Math.hypot(e.clientX - gesture.startX, e.clientY - gesture.startY) >= TOOL_DRAG_THRESHOLD) {
+        gesture.dragged = true;
+      }
+      if (gesture.dragged) tool?.onDrag?.(toolPoint(e, gesture.onNode, true));
+      return;
+    }
     if (!drag.current.active) return;
     applyPan({ ...panRef.current, x: drag.current.px + (e.clientX - drag.current.sx), y: drag.current.py + (e.clientY - drag.current.sy) });
   }
   function endPointer(e: React.PointerEvent) {
+    const gesture = toolGesture.current;
+    if (gesture && gesture.pointerId === e.pointerId) {
+      toolGesture.current = null;
+      tool?.onRelease?.(toolPoint(e, gesture.onNode, gesture.dragged));
+    }
+    pointers.current.delete(e.pointerId);
+    if (pointers.current.size < 2) pinchStart.current = null;
+    if (pointers.current.size === 0) drag.current.active = false;
+  }
+  function cancelPointer(e: React.PointerEvent) {
+    if (toolGesture.current?.pointerId === e.pointerId) toolGesture.current = null;
     pointers.current.delete(e.pointerId);
     if (pointers.current.size < 2) pinchStart.current = null;
     if (pointers.current.size === 0) drag.current.active = false;
@@ -363,7 +416,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={endPointer}
-      onPointerCancel={endPointer}
+      onPointerCancel={cancelPointer}
       onClick={(e) => {
         if ((e.target as HTMLElement).closest('[data-node],input,button')) return;
         onBackgroundClick?.();
@@ -373,7 +426,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
         gridBackground && 'bg-canvas-grid',
         linking && 'ring-1 ring-inset ring-zinc-500',
       )}
-      style={patternStyle}
+      style={{ ...patternStyle, cursor: tool?.cursor }}
     >
       <div
         className="absolute left-0 top-0"
