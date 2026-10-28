@@ -47,13 +47,15 @@ export function makeNode(key: Key): AvlNode {
   return { id: `a${Date.now().toString(36)}${idCounter}`, key, left: null, right: null, height: 1 };
 }
 
+// Altura en nodos: una hoja mide 1 y un árbol vacío 0.
 export function heightOf(node: AvlNode | null): number {
   return node?.height ?? 0;
 }
 
+// Factor de balance: altura del subárbol derecho menos la del izquierdo.
 export function balanceOf(node: AvlNode | null): number {
   if (!node) return 0;
-  return heightOf(node.left) - heightOf(node.right);
+  return heightOf(node.right) - heightOf(node.left);
 }
 
 function updateHeight(node: AvlNode): void {
@@ -142,12 +144,12 @@ function rebalance(node: AvlNode, steps: AvlStep[], touched: Set<string>): AvlNo
   updateHeight(node);
   const factor = balanceOf(node);
   if (factor > 1) {
-    if (balanceOf(node.left) < 0) node.left = rotateLeft(node.left as AvlNode, steps, touched);
-    return rotateRight(node, steps, touched);
+    if (balanceOf(node.right) < 0) node.right = rotateRight(node.right as AvlNode, steps, touched);
+    return rotateLeft(node, steps, touched);
   }
   if (factor < -1) {
-    if (balanceOf(node.right) > 0) node.right = rotateRight(node.right as AvlNode, steps, touched);
-    return rotateLeft(node, steps, touched);
+    if (balanceOf(node.left) > 0) node.left = rotateLeft(node.left as AvlNode, steps, touched);
+    return rotateRight(node, steps, touched);
   }
   return node;
 }

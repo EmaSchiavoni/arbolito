@@ -80,7 +80,7 @@ export function validateManualAvl(
     const rightId = n.slots[1] ?? null;
     const leftHeight = leftId ? (heights.get(leftId) ?? 0) : 0;
     const rightHeight = rightId ? (heights.get(rightId) ?? 0) : 0;
-    const factor = leftHeight - rightHeight;
+    const factor = rightHeight - leftHeight;
     if (Math.abs(factor) > 1) {
       issues.push({ nodeId: n.id, message: `Factor de balance ${factor} fuera de rango: debe estar entre -1 y 1.` });
     }
