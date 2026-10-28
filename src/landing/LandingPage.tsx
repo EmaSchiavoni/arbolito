@@ -396,9 +396,9 @@ function AboutSection() {
           const Icon = feature.icon;
           return (
             <Reveal key={feature.title} delay={index * 90}>
-              <div className="landing-card group h-full rounded-2xl border border-border/80 bg-card/45 p-5 backdrop-blur-sm transition-colors hover:bg-card/80">
-                <div className="flex size-10 items-center justify-center rounded-xl border border-border/80 bg-background/70 transition-transform group-hover:-translate-y-0.5">
-                  <Icon className="size-4" />
+              <div className="landing-card group relative h-full rounded-2xl border border-border/80 bg-card/45 p-5 backdrop-blur-sm transition-colors hover:bg-card/80">
+                <div className="pointer-events-none absolute right-[10px] top-[10px] flex size-10 items-center justify-center rounded-xl border-0 bg-transparent transition-transform group-hover:-translate-y-0.5">
+                  <Icon className="size-4 [stroke-width:0.33px] [transform:scale(4)]" />
                 </div>
                 <h3 className="mt-5 text-sm font-semibold">{feature.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{feature.text}</p>
