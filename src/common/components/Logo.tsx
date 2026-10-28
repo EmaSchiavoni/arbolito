@@ -3,13 +3,10 @@
 export function Logo() {
   return (
     <div className="flex shrink-0 items-center gap-2" aria-label="Arbol">
-      <svg viewBox="0 0 24 24" className="size-6" fill="currentColor" aria-hidden="true">
-        <path d="M2 16.667a2.667 2.667 0 0 1 2.667 -2.667h2.666a2.667 2.667 0 0 1 2.667 2.667v2.666a2.667 2.667 0 0 1 -2.667 2.667h-2.666a2.667 2.667 0 0 1 -2.667 -2.667z" />
-        <path d="M14 16.667a2.667 2.667 0 0 1 2.667 -2.667h2.666a2.667 2.667 0 0 1 2.667 2.667v2.666a2.667 2.667 0 0 1 -2.667 2.667h-2.666a2.667 2.667 0 0 1 -2.667 -2.667z" />
-        <path d="M8 4.667a2.667 2.667 0 0 1 2.667 -2.667h2.666a2.667 2.667 0 0 1 2.667 2.667v2.666a2.667 2.667 0 0 1 -2.667 2.667h-2.666a2.667 2.667 0 0 1 -2.667 -2.667z" />
-        <path d="M12 8a1 1 0 0 0 -1 1v2h-3c-1.645 0 -3 1.355 -3 3v1a1 1 0 0 0 1 1a1 1 0 0 0 1 -1v-1c0 -.564 .436 -1 1 -1h8c.564 0 1 .436 1 1v1a1 1 0 0 0 1 1a1 1 0 0 0 1 -1v-1c0 -1.645 -1.355 -3 -3 -3h-3v-2a1 1 0 0 0 -1 -1z" />
+      <svg viewBox="0 0 256 256" className="size-9" aria-hidden="true" fill="currentColor">
+        <path d="M128 187.9a72 72 0 0 0 8 4.6V232a8 8 0 0 1-16 0v-39.5a72 72 0 0 0 8-4.6m70.1-125.3a76 76 0 0 0-140.2 0A72 72 0 0 0 16 127.8 72.4 72.4 0 0 0 86.1 200a72 72 0 0 0 33.9-7.5v-35.6l-43.6-21.7a8 8 0 1 1 7.2-14.4l36.4 18.3V88a8 8 0 0 1 16 0v27l36.4-18.2a8 8 0 1 1 7.2 14.4L136 132.9v59.6a72 72 0 0 0 32 7.5h1.9a72.4 72.4 0 0 0 70.1-72.2 72 72 0 0 0-41.9-65.2"/>
       </svg>
-      <span className="font-mono text-lg font-bold tracking-tight">Arbol</span>
+      <span className="font-mono text-xl font-bold tracking-tight">Arbolito</span>
     </div>
   );
 }
