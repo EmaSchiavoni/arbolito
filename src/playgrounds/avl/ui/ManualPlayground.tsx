@@ -3,6 +3,7 @@ import { ArrowDownToLine, Crown, GripVertical, Plus, Trash2, X, ShieldCheck, Era
 import { Input } from '../../../common/components/ui/input';
 import { ConfirmDialog } from '../../../common/components/ui/alert-dialog';
 import { ToolbarButton, ToolbarSeparator } from '../../../common/components/ui/toolbar';
+import { ToolButton } from '../../../common/components/ToolButton';
 import { AppShell } from '../../../app/AppShell';
 import { useChrome } from '../../../app/use-chrome';
 import { BottomToolbar } from '../../../common/components/BottomToolbar';
@@ -16,6 +17,7 @@ import type { Key, KeyType } from '../../../common/types';
 import { trackConfig, trackThrottled, useToolTracker } from '../../../common/analytics';
 import { createScopedStorage } from '../../../common/storage/storage';
 import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
+import { createNodeTool, useCanvasTool, type ToolPoint } from '../../../common/tools';
 import { cn } from '../../../common/lib/utils';
 
 const storage = createScopedStorage('avl');
@@ -80,6 +82,9 @@ export function ManualPlayground() {
   const { nodes, rootId, keyType } = draft;
 
   const { initialView, viewRef, handleViewChange } = useViewPersistence(KEYS.manualView);
+
+  const nodeTool = createNodeTool({ onPlace: (point) => addNodeAt(point) });
+  const { activeTool, activeId, toggleTool } = useCanvasTool([nodeTool]);
 
   const [initialCenter] = React.useState<{ x: number; y: number } | null>(() => {
     if (draft.nodes.length === 0) return null;
@@ -192,19 +197,14 @@ export function ManualPlayground() {
     trackConfig('key_type', confirmType, { playground: 'avl', mode: 'manual', emptied: true });
   }
 
-  function addNode() {
+  function addNodeAt(point: ToolPoint) {
     update((d) => {
-      const v = viewRef.current;
-      const k = v.k || 1;
-      const cx = v.w > 0 ? (v.w / 2 - v.x) / k : 900;
-      const cy = v.h > 0 ? (v.h / 2 - v.y) / k : 700;
-      const j = d.nodes.length % 5;
       const n: AvlManualNode = {
         id: uid(),
         key: null,
         slots: [null, null],
-        x: Math.max(0, cx - NODE_W / 2 + j * 30),
-        y: Math.max(0, cy - NODE_H / 2 + j * 24),
+        x: Math.max(0, point.x - NODE_W / 2),
+        y: Math.max(0, point.y - NODE_H / 2),
       };
       d.nodes.push(n);
       if (!d.rootId) d.rootId = n.id;
@@ -362,13 +362,6 @@ export function ManualPlayground() {
         config={<AvlConfig keyType={keyType} onKeyTypeChange={changeKeyType} />}
       />
       <div className="relative min-h-0 flex-1">
-        {nodes.length === 0 ? (
-          <div className="flex h-full items-center justify-center p-3">
-            <p className="text-center text-sm text-muted-foreground">
-              No hay nodos. Creá el primero con el botón de la barra inferior.
-            </p>
-          </div>
-        ) : (
           <TreeCanvas
             nodes={nodes}
             edges={edges}
@@ -383,6 +376,7 @@ export function ManualPlayground() {
             initialCenter={initialCenter}
             initialView={initialView}
             onViewChange={handleViewChange}
+            tool={activeTool}
             renderNode={(n) => {
               const isRoot = n.id === rootId;
               const isTarget = !!linking && linking.nodeId !== n.id;
@@ -479,6 +473,12 @@ export function ManualPlayground() {
               );
             }}
           />
+        {nodes.length === 0 && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-3">
+            <p className="text-center text-sm text-muted-foreground">
+              No hay nodos. Elegí la herramienta Nodo y tocá el canvas.
+            </p>
+          </div>
         )}
         {linking && (
           <CanvasNotice hidden={hidden}>
@@ -488,7 +488,6 @@ export function ManualPlayground() {
       </div>
 
       <BottomToolbar label="Acciones del editor manual de AVL">
-        <ToolbarButton size="sm" onClick={addNode}><Plus />Nodo</ToolbarButton>
         <ToolbarButton size="sm" variant="secondary" onClick={doValidate}><ShieldCheck />Validar</ToolbarButton>
         {undoStack.length > 0 && (
           <ToolbarButton size="sm" variant="outline" onClick={doUndo} title="Deshacer última acción (Ctrl+Z)">
@@ -502,6 +501,7 @@ export function ManualPlayground() {
         )}
         {linking && <ToolbarButton size="sm" variant="outline" onClick={() => setLinking(null)}><X />Cancelar</ToolbarButton>}
         <ToolbarSeparator className="mx-1 max-[665px]:hidden" />
+        <ToolButton tool={nodeTool} active={activeId === nodeTool.id} onSelect={() => toggleTool(nodeTool.id)} />
         <ToolbarButton size="sm" variant="ghost" onClick={doClear} title="Borrar todo"><Eraser /></ToolbarButton>
       </BottomToolbar>
 
