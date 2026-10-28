@@ -615,7 +615,8 @@ export function ManualPlayground() {
         </div>
 
       <BottomToolbar label="Acciones del editor manual">
-        <ToolbarButton size="sm" variant="secondary" onClick={doValidate}><ShieldCheck />Validar</ToolbarButton>
+        <ToolbarButton size="sm" onClick={doValidate}><ShieldCheck />Validar</ToolbarButton>
+        <ToolbarButton size="sm" variant="secondary" onClick={doClear} title="Borrar todo"><Eraser />Limpiar</ToolbarButton>
         {undoStack.length > 0 && (
           <ToolbarButton size="sm" variant="outline" onClick={doUndo} title="Deshacer última acción (Ctrl+Z)">
             <Undo2 />Deshacer
@@ -627,9 +628,8 @@ export function ManualPlayground() {
           </ToolbarButton>
         )}
         {linking && <ToolbarButton size="sm" variant="outline" onClick={() => setLinking(null)}><X />Cancelar</ToolbarButton>}
-        <ToolbarSeparator className="mx-1 max-[665px]:hidden" />
+        <ToolbarSeparator orientation="vertical" className="mx-1" />
         <ToolButton tool={nodeTool} active={activeId === nodeTool.id} onSelect={() => toggleTool(nodeTool.id)} />
-        <ToolbarButton size="sm" variant="ghost" onClick={doClear} title="Borrar todo"><Eraser /></ToolbarButton>
       </BottomToolbar>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
