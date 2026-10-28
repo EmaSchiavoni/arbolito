@@ -355,10 +355,10 @@ function AboutSection() {
             tipo de árbol.
           </p>
           <div className="mt-8 flex flex-wrap gap-2">
-            {['Código abierto', 'Ejecución local', 'Interfaz en español', 'Sin registro'].map((item) => (
+            {['Código abierto', 'Ejecución local', 'Sin registro'].map((item) => (
               <span
                 key={item}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-background/60 px-3 py-1 font-display text-[9px] uppercase tracking-[0.18em] text-muted-foreground backdrop-blur"
+                className="inline-flex items-center gap-1.5 rounded-none border border-border/80 bg-background/60 px-3 py-1 font-display text-[9px] uppercase tracking-[0.18em] text-muted-foreground backdrop-blur"
               >
                 <Check className="size-3" />
                 {item}
