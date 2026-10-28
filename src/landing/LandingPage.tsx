@@ -5,7 +5,6 @@ import {
   ArrowUpRight,
   Check,
   ChevronDown,
-  Code2,
   PencilRuler,
   Sparkles,
   Terminal,
@@ -31,6 +30,7 @@ import { load } from '../common/storage/storage';
 import { useParallaxScene, useReveal, useSectionParallax } from './hooks';
 import { InteractiveGrid } from './InteractiveGrid';
 import { REPO_ISSUES_URL, REPO_NAME, REPO_URL } from './repo';
+import { TechIcon, type TechIconName } from './TechIcons';
 import { AvlArt, BTreeArt, FlowRibbon, GithubMark, NaryArt, RotationArt } from './TreeArt';
 import './landing.css';
 
@@ -624,7 +624,13 @@ function PlaygroundsSection() {
 }
 
 function OpenSourceSection() {
-  const stack = ['React', 'TypeScript', 'Vite', 'Tailwind', 'shadcn'];
+  const stack: Array<{ name: TechIconName; label: string }> = [
+    { name: 'react', label: 'React' },
+    { name: 'typescript', label: 'TypeScript' },
+    { name: 'vite', label: 'Vite' },
+    { name: 'tailwind', label: 'Tailwind' },
+    { name: 'shadcn', label: 'shadcn' },
+  ];
 
   return (
     <section id="open-source" className="relative mx-auto w-full max-w-6xl scroll-mt-24 px-4 py-24 sm:py-28">
@@ -698,7 +704,7 @@ function OpenSourceSection() {
                   </span>
                 </div>
                 <pre className="mt-4 overflow-x-auto font-display text-[11px] leading-relaxed text-background/80">
-                  <code>{`git clone ${REPO_URL}.git
+                  <code className="whitespace-pre-wrap">{`git clone ${REPO_URL}.git
 cd ${REPO_NAME}
 npm install
 npm run dev`}</code>
@@ -708,11 +714,11 @@ npm run dev`}</code>
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {stack.map((tech) => (
                   <span
-                    key={tech}
-                    className="flex items-center justify-center gap-1.5 rounded-xl border border-background/15 bg-background/[0.04] px-2 py-2 font-display text-[9px] uppercase tracking-[0.14em] text-background/65"
+                    key={tech.name}
+                    className="flex items-center justify-center gap-1.5 rounded-none border border-border/[0.066] bg-background/[0.04] px-2 py-2 font-display text-[9px] uppercase tracking-[0.14em] text-background/65"
                   >
-                    <Code2 className="size-3" />
-                    {tech}
+                    <TechIcon name={tech.name} className="size-3" />
+                    {tech.label}
                   </span>
                 ))}
               </div>
