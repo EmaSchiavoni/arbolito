@@ -112,7 +112,7 @@ export function avlStatLabels(stats: AvlStats, empty: boolean): string[] {
 
   const equilibriumLabel =
     stats.equilibrium === 'perfect'
-      ? 'Perfectamente equilibrado'
+      ? 'Perfectamente equilibrado (lleno)'
       : stats.equilibrium === 'balanced'
         ? 'Equilibrado'
         : 'Desequilibrado';
