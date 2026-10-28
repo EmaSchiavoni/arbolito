@@ -138,6 +138,14 @@ function LandingHeader({ last }: { last: PlaygroundDefinition }) {
           >
             Open source
           </a>
+          <a
+            href="https://schiavoni.dev/?utm_source=arbolito&utm_medium=header"
+            target="_blank"
+            rel="me noreferrer"
+            className="rounded-full px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            Autor
+          </a>
         </nav>
 
         <div className="ml-auto flex items-center gap-1 md:ml-0">
@@ -785,6 +793,26 @@ function LandingFooter() {
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
             Ejercicios de árboles binarios de búsqueda, estructuras n-arias y algoritmos de balanceo, sin backend ni
             registro.
+          </p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            Autor:{' '}
+            <a
+              href="https://schiavoni.dev/?utm_source=arbolito&utm_medium=footer"
+              target="_blank"
+              rel="me noreferrer"
+              className="text-foreground underline-offset-4 hover:underline"
+            >
+              Emanuel Schiavoni
+            </a>
+            {' · '}
+            <a
+              href="https://schiavoni.dev/?utm_source=arbolito&utm_medium=footer"
+              target="_blank"
+              rel="me noreferrer"
+              className="underline-offset-4 hover:text-foreground hover:underline"
+            >
+              SCHIAVONI.DEV
+            </a>
           </p>
         </div>
         <nav aria-label="Playgrounds para practicar árboles y colaboración" className="lg:justify-self-end">
