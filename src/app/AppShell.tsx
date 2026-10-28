@@ -75,8 +75,7 @@ function PlaygroundMenu({ playground, mode }: { playground: PlaygroundDefinition
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="rounded-full" aria-label="Cambiar de playground">
-              <span className="font-mono text-xs font-bold">{playground.short}</span>
-              <span className="hidden md:inline">{playground.title}</span>
+              <span>{playground.title}</span>
               <ChevronDown className="size-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -88,7 +87,6 @@ function PlaygroundMenu({ playground, mode }: { playground: PlaygroundDefinition
         {PLAYGROUNDS.map((p) => (
           <DropdownMenuItem key={p.id} asChild>
             <Link to={`/${p.id}/${mode}`} className={p.id === playground.id ? 'font-medium' : undefined}>
-              <span className="font-mono text-xs font-bold">{p.short}</span>
               <span className="min-w-0 flex-1">
                 <span className="block">{p.title}</span>
                 <span className="block truncate text-xs text-muted-foreground">{p.description}</span>
@@ -197,10 +195,13 @@ export function AppShell({ playgroundId, mode, config }: AppShellProps) {
             </Link>
 
             {isSmall ? (
-              <DropdownMenu>
-                <MenuButton variant="outline" className="ml-auto" />
-                {chromeMenu}
-              </DropdownMenu>
+              <div className="ml-auto flex min-w-0 items-center gap-1">
+                <PlaygroundMenu playground={playground} mode={mode} />
+                <DropdownMenu>
+                  <MenuButton variant="outline" />
+                  {chromeMenu}
+                </DropdownMenu>
+              </div>
             ) : (
               <div className="ml-auto flex min-w-0 flex-1 flex-col items-end gap-2">
                 <div className="flex items-center gap-1">
