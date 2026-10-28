@@ -190,7 +190,7 @@ export function AppShell({ playgroundId, mode, config }: AppShellProps) {
       ) : (
         <header className="shrink-0 border-b bg-background">
           <div className="flex items-center gap-2 px-3 py-2">
-            <Link to={`/${playground.id}/${mode}`} aria-label="Inicio del playground">
+            <Link to="/" aria-label="Ir a la landing">
               <Logo />
             </Link>
 
