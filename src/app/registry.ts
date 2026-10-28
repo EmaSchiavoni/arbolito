@@ -1,5 +1,5 @@
 import { lazy } from 'react';
-import { GitBranch, Network, PencilRuler } from 'lucide-react';
+import { PencilRuler, Sparkles } from 'lucide-react';
 import type { PlaygroundDefinition } from '../common/playground';
 
 const BTreeAuto = lazy(() => import('../playgrounds/btree/ui/AutoPlayground').then((m) => ({ default: m.AutoPlayground })));
@@ -16,7 +16,7 @@ export const PLAYGROUNDS: PlaygroundDefinition[] = [
     short: 'B',
     description: 'Inserción, eliminación y búsqueda con divisiones, préstamos y fusiones.',
     modes: {
-      auto: { label: 'Automático', icon: Network, component: BTreeAuto },
+      auto: { label: 'Automático', icon: Sparkles, component: BTreeAuto },
       manual: { label: 'Manual', icon: PencilRuler, component: BTreeManual },
     },
   },
@@ -26,7 +26,7 @@ export const PLAYGROUNDS: PlaygroundDefinition[] = [
     short: 'AVL',
     description: 'Árbol binario de búsqueda balanceado con rotaciones simples y dobles.',
     modes: {
-      auto: { label: 'Automático', icon: GitBranch, component: AvlAuto },
+      auto: { label: 'Automático', icon: Sparkles, component: AvlAuto },
       manual: { label: 'Manual', icon: PencilRuler, component: AvlManual },
     },
   },
