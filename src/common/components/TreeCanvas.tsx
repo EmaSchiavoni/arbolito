@@ -38,6 +38,7 @@ interface Props<T extends CanvasNode> {
   // Anima el movimiento de los nodos al cambiar el layout (rotaciones).
   animateNodes?: boolean;
   animationDurationMs?: number;
+  gridBackground?: boolean;
   // Hace un fade-in de los arcos cuando cambia `edgeFadeKey`. Se usa en las
   // rotaciones para disimular el salto de las flechas SVG.
   fadeEdges?: boolean;
@@ -51,7 +52,7 @@ interface Props<T extends CanvasNode> {
   onViewChange?: (view: { x: number; y: number; k: number; w: number; h: number }) => void;
 }
 
-export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, highlightEdges, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotCount, getSlotX, nodeHeight, animateNodes, animationDurationMs = 300, fadeEdges, edgeFadeKey, initialCenter, initialView, onViewChange }: Props<T>) {
+export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, highlightEdges, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotCount, getSlotX, nodeHeight, animateNodes, animationDurationMs = 300, gridBackground, fadeEdges, edgeFadeKey, initialCenter, initialView, onViewChange }: Props<T>) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [pan, setPan] = React.useState(() => initialView ?? { x: 16, y: 16, k: 1 });
   const panRef = React.useRef(pan);
@@ -349,6 +350,13 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     return `M ${x1} ${y1} C ${x1} ${mid}, ${x2} ${mid}, ${x2} ${y2}`;
   }
 
+  const patternStyle = gridBackground
+    ? {
+        backgroundSize: `${18 * pan.k}px ${18 * pan.k}px`,
+        backgroundPosition: `${pan.x}px ${pan.y}px`,
+      }
+    : undefined;
+
   return (
     <div
       ref={ref}
@@ -362,8 +370,10 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
       }}
       className={cn(
         'relative h-full w-full touch-none select-none overflow-hidden bg-white dark:bg-zinc-950',
+        gridBackground && 'bg-canvas-grid',
         linking && 'ring-1 ring-inset ring-zinc-500',
       )}
+      style={patternStyle}
     >
       <div
         className="absolute left-0 top-0"

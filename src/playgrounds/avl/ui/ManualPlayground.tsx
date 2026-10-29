@@ -355,6 +355,7 @@ export function ManualPlayground() {
           <TreeCanvas
             nodes={nodes}
             edges={edges}
+            gridBackground
             linking={!!linking}
             errorIds={errorIds}
             onBackgroundClick={() => setLinking(null)}

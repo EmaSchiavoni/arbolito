@@ -322,6 +322,7 @@ export function AutoPlayground() {
           <TreeCanvas
           nodes={layout.nodes}
           edges={layout.edges}
+          gridBackground
           highlightIds={highlight}
           getNodeWidth={() => autoTableWidth(p)}
           getSlotX={(n, slot) => autoSlotX(n.x, slot)}

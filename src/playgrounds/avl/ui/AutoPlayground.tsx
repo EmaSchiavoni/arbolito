@@ -391,6 +391,7 @@ export function AutoPlayground() {
           <TreeCanvas
             nodes={layout.nodes}
             edges={layout.edges}
+            gridBackground
             highlightIds={highlightIds}
             highlightEdges={highlightEdges}
             getNodeWidth={() => AVL_W}

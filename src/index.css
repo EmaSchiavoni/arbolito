@@ -39,6 +39,17 @@
   .animate-edge-fade {
     animation: edge-fade 220ms ease-out;
   }
+  .bg-canvas-grid {
+    background-image:
+      linear-gradient(to right, rgb(0 0 0 / 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(0 0 0 / 0.045) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .dark .bg-canvas-grid {
+    background-image:
+      linear-gradient(to right, rgb(255 255 255 / 0.033) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(255 255 255 / 0.033) 1px, transparent 1px);
+  }
 }
 
 @layer base {
