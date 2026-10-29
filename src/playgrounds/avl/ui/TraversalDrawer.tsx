@@ -1,8 +1,14 @@
 import * as React from 'react';
-import { Pause, Play, RotateCcw, Route } from 'lucide-react';
+import { Pause, Play, RotateCcw, Route, X } from 'lucide-react';
 import { Button } from '../../../common/components/ui/button';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerTitle,
+  DrawerTrigger,
+} from '../../../common/components/ui/drawer';
 import { Label } from '../../../common/components/ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '../../../common/components/ui/popover';
 import { RadioGroup, RadioGroupItem } from '../../../common/components/ui/radio-group';
 import { Slider } from '../../../common/components/ui/slider';
 import { ToolbarButton } from '../../../common/components/ui/toolbar';
@@ -19,13 +25,13 @@ export interface TraversalHighlight {
   edges: Set<string>;
 }
 
-interface TraversalPopoverProps {
+interface TraversalDrawerProps {
   root: AvlNode | null;
   disabled?: boolean;
   onHighlightChange: (state: TraversalHighlight) => void;
 }
 
-export function TraversalPopover({ root, disabled = false, onHighlightChange }: TraversalPopoverProps) {
+export function TraversalDrawer({ root, disabled = false, onHighlightChange }: TraversalDrawerProps) {
   const [open, setOpen] = React.useState(false);
   const [kind, setKind] = React.useState<TraversalKind>('pre');
   const [speed, setSpeed] = React.useState(DEFAULT_SPEED);
@@ -125,21 +131,35 @@ export function TraversalPopover({ root, disabled = false, onHighlightChange }: 
   const playLabel = running ? 'Pausar' : status === 'paused' ? 'Reanudar' : 'Reproducir';
 
   return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild>
+    <Drawer open={open} onOpenChange={handleOpenChange} modal={false} handleOnly>
+      <DrawerTrigger asChild>
         <ToolbarButton size="sm" variant="ghost" disabled={!root || disabled} title="Recorrer el árbol">
           <Route />
           Recorrer
         </ToolbarButton>
-      </PopoverTrigger>
-      <PopoverContent side="top" align="end" className="w-[min(20rem,calc(100vw-1rem))] space-y-3">
-        <div>
-          <p className="text-xs font-medium">Recorrido</p>
+      </DrawerTrigger>
+      <DrawerContent className="p-0">
+        <DrawerDescription className="sr-only">Opciones para animar un recorrido del árbol.</DrawerDescription>
+        <div className="flex items-center justify-between gap-2 px-4 pb-1 pt-3">
+          <DrawerTitle>Recorrido</DrawerTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={() => handleOpenChange(false)}
+            aria-label="Cerrar recorrido"
+            title="Cerrar recorrido"
+          >
+            <X className="size-4" />
+          </Button>
+        </div>
+
+        <div className="space-y-3 px-4 pb-4">
           <RadioGroup
             value={kind}
             onValueChange={(v) => handleKind(v as TraversalKind)}
             disabled={running}
-            className="mt-1.5 grid-cols-2 gap-1.5"
+            className="grid-cols-2 gap-1.5"
             aria-label="Tipo de recorrido"
           >
             {KINDS.map((k) => (
@@ -151,42 +171,42 @@ export function TraversalPopover({ root, disabled = false, onHighlightChange }: 
               </div>
             ))}
           </RadioGroup>
-        </div>
 
-        <div>
-          <div className="flex items-center justify-between">
-            <Label htmlFor="traversal-speed" className="text-xs">
-              Velocidad
-            </Label>
-            <span className="text-[11px] tabular-nums text-muted-foreground">{Number(speed.toFixed(2))}x</span>
+          <div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="traversal-speed" className="text-xs">
+                Velocidad
+              </Label>
+              <span className="text-[11px] tabular-nums text-muted-foreground">{Number(speed.toFixed(2))}x</span>
+            </div>
+            <Slider
+              id="traversal-speed"
+              min={1}
+              max={7}
+              step={0.25}
+              value={[speed]}
+              onValueChange={([v]) => setSpeed(v)}
+              aria-label="Velocidad del recorrido"
+              className="mt-2"
+            />
           </div>
-          <Slider
-            id="traversal-speed"
-            min={1}
-            max={7}
-            step={0.25}
-            value={[speed]}
-            onValueChange={([v]) => setSpeed(v)}
-            aria-label="Velocidad del recorrido"
-            className="mt-2"
-          />
-        </div>
 
-        <div className="flex items-center gap-2">
-          <Button size="sm" onClick={handlePlay} disabled={total === 0} className="flex-1">
-            {running ? <Pause /> : <Play />}
-            {playLabel}
-          </Button>
-          <Button size="sm" variant="outline" onClick={reset} disabled={status === 'idle'}>
-            <RotateCcw />
-            Reiniciar
-          </Button>
-        </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" onClick={handlePlay} disabled={total === 0} className="flex-1">
+              {running ? <Pause /> : <Play />}
+              {playLabel}
+            </Button>
+            <Button size="sm" variant="outline" onClick={reset} disabled={status === 'idle'}>
+              <RotateCcw />
+              Reiniciar
+            </Button>
+          </div>
 
-        <div className="min-h-[4rem] max-h-24 overflow-auto rounded-lg border bg-transparent p-2 text-xs tabular-nums text-muted-foreground">
-          {output || 'Sin resultados.'}
+          <div className="min-h-[4rem] max-h-24 overflow-auto rounded-lg border bg-transparent p-2 text-xs tabular-nums text-muted-foreground">
+            {output || 'Sin resultados.'}
+          </div>
         </div>
-      </PopoverContent>
-    </Popover>
+      </DrawerContent>
+    </Drawer>
   );
 }

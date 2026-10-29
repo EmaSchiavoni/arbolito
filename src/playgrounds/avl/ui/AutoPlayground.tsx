@@ -28,7 +28,7 @@ import type { TreeAnimation } from '../model/animation';
 import { buildDeleteAnimation } from '../model/delete-animation';
 import { buildInsertAnimation, insertKeyAnimated } from '../model/insert-animation';
 import { avlStatLabels, computeAvlStats } from '../model/stats';
-import { TraversalPopover, type TraversalHighlight } from './TraversalPopover';
+import { TraversalDrawer, type TraversalHighlight } from './TraversalDrawer';
 import type { Key, KeyType } from '../../../common/types';
 import { layoutTree } from '../../../common/tree/layout';
 import { createScopedStorage } from '../../../common/storage/storage';
@@ -489,7 +489,7 @@ export function AutoPlayground() {
         <div className="flex items-center justify-center gap-2 max-[665px]:w-full">
           <ToolbarButton size="sm" variant="ghost" onClick={doRandom} disabled={animating} title="Insertar clave aleatoria"><Dices />Azar</ToolbarButton>
           <ToolbarButton size="sm" variant="ghost" onClick={() => setConfirmClear(true)} disabled={animating} title="Vaciar árbol"><Eraser />Vaciar</ToolbarButton>
-          <TraversalPopover root={tree.root} disabled={animating} onHighlightChange={setTraversalHighlight} />
+          <TraversalDrawer root={tree.root} disabled={animating} onHighlightChange={setTraversalHighlight} />
           <ToolbarButton size="sm" variant="outline" onClick={() => setShowHistory(true)}>
             Historial
           </ToolbarButton>
