@@ -26,7 +26,7 @@ import {
   type AvlTree,
 } from '../model/avl';
 import { avlStatLabels, computeAvlStats } from '../model/stats';
-import { TraversalPopover } from './TraversalPopover';
+import { TraversalPopover, type TraversalHighlight } from './TraversalPopover';
 import type { Key, KeyType } from '../../../common/types';
 import { layoutTree } from '../../../common/tree/layout';
 import { createScopedStorage } from '../../../common/storage/storage';
@@ -58,7 +58,10 @@ export function AutoPlayground() {
   const [history, setHistory] = React.useState<HistoryItem[]>(() => load<HistoryItem[]>(KEYS.autoHistory, []));
   const [keyInput, setKeyInput] = React.useState('');
   const [highlight, setHighlight] = React.useState<Set<string>>(new Set());
-  const [traversalHighlight, setTraversalHighlight] = React.useState<Set<string>>(new Set());
+  const [traversalHighlight, setTraversalHighlight] = React.useState<TraversalHighlight>({
+    nodes: new Set(),
+    edges: new Set(),
+  });
   const [lastKey, setLastKey] = React.useState<Key | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
   const [showHistory, setShowHistory] = React.useState(false);
@@ -256,9 +259,9 @@ export function AutoPlayground() {
   const badges = React.useMemo(() => avlStatLabels(computeAvlStats(tree.root), tree.root === null), [tree.root]);
 
   const highlightIds = React.useMemo(() => {
-    if (traversalHighlight.size === 0) return highlight;
-    return new Set([...highlight, ...traversalHighlight]);
-  }, [highlight, traversalHighlight]);
+    if (traversalHighlight.nodes.size === 0) return highlight;
+    return new Set([...highlight, ...traversalHighlight.nodes]);
+  }, [highlight, traversalHighlight.nodes]);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -288,6 +291,7 @@ export function AutoPlayground() {
             nodes={layout.nodes}
             edges={layout.edges}
             highlightIds={highlightIds}
+            highlightEdges={traversalHighlight.edges.size > 0 ? traversalHighlight.edges : undefined}
             getNodeWidth={() => AVL_W}
             getSlotCount={() => 2}
             getSlotX={(n, slot) => n.x + (slot === 0 ? AVL_W * 0.25 : AVL_W * 0.75)}
@@ -296,14 +300,19 @@ export function AutoPlayground() {
             onViewChange={handleViewChange}
             renderNode={(placed) => {
               const n = placed.node;
-              const hot = highlight.has(placed.id);
+              const traversed = traversalHighlight.nodes.has(placed.id);
+              const hot = highlightIds.has(placed.id);
               const bf = balanceOf(n);
               return (
                 <div
                   data-node
                   className={cn(
                     'flex h-14 flex-col items-center justify-center rounded-md border bg-card shadow-sm',
-                    hot ? 'border-zinc-900 ring-1 ring-zinc-900 dark:border-zinc-100 dark:ring-zinc-100' : 'border-border dark:border-zinc-700',
+                    traversed
+                      ? 'border-2 border-zinc-900 bg-zinc-900/5 dark:border-zinc-100 dark:bg-zinc-100/10'
+                      : hot
+                        ? 'border-zinc-900 ring-1 ring-zinc-900 dark:border-zinc-100 dark:ring-zinc-100'
+                        : 'border-border dark:border-zinc-700',
                   )}
                 >
                   <span

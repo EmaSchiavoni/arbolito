@@ -21,6 +21,9 @@ interface Props<T extends CanvasNode> {
   edges: CanvasEdge[];
   renderNode: (n: T) => React.ReactNode;
   highlightIds?: Set<string>;
+  // Aristas resaltadas explícitamente ("from:to"). Si no se pasan, se usa el
+  // criterio de camino: ambos extremos en highlightIds.
+  highlightEdges?: Set<string>;
   errorIds?: Set<string>;
   linking?: boolean;
   onBackgroundClick?: () => void;
@@ -41,7 +44,7 @@ interface Props<T extends CanvasNode> {
   onViewChange?: (view: { x: number; y: number; k: number; w: number; h: number }) => void;
 }
 
-export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotCount, getSlotX, nodeHeight, initialCenter, initialView, onViewChange }: Props<T>) {
+export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, highlightEdges, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotCount, getSlotX, nodeHeight, initialCenter, initialView, onViewChange }: Props<T>) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [pan, setPan] = React.useState(() => initialView ?? { x: 16, y: 16, k: 1 });
   const panRef = React.useRef(pan);
@@ -298,9 +301,12 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
             const f = byId.get(e.from);
             const t = byId.get(e.to);
             if (!f || !t) return null;
-            // La flecha se resalta solo si ambos extremos pertenecen al camino
-            // (si solo el origen está marcado, sus otras flechas quedan normal).
-            const hot = !!highlightIds?.has(e.from) && !!highlightIds?.has(e.to);
+            // La flecha se resalta explícitamente si se está recorriendo ese
+            // arco; sin lista explícita, se resalta solo si ambos extremos
+            // pertenecen al camino marcado.
+            const hot = highlightEdges
+              ? highlightEdges.has(`${e.from}:${e.to}`)
+              : !!highlightIds?.has(e.from) && !!highlightIds?.has(e.to);
             const bad = errorIds?.has(e.from) || errorIds?.has(e.to);
             return (
               <path

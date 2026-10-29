@@ -14,9 +14,14 @@ const DEFAULT_SPEED = 4;
 
 type Status = 'idle' | 'running' | 'paused' | 'done';
 
+export interface TraversalHighlight {
+  nodes: Set<string>;
+  edges: Set<string>;
+}
+
 interface TraversalPopoverProps {
   root: AvlNode | null;
-  onHighlightChange: (ids: Set<string>) => void;
+  onHighlightChange: (state: TraversalHighlight) => void;
 }
 
 export function TraversalPopover({ root, onHighlightChange }: TraversalPopoverProps) {
@@ -26,20 +31,47 @@ export function TraversalPopover({ root, onHighlightChange }: TraversalPopoverPr
   const [status, setStatus] = React.useState<Status>('idle');
   const [index, setIndex] = React.useState(0);
 
-  const steps = React.useMemo(() => traverseAvl(root, kind), [root, kind]);
-  const total = steps.length;
+  const events = React.useMemo(() => traverseAvl(root, kind), [root, kind]);
+  const total = events.length;
   const running = status === 'running';
 
-  const visited = React.useMemo(() => new Set(steps.slice(0, index).map((step) => step.nodeId)), [steps, index]);
-  const output = React.useMemo(() => steps.slice(0, index).map((step) => String(step.key)).join(' → '), [steps, index]);
+  const visited = React.useMemo(
+    () =>
+      new Set(
+        events
+          .slice(0, index)
+          .filter((event) => event.t === 'visit')
+          .map((event) => event.nodeId),
+      ),
+    [events, index],
+  );
+  const edges = React.useMemo(
+    () =>
+      new Set(
+        events
+          .slice(0, index)
+          .filter((event) => event.t === 'enter')
+          .map((event) => `${event.from}:${event.to}`),
+      ),
+    [events, index],
+  );
+  const output = React.useMemo(
+    () =>
+      events
+        .slice(0, index)
+        .filter((event) => event.t === 'visit')
+        .map((event) => String(event.key))
+        .join(' → '),
+    [events, index],
+  );
 
   React.useEffect(() => {
-    onHighlightChange(visited);
-  }, [visited, onHighlightChange]);
+    onHighlightChange({ nodes: visited, edges });
+  }, [visited, edges, onHighlightChange]);
 
   React.useEffect(
     () => () => {
-      onHighlightChange(new Set());
+      onHighlightChange({ nodes: new Set(), edges: new Set() });
     },
     [onHighlightChange],
   );
@@ -57,7 +89,7 @@ export function TraversalPopover({ root, onHighlightChange }: TraversalPopoverPr
   function reset() {
     setStatus('idle');
     setIndex(0);
-    onHighlightChange(new Set());
+    onHighlightChange({ nodes: new Set(), edges: new Set() });
   }
 
   function handleOpenChange(next: boolean) {
@@ -150,7 +182,7 @@ export function TraversalPopover({ root, onHighlightChange }: TraversalPopoverPr
           </Button>
         </div>
 
-        <div className="min-h-16 max-h-24 overflow-auto rounded-lg border bg-transparent p-2 text-xs tabular-nums text-muted-foreground">
+        <div className="min-h-[4rem] max-h-24 overflow-auto rounded-lg border bg-transparent p-2 text-xs tabular-nums text-muted-foreground">
           {output || 'Sin resultados.'}
         </div>
       </PopoverContent>
