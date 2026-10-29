@@ -21,10 +21,11 @@ export interface TraversalHighlight {
 
 interface TraversalPopoverProps {
   root: AvlNode | null;
+  disabled?: boolean;
   onHighlightChange: (state: TraversalHighlight) => void;
 }
 
-export function TraversalPopover({ root, onHighlightChange }: TraversalPopoverProps) {
+export function TraversalPopover({ root, disabled = false, onHighlightChange }: TraversalPopoverProps) {
   const [open, setOpen] = React.useState(false);
   const [kind, setKind] = React.useState<TraversalKind>('pre');
   const [speed, setSpeed] = React.useState(DEFAULT_SPEED);
@@ -126,7 +127,7 @@ export function TraversalPopover({ root, onHighlightChange }: TraversalPopoverPr
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <ToolbarButton size="sm" variant="ghost" disabled={!root} title="Recorrer el árbol">
+        <ToolbarButton size="sm" variant="ghost" disabled={!root || disabled} title="Recorrer el árbol">
           <Route />
           Recorrer
         </ToolbarButton>

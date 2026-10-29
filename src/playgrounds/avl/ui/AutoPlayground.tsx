@@ -1,6 +1,8 @@
 import * as React from 'react';
-import { Dices, Eraser, Plus, Search, Trash2 } from 'lucide-react';
+import { Dices, Eraser, Pause, Play, Plus, Search, Trash2 } from 'lucide-react';
+import { Button } from '../../../common/components/ui/button';
 import { Input } from '../../../common/components/ui/input';
+import { Slider } from '../../../common/components/ui/slider';
 import { ToolbarButton, ToolbarSeparator } from '../../../common/components/ui/toolbar';
 import { AppShell } from '../../../app/AppShell';
 import { useChrome } from '../../../app/use-chrome';
@@ -17,14 +19,14 @@ import {
   contains,
   countKeys,
   createTree,
-  deleteKeyLogged,
-  formatStep,
   heightOf,
-  insertKeyLogged,
   searchPath,
   toTreeKey,
   type AvlTree,
 } from '../model/avl';
+import type { TreeAnimation } from '../model/animation';
+import { buildDeleteAnimation } from '../model/delete-animation';
+import { buildInsertAnimation, insertKeyAnimated } from '../model/insert-animation';
 import { avlStatLabels, computeAvlStats } from '../model/stats';
 import { TraversalPopover, type TraversalHighlight } from './TraversalPopover';
 import type { Key, KeyType } from '../../../common/types';
@@ -39,12 +41,19 @@ const KEYS = {
   autoTree: storage.key('auto-tree'),
   autoHistory: storage.key('auto-history'),
   autoView: storage.key('auto-view'),
+  autoSpeed: storage.key('auto-speed'),
 };
 const load = storage.load;
 const save = storage.save;
 
 const AVL_W = 120;
 const AVL_H = 56;
+
+const DEFAULT_ANIM_SPEED = 4;
+
+function formatSpeed(speed: number): string {
+  return `${Number(speed.toFixed(2))}x`;
+}
 
 export function AutoPlayground() {
   const { hidden } = useChrome();
@@ -62,6 +71,13 @@ export function AutoPlayground() {
     nodes: new Set(),
     edges: new Set(),
   });
+  const [animation, setAnimation] = React.useState<TreeAnimation | null>(null);
+  const [frameIndex, setFrameIndex] = React.useState(0);
+  const [animationPlaying, setAnimationPlaying] = React.useState(true);
+  const [animationSpeed, setAnimationSpeed] = React.useState(() => {
+    const saved = load<number>(KEYS.autoSpeed, DEFAULT_ANIM_SPEED);
+    return Number.isFinite(saved) ? Math.min(7, Math.max(1, saved)) : DEFAULT_ANIM_SPEED;
+  });
   const [lastKey, setLastKey] = React.useState<Key | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
   const [showHistory, setShowHistory] = React.useState(false);
@@ -78,8 +94,49 @@ export function AutoPlayground() {
     save(KEYS.autoHistory, history.slice(0, 60));
   }, [history]);
 
+  React.useEffect(() => {
+    save(KEYS.autoSpeed, animationSpeed);
+  }, [animationSpeed]);
+
   function pushHistory(text: string, steps: string[] = []) {
     setHistory((h) => [{ id: Date.now() + Math.random(), text, steps }, ...h].slice(0, 60));
+  }
+
+  const frame = animation ? animation.frames[frameIndex] : null;
+  const displayedMessage = frame?.message ?? message;
+  const frameDelayMs = 1000 / animationSpeed;
+  const nodeTransitionMs = Math.max(1, Math.round(frameDelayMs * 0.8));
+
+  React.useEffect(() => {
+    if (!animation || !animationPlaying) return;
+    const timer = window.setTimeout(() => {
+      if (frameIndex >= animation.frames.length - 1) {
+        setTree(animation.finalTree);
+        setHighlight(new Set(animation.touched));
+        setLastKey(animation.lastKey);
+        setMessage(animation.finalMessage);
+        setAnimation(null);
+        setFrameIndex(0);
+        setAnimationPlaying(true);
+        return;
+      }
+      setFrameIndex((i) => i + 1);
+    }, frameDelayMs);
+    return () => window.clearTimeout(timer);
+  }, [animation, animationPlaying, frameIndex, animationSpeed, frameDelayMs]);
+
+  function startAnimation(anim: TreeAnimation) {
+    for (const entry of anim.history) pushHistory(entry.text, entry.steps);
+    setHighlight(new Set());
+    setLastKey(anim.lastKey);
+    if (anim.frames.length === 0) {
+      setMessage(anim.finalMessage);
+      return;
+    }
+    setMessage(anim.frames[0]?.message ?? anim.finalMessage);
+    setFrameIndex(0);
+    setAnimationPlaying(true);
+    setAnimation(anim);
   }
 
   function parseKeys(): Key[] | null {
@@ -102,7 +159,7 @@ export function AutoPlayground() {
   }
 
   function changeKeyType(next: KeyType) {
-    if (next === tree.keyType) return;
+    if (animation || next === tree.keyType) return;
     if (countKeys(tree.root) === 0) {
       setTree({ root: null, keyType: next });
       setHighlight(new Set());
@@ -113,7 +170,7 @@ export function AutoPlayground() {
   }
 
   function confirmTypeChange() {
-    if (!confirmType) return;
+    if (animation || !confirmType) return;
     setTree({ root: null, keyType: confirmType });
     setHighlight(new Set());
     setLastKey(null);
@@ -123,72 +180,99 @@ export function AutoPlayground() {
   }
 
   function doInsert() {
+    if (animation) return;
     const ks = parseKeys();
     if (!ks) return;
     let cur = tree;
     let inserted = 0;
     let dups = 0;
-    let touched: string[] = [];
     let lastK: Key | null = null;
+    let touched: string[] = [];
+    const frames: TreeAnimation['frames'] = [];
+    const historyEntries: TreeAnimation['history'] = [];
+
     for (const k of ks) {
       const kk = toTreeKey(cur, k);
-      if (contains(cur.root, kk)) {
+      const anim = insertKeyAnimated(cur, kk);
+      if (!anim.inserted) {
         dups += 1;
-        pushHistory(`insertar ${kk} → duplicada`);
+        historyEntries.push({ text: `insertar ${kk} → duplicada`, steps: [] });
         continue;
       }
-      const r = insertKeyLogged(cur, kk);
-      cur = r.tree;
-      touched = r.touched;
-      lastK = kk;
+      const built = buildInsertAnimation(anim, cur);
+      if (!built) continue;
+      frames.push(...built.frames);
+      historyEntries.push(...built.history);
+      touched = built.touched;
+      lastK = built.lastKey;
+      cur = anim.tree;
       inserted += 1;
-      pushHistory(`insertar ${kk} → ok`, r.steps.map(formatStep));
     }
-    setTree(cur);
-    setHighlight(new Set(touched));
-    setLastKey(lastK);
-    if (ks.length === 1) {
-      setMessage(inserted === 1 ? `Clave ${ks[0]} insertada.` : `La clave ${ks[0]} ya existe.`);
-    } else {
-      const parts = [plural(inserted, 'insertada', 'insertadas')];
-      if (dups > 0) parts.push(plural(dups, 'duplicada', 'duplicadas'));
-      setMessage(parts.join(', ') + '.');
-    }
+
+    const finalMessage =
+      ks.length === 1
+        ? inserted === 1
+          ? `Clave ${ks[0]} insertada.`
+          : `La clave ${ks[0]} ya existe.`
+        : `${[plural(inserted, 'insertada', 'insertadas'), ...(dups > 0 ? [plural(dups, 'duplicada', 'duplicadas')] : [])].join(', ')}.`;
+
+    startAnimation({
+      frames,
+      finalTree: cur,
+      finalMessage,
+      history: historyEntries,
+      touched,
+      lastKey: lastK,
+    });
     setKeyInput('');
   }
 
   function doDelete() {
+    if (animation) return;
     const ks = parseKeys();
     if (!ks) return;
     let cur = tree;
     let deleted = 0;
     let missing = 0;
+    let touched: string[] = [];
+    const frames: TreeAnimation['frames'] = [];
+    const historyEntries: TreeAnimation['history'] = [];
+
     for (const k of ks) {
       const kk = toTreeKey(cur, k);
-      if (!contains(cur.root, kk)) {
+      const built = buildDeleteAnimation(cur, kk);
+      frames.push(...built.frames);
+      historyEntries.push(...built.history);
+      if (contains(cur.root, kk)) {
+        deleted += 1;
+        touched = built.touched;
+      } else {
         missing += 1;
-        pushHistory(`eliminar ${kk} → no existe`);
-        continue;
       }
-      const r = deleteKeyLogged(cur, kk);
-      cur = r.tree;
-      deleted += 1;
-      pushHistory(`eliminar ${kk} → ok`, r.steps.map(formatStep));
+      cur = built.finalTree;
     }
-    setTree(cur);
-    setHighlight(new Set());
-    setLastKey(null);
-    if (ks.length === 1) {
-      setMessage(deleted === 1 ? `Clave ${ks[0]} eliminada.` : `La clave ${ks[0]} no existe.`);
-    } else {
-      const parts = [plural(deleted, 'eliminada', 'eliminadas')];
-      if (missing > 0) parts.push(plural(missing, 'no existía', 'no existían'));
-      setMessage(parts.join(', ') + '.');
-    }
+
+    const finalMessage =
+      ks.length === 1
+        ? deleted === 1
+          ? `Clave ${ks[0]} eliminada.`
+          : `La clave ${ks[0]} no existe.`
+        : `${[plural(deleted, 'eliminada', 'eliminadas'), ...(missing > 0 ? [plural(missing, 'no existía', 'no existían')] : [])].join(', ')}.`;
+
+    startAnimation({
+      frames,
+      finalTree: cur,
+      finalMessage,
+      history: historyEntries,
+      touched,
+      lastKey: null,
+    });
     setKeyInput('');
   }
 
+
   function doSearch() {
+    if (animation) return;
     const ks = parseKeys();
     if (!ks) return;
     setLastKey(null);
@@ -218,21 +302,24 @@ export function AutoPlayground() {
   }
 
   function doRandom() {
-    const k = Math.floor(Math.random() * 100);
-    const kk = toTreeKey(tree, k);
-    if (contains(tree.root, kk)) {
-      doRandom();
-      return;
+    if (animation) return;
+    let kk = toTreeKey(tree, 0);
+    for (let i = 0; i < 200; i += 1) {
+      kk = toTreeKey(tree, Math.floor(Math.random() * 100));
+      if (!contains(tree.root, kk)) break;
     }
-    const { tree: next, touched, steps } = insertKeyLogged(tree, kk);
-    setTree(next);
-    setHighlight(new Set(touched));
-    setLastKey(kk);
-    pushHistory(`insertar ${kk} → ok (aleatorio)`, steps.map(formatStep));
-    setMessage(`Clave ${kk} insertada (aleatorio).`);
+    const anim = insertKeyAnimated(tree, kk);
+    if (!anim.inserted) return;
+    const built = buildInsertAnimation(anim, tree);
+    if (!built) return;
+    const historyEntries = built.history.map((entry, i) =>
+      i === 0 ? { ...entry, text: `insertar ${kk} → ok (aleatorio)` } : entry,
+    );
+    startAnimation({ ...built, history: historyEntries, finalMessage: `Clave ${kk} insertada (aleatorio).` });
   }
 
   function doClear() {
+    if (animation) return;
     setTree({ root: null, keyType: tree.keyType });
     setHighlight(new Set());
     setLastKey(null);
@@ -240,9 +327,15 @@ export function AutoPlayground() {
     pushHistory('limpiar → árbol vacío');
   }
 
+
+  const renderTree = frame?.tree ?? tree;
+  const animating = animation !== null;
+  const animationNodes = React.useMemo(() => new Set(frame?.nodes ?? []), [frame]);
+  const animationEdges = React.useMemo(() => new Set(frame?.edges ?? []), [frame]);
+
   const layout = React.useMemo(
     () =>
-      layoutTree(tree.root, {
+      layoutTree(renderTree.root, {
         id: (n) => n.id,
         children: (n) => {
           const out = [];
@@ -253,15 +346,23 @@ export function AutoPlayground() {
         childSlots: (n) => [n.left, n.right],
         width: () => AVL_W,
       }),
-    [tree.root],
+    [renderTree.root],
   );
 
-  const badges = React.useMemo(() => avlStatLabels(computeAvlStats(tree.root), tree.root === null), [tree.root]);
+  const badges = React.useMemo(
+    () => avlStatLabels(computeAvlStats(renderTree.root), renderTree.root === null),
+    [renderTree.root],
+  );
 
   const highlightIds = React.useMemo(() => {
-    if (traversalHighlight.nodes.size === 0) return highlight;
-    return new Set([...highlight, ...traversalHighlight.nodes]);
-  }, [highlight, traversalHighlight.nodes]);
+    if (traversalHighlight.nodes.size === 0 && animationNodes.size === 0) return highlight;
+    return new Set([...highlight, ...traversalHighlight.nodes, ...animationNodes]);
+  }, [highlight, traversalHighlight.nodes, animationNodes]);
+
+  const highlightEdges = React.useMemo(() => {
+    if (traversalHighlight.edges.size === 0 && animationEdges.size === 0) return undefined;
+    return new Set([...traversalHighlight.edges, ...animationEdges]);
+  }, [traversalHighlight.edges, animationEdges]);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
@@ -280,7 +381,7 @@ export function AutoPlayground() {
         >
           <TreeBadges items={badges} />
         </div>
-        {tree.root === null ? (
+        {renderTree.root === null ? (
           <div className="flex h-full items-center justify-center p-3">
             <p className="text-center text-sm text-muted-foreground">
               El árbol está vacío. Insertá la primera clave desde la barra de abajo.
@@ -291,16 +392,20 @@ export function AutoPlayground() {
             nodes={layout.nodes}
             edges={layout.edges}
             highlightIds={highlightIds}
-            highlightEdges={traversalHighlight.edges.size > 0 ? traversalHighlight.edges : undefined}
+            highlightEdges={highlightEdges}
             getNodeWidth={() => AVL_W}
             getSlotCount={() => 2}
             getSlotX={(n, slot) => n.x + (slot === 0 ? AVL_W * 0.25 : AVL_W * 0.75)}
             nodeHeight={AVL_H}
+            animateNodes={animating}
+            animationDurationMs={nodeTransitionMs}
+            fadeEdges={frame?.fadeEdges}
+            edgeFadeKey={frameIndex}
             initialView={initialView}
             onViewChange={handleViewChange}
             renderNode={(placed) => {
               const n = placed.node;
-              const traversed = traversalHighlight.nodes.has(placed.id);
+              const traversed = traversalHighlight.nodes.has(placed.id) || animationNodes.has(placed.id);
               const hot = highlightIds.has(placed.id);
               const bf = balanceOf(n);
               return (
@@ -331,18 +436,47 @@ export function AutoPlayground() {
             }}
           />
         )}
-        {message && (
+        {displayedMessage && (
           <CanvasNotice hidden={hidden} className={hidden ? undefined : 'top-10'}>
-            {message}
+            {displayedMessage}
           </CanvasNotice>
         )}
         <HistoryDialog open={showHistory} onOpenChange={setShowHistory} history={history} />
       </div>
 
+      {animation && (
+        <div className="fixed bottom-[4.75rem] left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border bg-card/95 px-2 py-1.5 shadow-lg backdrop-blur max-[510px]:bottom-32">
+          <span className="text-[11px] text-muted-foreground">Animación</span>
+          <Slider
+            min={1}
+            max={7}
+            step={0.25}
+            value={[animationSpeed]}
+            onValueChange={([v]) => setAnimationSpeed(v)}
+            aria-label="Velocidad de la animación"
+            className="w-24"
+          />
+          <span className="w-8 text-right text-[11px] tabular-nums text-muted-foreground">
+            {formatSpeed(animationSpeed)}
+          </span>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="px-1.5"
+            onClick={() => setAnimationPlaying((playing) => !playing)}
+            aria-label={animationPlaying ? 'Pausar animación' : 'Reanudar animación'}
+            title={animationPlaying ? 'Pausar animación' : 'Reanudar animación'}
+          >
+            {animationPlaying ? <Pause /> : <Play />}
+          </Button>
+        </div>
+      )}
+
       <BottomToolbar label="Acciones del playground automático de AVL">
         <div className="flex items-center justify-center gap-2 max-[510px]:w-full">
           <Input
             value={keyInput}
+            disabled={animating}
             onChange={(e) => setKeyInput(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') doInsert();
@@ -352,15 +486,15 @@ export function AutoPlayground() {
             aria-label="Claves (una sola o lista separada por coma, punto, guion o espacio)"
             className="w-36"
           />
-          <ToolbarButton size="sm" onClick={doInsert} title="Insertar" aria-label="Insertar" className="px-2"><Plus /></ToolbarButton>
-          <ToolbarButton size="sm" variant="secondary" onClick={doDelete} title="Eliminar" aria-label="Eliminar" className="px-2"><Trash2 /></ToolbarButton>
-          <ToolbarButton size="sm" variant="outline" onClick={doSearch} title="Buscar" aria-label="Buscar" className="px-2"><Search /></ToolbarButton>
+          <ToolbarButton size="sm" onClick={doInsert} disabled={animating} title="Insertar" aria-label="Insertar" className="px-2"><Plus /></ToolbarButton>
+          <ToolbarButton size="sm" variant="secondary" onClick={doDelete} disabled={animating} title="Eliminar" aria-label="Eliminar" className="px-2"><Trash2 /></ToolbarButton>
+          <ToolbarButton size="sm" variant="outline" onClick={doSearch} disabled={animating} title="Buscar" aria-label="Buscar" className="px-2"><Search /></ToolbarButton>
         </div>
         <ToolbarSeparator className="mx-0.5 max-[510px]:hidden" />
         <div className="flex items-center justify-center gap-2 max-[510px]:w-full">
-          <ToolbarButton size="sm" variant="ghost" onClick={doRandom} title="Insertar clave aleatoria"><Dices />Azar</ToolbarButton>
-          <ToolbarButton size="sm" variant="ghost" onClick={() => setConfirmClear(true)} title="Vaciar árbol"><Eraser />Vaciar</ToolbarButton>
-          <TraversalPopover root={tree.root} onHighlightChange={setTraversalHighlight} />
+          <ToolbarButton size="sm" variant="ghost" onClick={doRandom} disabled={animating} title="Insertar clave aleatoria"><Dices />Azar</ToolbarButton>
+          <ToolbarButton size="sm" variant="ghost" onClick={() => setConfirmClear(true)} disabled={animating} title="Vaciar árbol"><Eraser />Vaciar</ToolbarButton>
+          <TraversalPopover root={tree.root} disabled={animating} onHighlightChange={setTraversalHighlight} />
           <ToolbarButton size="sm" variant="outline" onClick={() => setShowHistory(true)}>
             Historial
           </ToolbarButton>
