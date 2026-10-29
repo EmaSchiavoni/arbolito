@@ -19,6 +19,8 @@ import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
 import { createNodeTool, panTool, useCanvasTool, useMarqueeSelection, type ToolPoint } from '../../../common/tools';
 import { cn } from '../../../common/lib/utils';
 import { AVL_KEYS as KEYS, avlStorage } from '../storage';
+import { avlShare, type AvlManualState } from '../share';
+import { useSharedModeState } from '../../../common/share/use-shared-mode-state';
 import {
   MANUAL_NODE_H as NODE_H,
   MANUAL_NODE_W as NODE_W,
@@ -50,7 +52,11 @@ function seed(): Draft {
 export function ManualPlayground() {
   const { hidden } = useChrome();
   const trackTool = useToolTracker('avl', 'manual');
+  const shared = useSharedModeState<AvlManualState>({ tree: 'avl', mode: 'manual', adapter: avlShare });
+  const sharedInitial = shared.initial;
+  const commitShared = shared.commit;
   const [draft, setDraft] = React.useState<Draft>(() => {
+    if (sharedInitial) return sharedInitial;
     const saved = load<Draft | null>(KEYS.manual, null);
     if (saved && Array.isArray(saved.nodes)) {
       return {
@@ -115,8 +121,12 @@ export function ManualPlayground() {
   });
 
   React.useEffect(() => {
-    save(KEYS.manual, draft);
-  }, [draft]);
+    if (!shared.active) save(KEYS.manual, draft);
+  }, [draft, shared.active]);
+
+  React.useEffect(() => {
+    commitShared(draft);
+  }, [draft, commitShared]);
 
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -426,11 +436,14 @@ export function ManualPlayground() {
     );
   }
 
+  const share = React.useMemo(() => ({ adapter: avlShare, state: draft }), [draft]);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <AppShell
         playgroundId="avl"
         mode="manual"
+        share={share}
         config={<AvlConfig keyType={keyType} onKeyTypeChange={changeKeyType} />}
       />
       <div className="relative min-h-0 flex-1">
