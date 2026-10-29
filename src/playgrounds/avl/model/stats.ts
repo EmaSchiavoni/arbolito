@@ -79,20 +79,17 @@ export function computeAvlStats(root: AvlNode | null, settings: AvlSettings = DE
 
   if (root) walk(root, settings.rootLevel, 0);
 
+  const fullTree = full && (!settings.fullRequiresSameLeafDepth || leafLevels.size <= 1);
   let equilibrium: BalanceLevel;
-  if (settings.equilibriumEqualsBalance) {
+  if (fullTree) {
+    equilibrium = 'perfect';
+  } else if (settings.equilibriumEqualsBalance) {
     equilibrium = balance;
   } else {
-    const perfectEquilibrium =
-      full && (!settings.fullRequiresSameLeafDepth || leafLevels.size <= 1);
-    if (perfectEquilibrium) {
-      equilibrium = 'perfect';
-    } else {
-      const balanced = levelChildren.every(
-        ({ level, children }) => level >= maxLevel - 2 || children === MAX_CHILDREN,
-      );
-      equilibrium = balanced ? 'balanced' : 'unbalanced';
-    }
+    const balanced = levelChildren.every(
+      ({ level, children }) => level >= maxLevel - 2 || children === MAX_CHILDREN,
+    );
+    equilibrium = balanced ? 'balanced' : 'unbalanced';
   }
 
   const heapComplete = heapCount > 0 && maxIndex === heapCount - 1;

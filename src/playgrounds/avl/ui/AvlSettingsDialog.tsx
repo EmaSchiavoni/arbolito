@@ -84,7 +84,7 @@ export function AvlSettingsDialog({ open, onOpenChange, settings, onChange }: Av
           />
           <SettingsRow
             label="Lleno con hojas igual a profundidad"
-            hint="Para considerar el árbol lleno, exigir que todas las hojas estén al mismo nivel (no sobran espacios para nodos en ninguna parte, también llamado árbol perfecto)."
+            hint="Si está activo, el árbol está lleno cuando cada nodo tiene 0 o k hijos y todas las hojas están al mismo nivel (árbol perfecto). Si está desactivado, alcanza con que cada nodo tenga 0 o k hijos."
             value={settings.fullRequiresSameLeafDepth ? 'yes' : 'no'}
             options={[...YES_NO]}
             onPick={(value) => onChange({ ...settings, fullRequiresSameLeafDepth: value === 'yes' })}
