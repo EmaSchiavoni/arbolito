@@ -31,6 +31,7 @@ import { SaveSharedTreeDialog } from '../common/components/SaveSharedTreeDialog'
 import { ShareDialog } from '../common/components/ShareDialog';
 import { SharedTreeNotice } from '../common/components/SharedTreeNotice';
 import { ThemeToggle } from '../common/components/ThemeToggle';
+import { toast } from '../common/components/ui/use-toast';
 import { setNavSource, trackUi } from '../common/analytics';
 import { useMediaQuery } from '../common/hooks/use-media-query';
 import type { Mode, PlaygroundDefinition } from '../common/playground';
@@ -213,9 +214,15 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
   async function launchShare() {
     if (!share || !canShare) return;
     const data = share.adapter.serialize(mode, share.state);
-    if (!data) return;
+    if (!data) {
+      toast({ description: 'No se pudo preparar el árbol para compartirlo.' });
+      return;
+    }
     const query = buildShareQuery({ tree: playground.id, mode, ...data });
-    if (!query) return;
+    if (!query) {
+      toast({ description: 'El árbol es demasiado grande para compartirlo por enlace.' });
+      return;
+    }
     const url = `${window.location.origin}${window.location.pathname}?${query}`;
     trackUi('share', { playground: playground.id, mode });
     // La API nativa necesita conservar la activación de usuario: todo el
