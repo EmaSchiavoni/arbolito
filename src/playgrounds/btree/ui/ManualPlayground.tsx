@@ -610,7 +610,7 @@ export function ManualPlayground() {
           </ToolbarButton>
         )}
         {linking && <ToolbarButton size="sm" variant="outline" onClick={() => setLinking(null)}><X />Cancelar</ToolbarButton>}
-        <ToolbarSeparator className="mx-1 max-[510px]:hidden" />
+        <ToolbarSeparator className="mx-1 max-[665px]:hidden" />
         <ToolbarButton size="sm" variant="ghost" onClick={doClear} title="Borrar todo"><Eraser /></ToolbarButton>
       </BottomToolbar>
 

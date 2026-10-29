@@ -379,7 +379,7 @@ export function AutoPlayground() {
     </div>
 
       <BottomToolbar label="Acciones del playground automático">
-        <div className="flex items-center justify-center gap-2 max-[510px]:w-full">
+        <div className="flex items-center justify-center gap-2 max-[665px]:w-full">
           <Input
             value={keyInput}
             onChange={(e) => setKeyInput(e.target.value)}
@@ -393,8 +393,8 @@ export function AutoPlayground() {
           <ToolbarButton size="sm" variant="secondary" onClick={doDelete} title="Eliminar" aria-label="Eliminar" className="px-2"><Trash2 /></ToolbarButton>
           <ToolbarButton size="sm" variant="outline" onClick={doSearch} title="Buscar" aria-label="Buscar" className="px-2"><Search /></ToolbarButton>
         </div>
-        <ToolbarSeparator className="mx-0.5 max-[510px]:hidden" />
-        <div className="flex items-center justify-center gap-2 max-[510px]:w-full">
+        <ToolbarSeparator className="mx-0.5 max-[665px]:hidden" />
+        <div className="flex items-center justify-center gap-2 max-[665px]:w-full">
           <ToolbarButton size="sm" variant="ghost" onClick={doRandom} title="Insertar clave aleatoria"><Dices />Azar</ToolbarButton>
           <ToolbarButton size="sm" variant="ghost" onClick={() => setConfirmClear(true)} title="Vaciar árbol"><Eraser />Vaciar</ToolbarButton>
           <ToolbarButton size="sm" variant="outline" onClick={() => setShowHistory(true)}>

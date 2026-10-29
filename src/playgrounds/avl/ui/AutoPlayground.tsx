@@ -440,7 +440,7 @@ export function AutoPlayground() {
       </div>
 
       {animation && (
-        <div className="fixed bottom-[4.75rem] left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border bg-card/95 px-2 py-1.5 shadow-lg backdrop-blur max-[510px]:bottom-32">
+        <div className="fixed bottom-[4.75rem] left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border bg-card/95 px-2 py-1.5 shadow-lg backdrop-blur max-[665px]:bottom-32">
           <span className="text-[11px] text-muted-foreground">Animación</span>
           <Slider
             min={1}
@@ -468,7 +468,7 @@ export function AutoPlayground() {
       )}
 
       <BottomToolbar label="Acciones del playground automático de AVL">
-        <div className="flex items-center justify-center gap-2 max-[510px]:w-full">
+        <div className="flex items-center justify-center gap-2 max-[665px]:w-full">
           <Input
             value={keyInput}
             disabled={animating}
@@ -485,8 +485,8 @@ export function AutoPlayground() {
           <ToolbarButton size="sm" variant="secondary" onClick={doDelete} disabled={animating} title="Eliminar" aria-label="Eliminar" className="px-2"><Trash2 /></ToolbarButton>
           <ToolbarButton size="sm" variant="outline" onClick={doSearch} disabled={animating} title="Buscar" aria-label="Buscar" className="px-2"><Search /></ToolbarButton>
         </div>
-        <ToolbarSeparator className="mx-0.5 max-[510px]:hidden" />
-        <div className="flex items-center justify-center gap-2 max-[510px]:w-full">
+        <ToolbarSeparator className="mx-0.5 max-[665px]:hidden" />
+        <div className="flex items-center justify-center gap-2 max-[665px]:w-full">
           <ToolbarButton size="sm" variant="ghost" onClick={doRandom} disabled={animating} title="Insertar clave aleatoria"><Dices />Azar</ToolbarButton>
           <ToolbarButton size="sm" variant="ghost" onClick={() => setConfirmClear(true)} disabled={animating} title="Vaciar árbol"><Eraser />Vaciar</ToolbarButton>
           <TraversalPopover root={tree.root} disabled={animating} onHighlightChange={setTraversalHighlight} />
