@@ -157,13 +157,13 @@ export function TraversalPopover({ root, onHighlightChange }: TraversalPopoverPr
             <Label htmlFor="traversal-speed" className="text-xs">
               Velocidad
             </Label>
-            <span className="text-[11px] tabular-nums text-muted-foreground">{speed}x</span>
+            <span className="text-[11px] tabular-nums text-muted-foreground">{Number(speed.toFixed(2))}x</span>
           </div>
           <Slider
             id="traversal-speed"
             min={1}
-            max={10}
-            step={1}
+            max={7}
+            step={0.25}
             value={[speed]}
             onValueChange={([v]) => setSpeed(v)}
             aria-label="Velocidad del recorrido"
