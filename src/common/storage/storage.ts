@@ -29,10 +29,15 @@ export interface ScopedStorage {
 }
 
 export function createScopedStorage(playgroundId: string): ScopedStorage {
+  const prefix = `arboles:v2:${playgroundId}:`;
+  // Acepta tanto un nombre lógico ("auto-tree") como una clave ya completa.
+  // Así `storage.key(...)` se puede pasar a `load`/`save` sin duplicar el
+  // namespace por accidente.
+  const full = (name: string) => (name.startsWith(prefix) ? name : `${prefix}${name}`);
   return {
-    key: (name) => scopedKey(playgroundId, name),
-    load: (name, fallback) => load(scopedKey(playgroundId, name), fallback),
-    save: (name, value) => save(scopedKey(playgroundId, name), value),
+    key: (name) => `${prefix}${name}`,
+    load: (name, fallback) => load(full(name), fallback),
+    save: (name, value) => save(full(name), value),
   };
 }
 
