@@ -7,6 +7,7 @@ import { useChrome } from '../../../app/use-chrome';
 import { BottomToolbar } from '../../../common/components/BottomToolbar';
 import { CanvasNotice } from '../../../common/components/CanvasNotice';
 import { HistoryDialog, type HistoryItem } from '../../../common/components/HistoryDialog';
+import { TreeBadges } from '../../../common/components/TreeBadges';
 import { TreeCanvas } from '../../../common/components/TreeCanvas';
 import { ConfirmDialog } from '../../../common/components/ui/alert-dialog';
 import { toast } from '../../../common/components/ui/use-toast';
@@ -24,6 +25,7 @@ import {
   toTreeKey,
   type AvlTree,
 } from '../model/avl';
+import { avlStatLabels, computeAvlStats } from '../model/stats';
 import type { Key, KeyType } from '../../../common/types';
 import { layoutTree } from '../../../common/tree/layout';
 import { createScopedStorage } from '../../../common/storage/storage';
@@ -248,6 +250,9 @@ export function AutoPlayground() {
       }),
     [tree.root],
   );
+
+  const badges = React.useMemo(() => avlStatLabels(computeAvlStats(tree.root), tree.root === null), [tree.root]);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <AppShell
@@ -256,6 +261,15 @@ export function AutoPlayground() {
         config={<AvlConfig keyType={tree.keyType} onKeyTypeChange={changeKeyType} />}
       />
       <div className="relative min-h-0 flex-1">
+        <div
+          className={
+            hidden
+              ? 'fixed left-3 top-3 z-40 max-w-[calc(100vw-1rem)]'
+              : 'absolute left-3 top-2 z-10 max-w-[calc(100vw-1rem)]'
+          }
+        >
+          <TreeBadges items={badges} />
+        </div>
         {tree.root === null ? (
           <div className="flex h-full items-center justify-center p-3">
             <p className="text-center text-sm text-muted-foreground">
@@ -301,7 +315,11 @@ export function AutoPlayground() {
             }}
           />
         )}
-        {message && <CanvasNotice hidden={hidden}>{message}</CanvasNotice>}
+        {message && (
+          <CanvasNotice hidden={hidden} className={hidden ? undefined : 'top-10'}>
+            {message}
+          </CanvasNotice>
+        )}
         <HistoryDialog open={showHistory} onOpenChange={setShowHistory} history={history} />
       </div>
 
