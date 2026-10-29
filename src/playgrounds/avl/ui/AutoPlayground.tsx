@@ -14,12 +14,12 @@ import { TreeCanvas } from '../../../common/components/TreeCanvas';
 import { ConfirmDialog } from '../../../common/components/ui/alert-dialog';
 import { toast } from '../../../common/components/ui/use-toast';
 import { AvlConfig } from './AvlConfig';
+import { AvlSettingsDialog } from './AvlSettingsDialog';
 import {
   balanceOf,
   contains,
   countKeys,
   createTree,
-  heightOf,
   searchPath,
   toTreeKey,
   type AvlTree,
@@ -27,7 +27,12 @@ import {
 import type { TreeAnimation } from '../model/animation';
 import { buildDeleteAnimation } from '../model/delete-animation';
 import { buildInsertAnimation, insertKeyAnimated } from '../model/insert-animation';
-import { avlStatLabels, computeAvlStats } from '../model/stats';
+import {
+  avlStatLabels,
+  computeAvlStats,
+  displayHeight,
+  type AvlSettings,
+} from '../model/stats';
 import { TraversalDrawer, type TraversalHighlight } from './TraversalDrawer';
 import type { Key, KeyType } from '../../../common/types';
 import { layoutTree } from '../../../common/tree/layout';
@@ -42,6 +47,7 @@ const KEYS = {
   autoHistory: storage.key('auto-history'),
   autoView: storage.key('auto-view'),
   autoSpeed: storage.key('auto-speed'),
+  autoSettings: storage.key('auto-settings'),
 };
 const load = storage.load;
 const save = storage.save;
@@ -78,9 +84,20 @@ export function AutoPlayground() {
     const saved = load<number>(KEYS.autoSpeed, DEFAULT_ANIM_SPEED);
     return Number.isFinite(saved) ? Math.min(7, Math.max(1, saved)) : DEFAULT_ANIM_SPEED;
   });
+  const [settings, setSettings] = React.useState<AvlSettings>(() => {
+    const saved = load<Partial<AvlSettings> | null>(KEYS.autoSettings, null);
+    return {
+      heightMode: saved?.heightMode === 'edges' ? 'edges' : 'nodes',
+      completeAlignLeft: saved?.completeAlignLeft === true,
+      fullRequiresSameLeafDepth: saved?.fullRequiresSameLeafDepth !== false,
+      rootLevel: saved?.rootLevel === 1 ? 1 : 0,
+      equilibriumEqualsBalance: saved?.equilibriumEqualsBalance === true,
+    };
+  });
   const [lastKey, setLastKey] = React.useState<Key | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
   const [showHistory, setShowHistory] = React.useState(false);
+  const [showSettings, setShowSettings] = React.useState(false);
   const [confirmClear, setConfirmClear] = React.useState(false);
   const [confirmType, setConfirmType] = React.useState<KeyType | null>(null);
 
@@ -97,6 +114,10 @@ export function AutoPlayground() {
   React.useEffect(() => {
     save(KEYS.autoSpeed, animationSpeed);
   }, [animationSpeed]);
+
+  React.useEffect(() => {
+    save(KEYS.autoSettings, settings);
+  }, [settings]);
 
   function pushHistory(text: string, steps: string[] = []) {
     setHistory((h) => [{ id: Date.now() + Math.random(), text, steps }, ...h].slice(0, 60));
@@ -350,8 +371,8 @@ export function AutoPlayground() {
   );
 
   const badges = React.useMemo(
-    () => avlStatLabels(computeAvlStats(renderTree.root), renderTree.root === null),
-    [renderTree.root],
+    () => avlStatLabels(computeAvlStats(renderTree.root, settings), renderTree.root === null),
+    [renderTree.root, settings],
   );
 
   const highlightIds = React.useMemo(() => {
@@ -369,7 +390,13 @@ export function AutoPlayground() {
       <AppShell
         playgroundId="avl"
         mode="auto"
-        config={<AvlConfig keyType={tree.keyType} onKeyTypeChange={changeKeyType} />}
+        config={
+          <AvlConfig
+            keyType={tree.keyType}
+            onKeyTypeChange={changeKeyType}
+            onOpenSettings={() => setShowSettings(true)}
+          />
+        }
       />
       <div className="relative min-h-0 flex-1">
         <div
@@ -425,7 +452,7 @@ export function AutoPlayground() {
                 >
                   <span className="text-sm font-semibold">{n.key}</span>
                   <span className="text-[10px] tabular-nums text-muted-foreground">
-                    h {heightOf(n)} · bf {bf > 0 ? `+${bf}` : bf}
+                    h {displayHeight(n, settings.heightMode)} · bf {bf > 0 ? `+${bf}` : bf}
                   </span>
                 </div>
               );
@@ -517,6 +544,12 @@ export function AutoPlayground() {
         description={`Cambiar a claves de ${confirmType === 'string' ? 'texto' : 'tipo numérico'} vaciará el árbol actual. Esta acción no se puede deshacer.`}
         confirmLabel="Vaciar y cambiar"
         onConfirm={confirmTypeChange}
+      />
+      <AvlSettingsDialog
+        open={showSettings}
+        onOpenChange={setShowSettings}
+        settings={settings}
+        onChange={setSettings}
       />
     </div>
   );
