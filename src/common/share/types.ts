@@ -43,3 +43,5 @@ export interface PlaygroundShareAdapter {
 
 /** Elección explícita del diálogo de guardado. */
 export type SaveTarget = 'auto' | 'manual' | 'both';
+
+export type SharedSessionStatus = 'idle' | 'pending' | 'protected' | 'done';

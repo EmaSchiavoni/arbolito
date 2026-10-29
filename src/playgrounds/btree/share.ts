@@ -164,7 +164,9 @@ function layoutManual(state: BTreeAutoState): BTreeManualState {
     byId.set(placed.id, {
       id: placed.id,
       keys: [...n.keys],
-      slots: [...n.children.map((c) => c.id), null],
+      // La representación manual usa exactamente |claves|+1 slots; en una
+      // hoja todos están vacíos.
+      slots: n.children.length > 0 ? n.children.map((c) => c.id) : new Array<null>(n.keys.length + 1).fill(null),
       x: placed.x,
       y: placed.y,
     });

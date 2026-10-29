@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   ChevronDown,
   ChevronUp,
@@ -7,6 +7,7 @@ import {
   Maximize,
   Minimize,
   Moon,
+  Save,
   Share2,
   SlidersHorizontal,
   Sun,
@@ -26,12 +27,15 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '../common/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../common/components/ui/tooltip';
 import { Logo } from '../common/components/Logo';
+import { SaveSharedTreeDialog } from '../common/components/SaveSharedTreeDialog';
 import { ShareDialog } from '../common/components/ShareDialog';
+import { SharedTreeNotice } from '../common/components/SharedTreeNotice';
 import { ThemeToggle } from '../common/components/ThemeToggle';
 import { setNavSource, trackUi } from '../common/analytics';
 import { useMediaQuery } from '../common/hooks/use-media-query';
 import type { Mode, PlaygroundDefinition } from '../common/playground';
 import { buildShareQuery } from '../common/share/codec';
+import { useSharedSession } from '../common/share/session-context';
 import type { PlaygroundShareAdapter } from '../common/share/types';
 import { useChrome } from './use-chrome';
 import { getPlayground, PLAYGROUNDS } from './registry';
@@ -119,15 +123,21 @@ function PlaygroundMenu({ playground, mode }: { playground: PlaygroundDefinition
 function ChromeMenu({
   playground,
   mode,
+  modeSearch,
   canShare,
+  canSave,
   onShare,
+  onSave,
   onOpenConfig,
   onOpenPlaygrounds,
 }: {
   playground: PlaygroundDefinition;
   mode: Mode;
+  modeSearch: string;
   canShare: boolean;
+  canSave: boolean;
   onShare: () => void;
+  onSave: () => void;
   onOpenConfig: () => void;
   onOpenPlaygrounds: () => void;
 }) {
@@ -141,7 +151,7 @@ function ChromeMenu({
         Cambiar de playground
       </DropdownMenuItem>
       <DropdownMenuItem asChild>
-        <Link to={`/${playground.id}/${other}`} onClick={() => setNavSource('header')}>
+        <Link to={`/${playground.id}/${other}${modeSearch}`} onClick={() => setNavSource('header')}>
           <OtherIcon />
           Ir a modo {playground.modes[other].label.toLowerCase()}
         </Link>
@@ -150,6 +160,12 @@ function ChromeMenu({
         <Share2 />
         Compartir árbol
       </DropdownMenuItem>
+      {canSave && (
+        <DropdownMenuItem onSelect={onSave}>
+          <Save />
+          Guardar árbol compartido
+        </DropdownMenuItem>
+      )}
       <DropdownMenuSeparator />
       <DropdownMenuItem
         onSelect={() => {
@@ -182,10 +198,17 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
   const [playgroundsOpen, setPlaygroundsOpen] = React.useState(false);
   const [shareOpen, setShareOpen] = React.useState(false);
   const [shareUrl, setShareUrl] = React.useState<string | null>(null);
+  const [saveOpen, setSaveOpen] = React.useState(false);
   const isSmall = useMediaQuery('(max-width: 639px)');
+  const routerLocation = useLocation();
+  const session = useSharedSession();
+  // Un cambio de modo dentro del mismo playground conserva el enlace.
+  const modeSearch = session.active ? routerLocation.search : '';
   const other: Mode = mode === 'auto' ? 'manual' : 'auto';
   const OtherIcon = playground.modes[other].icon;
   const canShare = !!share && !share.adapter.isEmpty(mode, share.state);
+  const noticeVisible = !!share && session.active && session.status === 'protected';
+  const canSave = noticeVisible && !!share;
 
   async function launchShare() {
     if (!share || !canShare) return;
@@ -227,8 +250,11 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
     <ChromeMenu
       playground={playground}
       mode={mode}
+      modeSearch={modeSearch}
       canShare={canShare}
+      canSave={canSave}
       onShare={launchShare}
+      onSave={() => setSaveOpen(true)}
       onOpenConfig={() => setConfigOpen(true)}
       onOpenPlaygrounds={() => setPlaygroundsOpen(true)}
     />
@@ -270,7 +296,7 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
                 <div className="flex items-center gap-1">
                   <PlaygroundMenu playground={playground} mode={mode} />
                   <Link
-                    to={`/${playground.id}/${other}`}
+                    to={`/${playground.id}/${other}${modeSearch}`}
                     title={`Ir a modo ${playground.modes[other].label.toLowerCase()}`}
                     onClick={() => setNavSource('header')}
                     className={cn(buttonVariants({ variant: 'ghost' }), 'rounded-full')}
@@ -278,6 +304,11 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
                     <OtherIcon />
                     <span>Ir a modo {playground.modes[other].label.toLowerCase()}</span>
                   </Link>
+                  {canSave && (
+                    <IconButton variant="default" onClick={() => setSaveOpen(true)} label="Guardar árbol compartido">
+                      <Save />
+                    </IconButton>
+                  )}
                   <IconButton variant="outline" onClick={launchShare} disabled={!canShare} label="Compartir árbol">
                     <Share2 />
                   </IconButton>
@@ -367,6 +398,24 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
       </Sheet>
 
       <ShareDialog open={shareOpen} onOpenChange={setShareOpen} url={shareUrl ?? ''} />
+
+      <SharedTreeNotice
+        visible={noticeVisible}
+        minimized={session.minimized}
+        onMinimize={session.minimize}
+        onExpand={session.expand}
+        onSave={() => setSaveOpen(true)}
+      />
+
+      <SaveSharedTreeDialog
+        open={saveOpen}
+        onOpenChange={setSaveOpen}
+        autoLabel={playground.modes.auto.label}
+        manualLabel={playground.modes.manual.label}
+        onConfirm={(target) => {
+          if (share) session.save(share.adapter, target);
+        }}
+      />
     </>
   );
 }

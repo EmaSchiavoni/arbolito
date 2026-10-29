@@ -19,8 +19,9 @@ import { toast } from '../../../common/components/ui/use-toast';
 import { ConfirmDialog } from '../../../common/components/ui/alert-dialog';
 import { trackConfig, trackUi, useToolTracker } from '../../../common/analytics';
 import { cn } from '../../../common/lib/utils';
+import { useSharedModeState } from '../../../common/share/use-shared-mode-state';
 import { BTREE_KEYS as KEYS, btreeStorage } from '../storage';
-import { btreeShare } from '../share';
+import { btreeShare, type BTreeAutoState } from '../share';
 import { AUTO_H, AUTO_KEY_W, AUTO_PTR_W, autoSlotX, autoTableWidth } from './node-metrics';
 
 const load = btreeStorage.load;
@@ -29,15 +30,21 @@ const save = btreeStorage.save;
 export function AutoPlayground() {
   const { hidden } = useChrome();
   const trackTool = useToolTracker('btree', 'auto');
-  const [p, setP] = React.useState<number>(() => load<number>(KEYS.autoP, 4));
+  const shared = useSharedModeState<BTreeAutoState>({ tree: 'btree', mode: 'auto', adapter: btreeShare });
+  const sharedInitial = shared.initial;
+  const commitShared = shared.commit;
+  const [p, setP] = React.useState<number>(() => sharedInitial?.p ?? load<number>(KEYS.autoP, 4));
   const [tree, setTree] = React.useState<BTree>(() => {
+    if (sharedInitial) return sharedInitial.tree;
     const saved = load<{ p: number; root: BTree['root']; keyType?: BTree['keyType'] } | null>(KEYS.autoTree, null);
     if (saved && saved.p >= ORDER_MIN && saved.p <= ORDER_MAX) {
       return { p: saved.p, root: saved.root, keyType: saved.keyType === 'string' ? 'string' : 'number' };
     }
     return createTree(load<number>(KEYS.autoP, 4));
   });
-  const [history, setHistory] = React.useState<HistoryItem[]>(() => load<HistoryItem[]>(KEYS.autoHistory, []));
+  const [history, setHistory] = React.useState<HistoryItem[]>(() =>
+    sharedInitial ? [] : load<HistoryItem[]>(KEYS.autoHistory, []),
+  );
   const [keyInput, setKeyInput] = React.useState('');
   const [highlight, setHighlight] = React.useState<Set<string>>(new Set());
   const [lastKey, setLastKey] = React.useState<Key | null>(null);
@@ -68,18 +75,25 @@ export function AutoPlayground() {
   const { initialView, handleViewChange } = useViewPersistence(KEYS.autoView, { x: 16, y: 150, k: 1 });
 
   React.useEffect(() => {
-    save(KEYS.autoP, p);
+    if (!shared.active) save(KEYS.autoP, p);
+  }, [p, shared.active]);
+
+  React.useEffect(() => {
     if (tree.p !== p) setTree((t) => ({ ...t, p }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p]);
 
   React.useEffect(() => {
-    save(KEYS.autoTree, tree);
-  }, [tree]);
+    if (!shared.active) save(KEYS.autoTree, tree);
+  }, [tree, shared.active]);
 
   React.useEffect(() => {
-    save(KEYS.autoHistory, history.slice(0, 60));
-  }, [history]);
+    if (!shared.active) save(KEYS.autoHistory, history.slice(0, 60));
+  }, [history, shared.active]);
+
+  React.useEffect(() => {
+    commitShared({ p, tree });
+  }, [p, tree, commitShared]);
 
   function pushHistory(text: string, steps: string[] = []) {
     setHistory((h) => [{ id: Date.now() + Math.random(), text, steps }, ...h].slice(0, 60));
