@@ -407,6 +407,7 @@ export function AutoPlayground() {
               const n = placed.node;
               const traversed = traversalHighlight.nodes.has(placed.id) || animationNodes.has(placed.id);
               const hot = highlightIds.has(placed.id);
+              const isNew = lastKey !== null && n.key === lastKey;
               const bf = balanceOf(n);
               return (
                 <div
@@ -418,16 +419,10 @@ export function AutoPlayground() {
                       : hot
                         ? 'border-zinc-900 ring-1 ring-zinc-900 dark:border-zinc-100 dark:ring-zinc-100'
                         : 'border-border dark:border-zinc-700',
+                    isNew && 'bg-emerald-100/60 dark:bg-emerald-950/50',
                   )}
                 >
-                  <span
-                    className={cn(
-                      'text-sm font-semibold',
-                      lastKey !== null && n.key === lastKey && 'rounded bg-emerald-100 px-1 text-emerald-950 dark:bg-emerald-950 dark:text-emerald-100',
-                    )}
-                  >
-                    {n.key}
-                  </span>
+                  <span className="text-sm font-semibold">{n.key}</span>
                   <span className="text-[10px] tabular-nums text-muted-foreground">
                     h {heightOf(n)} · bf {bf > 0 ? `+${bf}` : bf}
                   </span>
