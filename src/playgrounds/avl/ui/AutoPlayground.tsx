@@ -36,25 +36,15 @@ import {
 import { TraversalDrawer, type TraversalHighlight } from './TraversalDrawer';
 import type { Key, KeyType } from '../../../common/types';
 import { layoutTree } from '../../../common/tree/layout';
-import { createScopedStorage } from '../../../common/storage/storage';
 import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
 import { parseKeyList } from '../../../common/keys/parse-key-list';
 import { trackConfig, trackUi, useToolTracker } from '../../../common/analytics';
 import { cn } from '../../../common/lib/utils';
+import { AVL_KEYS as KEYS, avlStorage } from '../storage';
+import { AVL_H, AVL_W } from './node-metrics';
 
-const storage = createScopedStorage('avl');
-const KEYS = {
-  autoTree: storage.key('auto-tree'),
-  autoHistory: storage.key('auto-history'),
-  autoView: storage.key('auto-view'),
-  autoSpeed: storage.key('auto-speed'),
-  autoSettings: storage.key('auto-settings'),
-};
-const load = storage.load;
-const save = storage.save;
-
-const AVL_W = 120;
-const AVL_H = 56;
+const load = avlStorage.load;
+const save = avlStorage.save;
 
 const DEFAULT_ANIM_SPEED = 4;
 

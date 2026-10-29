@@ -15,27 +15,19 @@ import { validateManualAvl, type AvlManualNode } from '../model/validate';
 import type { ValidationResult } from '../../../common/validate/graph';
 import type { Key, KeyType } from '../../../common/types';
 import { trackConfig, trackThrottled, useToolTracker } from '../../../common/analytics';
-import { createScopedStorage } from '../../../common/storage/storage';
 import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
 import { createNodeTool, panTool, useCanvasTool, useMarqueeSelection, type ToolPoint } from '../../../common/tools';
 import { cn } from '../../../common/lib/utils';
+import { AVL_KEYS as KEYS, avlStorage } from '../storage';
+import {
+  MANUAL_NODE_H as NODE_H,
+  MANUAL_NODE_W as NODE_W,
+  MANUAL_SLOT_W as SLOT_W,
+  manualSlotX as slotX,
+} from './node-metrics';
 
-const storage = createScopedStorage('avl');
-const KEYS = {
-  manual: storage.key('manual-draft'),
-  manualView: storage.key('manual-view'),
-};
-const load = storage.load;
-const save = storage.save;
-
-const SLOT_W = 30;
-const KEY_W = 96;
-const NODE_W = SLOT_W * 2 + KEY_W;
-const NODE_H = 48;
-
-function slotX(x: number, slot: number): number {
-  return x + (slot === 0 ? SLOT_W / 2 : NODE_W - SLOT_W / 2);
-}
+const load = avlStorage.load;
+const save = avlStorage.save;
 
 function uid(): string {
   return `av${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
