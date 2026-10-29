@@ -7,9 +7,11 @@ import {
   Maximize,
   Minimize,
   Moon,
+  Share2,
   SlidersHorizontal,
   Sun,
 } from 'lucide-react';
+import { canNativeShare, shareNative } from 'react-share';
 import { Button } from '../common/components/ui/button';
 import { buttonVariants } from '../common/components/ui/button-variants';
 import { cn } from '../common/lib/utils';
@@ -24,17 +26,26 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '../common/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../common/components/ui/tooltip';
 import { Logo } from '../common/components/Logo';
+import { ShareDialog } from '../common/components/ShareDialog';
 import { ThemeToggle } from '../common/components/ThemeToggle';
 import { setNavSource, trackUi } from '../common/analytics';
 import { useMediaQuery } from '../common/hooks/use-media-query';
 import type { Mode, PlaygroundDefinition } from '../common/playground';
+import { buildShareQuery } from '../common/share/codec';
+import type { PlaygroundShareAdapter } from '../common/share/types';
 import { useChrome } from './use-chrome';
 import { getPlayground, PLAYGROUNDS } from './registry';
+
+export interface AppShellShare {
+  adapter: PlaygroundShareAdapter;
+  state: unknown;
+}
 
 export interface AppShellProps {
   playgroundId: string;
   mode: Mode;
   config?: React.ReactNode;
+  share?: AppShellShare;
 }
 
 interface IconButtonProps extends Omit<React.ComponentProps<typeof Button>, 'children'> {
@@ -108,11 +119,15 @@ function PlaygroundMenu({ playground, mode }: { playground: PlaygroundDefinition
 function ChromeMenu({
   playground,
   mode,
+  canShare,
+  onShare,
   onOpenConfig,
   onOpenPlaygrounds,
 }: {
   playground: PlaygroundDefinition;
   mode: Mode;
+  canShare: boolean;
+  onShare: () => void;
   onOpenConfig: () => void;
   onOpenPlaygrounds: () => void;
 }) {
@@ -130,6 +145,10 @@ function ChromeMenu({
           <OtherIcon />
           Ir a modo {playground.modes[other].label.toLowerCase()}
         </Link>
+      </DropdownMenuItem>
+      <DropdownMenuItem disabled={!canShare} onSelect={onShare}>
+        <Share2 />
+        Compartir árbol
       </DropdownMenuItem>
       <DropdownMenuSeparator />
       <DropdownMenuItem
@@ -156,14 +175,39 @@ function ChromeMenu({
 
 // Header global: logo, selector de playground, cambio de modo y configuración.
 // En mobile (y en modo inmersivo) todo se concentra en menús.
-export function AppShell({ playgroundId, mode, config }: AppShellProps) {
+export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
   const playground = getPlayground(playgroundId) ?? PLAYGROUNDS[0];
   const { hidden, showHeader, hideHeader, dark, toggleTheme } = useChrome();
   const [configOpen, setConfigOpen] = React.useState(false);
   const [playgroundsOpen, setPlaygroundsOpen] = React.useState(false);
+  const [shareOpen, setShareOpen] = React.useState(false);
+  const [shareUrl, setShareUrl] = React.useState<string | null>(null);
   const isSmall = useMediaQuery('(max-width: 639px)');
   const other: Mode = mode === 'auto' ? 'manual' : 'auto';
   const OtherIcon = playground.modes[other].icon;
+  const canShare = !!share && !share.adapter.isEmpty(mode, share.state);
+
+  async function launchShare() {
+    if (!share || !canShare) return;
+    const data = share.adapter.serialize(mode, share.state);
+    if (!data) return;
+    const query = buildShareQuery({ tree: playground.id, mode, ...data });
+    if (!query) return;
+    const url = `${window.location.origin}${window.location.pathname}?${query}`;
+    trackUi('share', { playground: playground.id, mode });
+    // La API nativa necesita conservar la activación de usuario: todo el
+    // camino hasta acá es síncrono.
+    if (canNativeShare({ url, title: 'Arbolito' })) {
+      try {
+        await shareNative({ url, title: 'Árbol compartido · Arbolito', text: 'Mirá este árbol en Arbolito.' });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') return;
+      }
+    }
+    setShareUrl(url);
+    setShareOpen(true);
+  }
 
   function showHeaderTop() {
     setConfigOpen(false);
@@ -183,6 +227,8 @@ export function AppShell({ playgroundId, mode, config }: AppShellProps) {
     <ChromeMenu
       playground={playground}
       mode={mode}
+      canShare={canShare}
+      onShare={launchShare}
       onOpenConfig={() => setConfigOpen(true)}
       onOpenPlaygrounds={() => setPlaygroundsOpen(true)}
     />
@@ -232,6 +278,9 @@ export function AppShell({ playgroundId, mode, config }: AppShellProps) {
                     <OtherIcon />
                     <span>Ir a modo {playground.modes[other].label.toLowerCase()}</span>
                   </Link>
+                  <IconButton variant="outline" onClick={launchShare} disabled={!canShare} label="Compartir árbol">
+                    <Share2 />
+                  </IconButton>
                   <ThemeToggle
                     dark={dark}
                     onToggle={() => {
@@ -316,6 +365,8 @@ export function AppShell({ playgroundId, mode, config }: AppShellProps) {
           </div>
         </SheetContent>
       </Sheet>
+
+      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} url={shareUrl ?? ''} />
     </>
   );
 }

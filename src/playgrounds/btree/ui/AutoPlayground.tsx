@@ -20,6 +20,7 @@ import { ConfirmDialog } from '../../../common/components/ui/alert-dialog';
 import { trackConfig, trackUi, useToolTracker } from '../../../common/analytics';
 import { cn } from '../../../common/lib/utils';
 import { BTREE_KEYS as KEYS, btreeStorage } from '../storage';
+import { btreeShare } from '../share';
 import { AUTO_H, AUTO_KEY_W, AUTO_PTR_W, autoSlotX, autoTableWidth } from './node-metrics';
 
 const load = btreeStorage.load;
@@ -288,12 +289,14 @@ export function AutoPlayground() {
     [tree.root, p],
   );
   const connected = React.useMemo(() => new Set(layout.edges.map((e) => `${e.from}:${e.slot}`)), [layout]);
+  const share = React.useMemo(() => ({ adapter: btreeShare, state: { p, tree } }), [p, tree]);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <AppShell
         playgroundId="btree"
         mode="auto"
+        share={share}
         config={
           <BTreeConfig
             id="orden-auto"
