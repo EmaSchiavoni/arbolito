@@ -18,7 +18,7 @@ import type { Key, KeyType } from '../../../common/types';
 import { trackConfig, trackThrottled, useToolTracker } from '../../../common/analytics';
 import { createScopedStorage } from '../../../common/storage/storage';
 import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
-import { createNodeTool, useCanvasTool, useMarqueeSelection, type ToolPoint } from '../../../common/tools';
+import { createNodeTool, panTool, useCanvasTool, useMarqueeSelection, type ToolPoint } from '../../../common/tools';
 import { cn } from '../../../common/lib/utils';
 
 const storage = createScopedStorage('btree');
@@ -161,7 +161,7 @@ export function ManualPlayground() {
     getNodeBox: () => ({ width: manualNodeWidth(p), height: 64 }),
     onSelectionChange: setSelectedIds,
   });
-  const { activeTool, activeId, toggleTool } = useCanvasTool([nodeTool, selectionTool]);
+  const { activeTool, activeId, toggleTool } = useCanvasTool([panTool, nodeTool, selectionTool]);
 
   // Centroide de los nodos al abrir (una sola vez): el canvas centra la
   // vista ahí para que los nodos aparezcan centrados en su nueva posición.
@@ -716,6 +716,7 @@ export function ManualPlayground() {
           </ToolbarButton>
         )}
         <ToolbarSeparator orientation="vertical" className="mx-1" />
+        <ToolButton tool={panTool} active={activeId === panTool.id} onSelect={() => toggleTool(panTool.id)} />
         <ToolButton tool={nodeTool} active={activeId === nodeTool.id} onSelect={() => toggleTool(nodeTool.id)} />
         <ToolButton tool={selectionTool} active={activeId === selectionTool.id} onSelect={() => toggleTool(selectionTool.id)} />
       </BottomToolbar>

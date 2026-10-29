@@ -25,6 +25,9 @@ export interface CanvasTool {
   icon: ComponentType<{ className?: string }>;
   // Valor CSS de cursor mientras la tool está activa (ej. 'crosshair').
   cursor?: string;
+  // Tool fija: representa el estado sin herramienta (paneo). No captura
+  // gestos y no se puede deseleccionar.
+  pinned?: boolean;
   onPress?: (point: ToolPoint) => void;
   onDrag?: (point: ToolPoint) => void;
   onRelease?: (point: ToolPoint) => void;
