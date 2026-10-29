@@ -61,7 +61,7 @@ export function computeAvlStats(root: AvlNode | null): AvlStats {
 }
 
 export function avlStatLabels(stats: AvlStats, empty: boolean): string[] {
-  if (empty) return ['Altura 0', 'Grado 0'];
+  if (empty) return ['Grado 0', 'Altura 0'];
 
   const equilibriumLabel =
     stats.equilibrium === 'perfect'
@@ -78,11 +78,11 @@ export function avlStatLabels(stats: AvlStats, empty: boolean): string[] {
         : 'Desbalanceado';
 
   return [
+    `Grado ${stats.degree}`,
     `Altura ${stats.height}`,
     equilibriumLabel,
     ...(stats.degenerate ? ['Degenerado'] : []),
     balanceLabel,
     ...(stats.complete ? ['Completo'] : []),
-    `Grado ${stats.degree}`,
   ];
 }
