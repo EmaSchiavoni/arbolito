@@ -31,14 +31,21 @@
       data-website-id="a9222cf8-c499-4401-8542-423e780aa0e3"
       data-domains="arbolito.schiavoni.dev"
       data-do-not-track="true"
+      data-exclude-search="true"
     ></script>
-    <script
-      defer
-      src="https://s.schiavoni.dev/recorder.js"
-      data-website-id="a9222cf8-c499-4401-8542-423e780aa0e3"
-      data-domains="arbolito.schiavoni.dev"
-      data-do-not-track="true"
-    ></script>
+    <script>
+      // Un enlace compartido lleva el árbol en la query: nunca se graba.
+      if (!/[?&]shared=/.test(window.location.search)) {
+        var recorder = document.createElement('script');
+        recorder.defer = true;
+        recorder.src = 'https://s.schiavoni.dev/recorder.js';
+        recorder.setAttribute('data-website-id', 'a9222cf8-c499-4401-8542-423e780aa0e3');
+        recorder.setAttribute('data-domains', 'arbolito.schiavoni.dev');
+        recorder.setAttribute('data-do-not-track', 'true');
+        recorder.setAttribute('data-exclude-search', 'true');
+        document.head.appendChild(recorder);
+      }
+    </script>
     <link rel="canonical" href="https://arbolito.schiavoni.dev/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="arbolito" />
