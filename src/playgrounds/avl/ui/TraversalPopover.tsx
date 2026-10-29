@@ -94,7 +94,7 @@ export function TraversalPopover({ root, onHighlightChange }: TraversalPopoverPr
   return (
     <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
-        <ToolbarButton size="sm" variant="outline" disabled={!root} title="Recorrer el árbol">
+        <ToolbarButton size="sm" variant="ghost" disabled={!root} title="Recorrer el árbol">
           <Route />
           Recorrer
         </ToolbarButton>
