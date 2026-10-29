@@ -61,16 +61,18 @@ function serializeManual(state: AvlManualState): SerializedManual {
 // ---------- Lectura del formato ----------
 
 function parseAutoNode(value: unknown, keyType: KeyType, nextId: { n: number }): AvlNode | null {
+  if (nextId.n >= 5000) return null;
   if (!Array.isArray(value) || value.length !== 3) return null;
   const [key, left, right] = value;
   if (!validKey(keyType, key)) return null;
+  nextId.n += 1;
+  const id = `a${nextId.n}`;
   const l = left === null ? null : parseAutoNode(left, keyType, nextId);
   const r = right === null ? null : parseAutoNode(right, keyType, nextId);
   if (left !== null && !l) return null;
   if (right !== null && !r) return null;
-  nextId.n += 1;
   const height = 1 + Math.max(l?.height ?? 0, r?.height ?? 0);
-  return { id: `a${nextId.n}`, key, left: l, right: r, height };
+  return { id, key, left: l, right: r, height };
 }
 
 function parseAuto(value: unknown, keyType: KeyType): AvlTree | null {

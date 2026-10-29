@@ -85,6 +85,7 @@ function parseAutoNode(
   p: number,
   nextId: { n: number },
 ): BNode | null {
+  if (nextId.n >= 5000) return null;
   if (!Array.isArray(value) || value.length !== 2) return null;
   const [rawKeys, rawChildren] = value;
   if (!Array.isArray(rawKeys) || !Array.isArray(rawChildren)) return null;
@@ -95,10 +96,11 @@ function parseAutoNode(
     if (cmpKey(keys[i - 1], keys[i]) >= 0) return null;
   }
   if (rawChildren.length !== 0 && rawChildren.length !== keys.length + 1) return null;
+  nextId.n += 1;
+  const id = `s${nextId.n}`;
   const children = rawChildren.map((c) => parseAutoNode(c, keyType, p, nextId));
   if (children.some((c) => c === null)) return null;
-  nextId.n += 1;
-  return { id: `s${nextId.n}`, keys, children: children as BNode[] };
+  return { id, keys, children: children as BNode[] };
 }
 
 function parseAuto(value: unknown, p: number, keyType: KeyType): BTree | null {
