@@ -2,7 +2,7 @@
 
 Aplicación web estática para experimentar con estructuras de árbol. Cada estructura es un **playground** con modo automático (opera y explica el algoritmo) y modo manual (se construye y valida a mano). Hoy incluye **Árbol B** y **Árbol AVL**; la arquitectura está preparada para sumar árboles n-arios.
 
-Demo en línea: https://arbolesb.schiavoni.dev/ (despliegue automático a GitHub Pages con Actions en cada push a `main`).
+Demo en línea: https://arbolito.schiavoni.dev/ (despliegue automático a GitHub Pages con Actions en cada push a `main`).
 
 ## Rutas
 
@@ -37,7 +37,7 @@ Sin backend ni base de datos. Todo vive en `localStorage`:
 
 - Claves globales: `arboles:theme`, `arboles:header-hidden`, `arboles:last-playground`.
 - Estado por playground: `arboles:v2:<id>:<nombre>` (árbol automático, historial, borrador manual, vista con paneo/zoom).
-- `src/common/storage/migrate.ts` migra una sola vez el formato anterior (`arboles-b:*`) y conserva las claves viejas como respaldo.
+- `src/common/storage/migrate.ts` migra una sola vez el formato anterior de almacenamiento y conserva las claves viejas como respaldo.
 
 ## Uso
 

@@ -3,7 +3,7 @@ import { defineConfig } from 'vite'
 
 // https://vite.dev/config/
 export default defineConfig({
-  // Base raíz: el sitio se sirve en el dominio propio (arbolesb.schiavoni.dev).
+  // Base raíz: el sitio se sirve en el dominio propio (arbolito.schiavoni.dev).
   base: '/',
   plugins: [react()],
   build: {
