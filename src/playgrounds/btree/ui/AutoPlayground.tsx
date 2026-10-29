@@ -13,38 +13,17 @@ import { BTreeConfig } from './BTreeConfig';
 import { TreeCanvas } from '../../../common/components/TreeCanvas';
 import { cmpKey, contains, countKeys, createTree, deleteKeyLogged, formatStep, insertKey, insertKeyLogged, searchPath, toTreeKey, type BTree, type BTreePolicy, type Key } from '../model/btree';
 import { layoutTree } from '../../../common/tree/layout';
-import { createScopedStorage } from '../../../common/storage/storage';
 import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
 import { parseKeyList } from '../../../common/keys/parse-key-list';
 import { toast } from '../../../common/components/ui/use-toast';
 import { ConfirmDialog } from '../../../common/components/ui/alert-dialog';
 import { trackConfig, trackUi, useToolTracker } from '../../../common/analytics';
 import { cn } from '../../../common/lib/utils';
+import { BTREE_KEYS as KEYS, btreeStorage } from '../storage';
+import { AUTO_H, AUTO_KEY_W, AUTO_PTR_W, autoSlotX, autoTableWidth } from './node-metrics';
 
-const storage = createScopedStorage('btree');
-const KEYS = {
-  autoP: storage.key('auto-p'),
-  autoTree: storage.key('auto-tree'),
-  autoHistory: storage.key('auto-history'),
-  autoPolicy: storage.key('auto-policy'),
-  autoView: storage.key('auto-view'),
-};
-const load = storage.load;
-const save = storage.save;
-
-// Tabla completa siempre visible: p columnas de puntero (delgadas) + p-1
-// celdas de clave. Las celdas vacías se muestran como cajas vacías.
-const AUTO_PTR_W = 14;
-const AUTO_KEY_W = 40;
-const AUTO_H = 48;
-
-function autoTableWidth(p: number): number {
-  return p * AUTO_PTR_W + (p - 1) * AUTO_KEY_W;
-}
-
-function autoSlotX(x: number, slot: number): number {
-  return x + slot * (AUTO_PTR_W + AUTO_KEY_W) + AUTO_PTR_W / 2;
-}
+const load = btreeStorage.load;
+const save = btreeStorage.save;
 
 export function AutoPlayground() {
   const { hidden } = useChrome();

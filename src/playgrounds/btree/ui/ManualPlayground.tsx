@@ -16,36 +16,14 @@ import { TreeCanvas } from '../../../common/components/TreeCanvas';
 import { validateManualTree, type ManualNode, type ValidationResult } from '../model/validate';
 import type { Key, KeyType } from '../../../common/types';
 import { trackConfig, trackThrottled, useToolTracker } from '../../../common/analytics';
-import { createScopedStorage } from '../../../common/storage/storage';
 import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
 import { createNodeTool, panTool, useCanvasTool, useMarqueeSelection, type ToolPoint } from '../../../common/tools';
 import { cn } from '../../../common/lib/utils';
+import { BTREE_KEYS as KEYS, btreeStorage } from '../storage';
+import { MANUAL_SLOT_W as SLOT_COL_W, manualNodeWidth, manualSlotX } from './node-metrics';
 
-const storage = createScopedStorage('btree');
-const KEYS = {
-  manual: storage.key('manual-draft'),
-  manualView: storage.key('manual-view'),
-};
-const load = storage.load;
-const save = storage.save;
-
-// Tabla completa siempre visible: p columnas de puntero (delgadas) + p-1
-// celdas de clave, una al lado de otra (nodo lleno: 2p-1 columnas). La columna
-// de puntero solo aloja el inicio de la flecha. Las celdas de clave vacías se
-// editan directo; solo los primeros |claves|+1 slots aceptan punteros.
-const SLOT_COL_W = 30;
-const KEY_COL_W = 64;
-
-function manualNodeWidth(p: number): number {
-  return Math.max(150, p * SLOT_COL_W + (p - 1) * KEY_COL_W);
-}
-
-// Coordenada x absoluta del centro de la columna del slot (para la flecha).
-function manualSlotX(x: number, p: number, slot: number): number {
-  const w = manualNodeWidth(p);
-  const keyW = (w - p * SLOT_COL_W) / (p - 1);
-  return x + slot * (SLOT_COL_W + keyW) + SLOT_COL_W / 2;
-}
+const load = btreeStorage.load;
+const save = btreeStorage.save;
 
 function uid(): string {
   return `m${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`;
