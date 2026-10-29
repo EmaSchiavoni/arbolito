@@ -93,7 +93,15 @@ export function ManualPlayground() {
   const [result, setResult] = React.useState<ValidationResult | null>(null);
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [confirmType, setConfirmType] = React.useState<'number' | 'string' | null>(null);
-  const dragRef = React.useRef<{ id: string; nx: number; ny: number; sx: number; sy: number; snap: Draft } | null>(null);
+  // Arrastre de uno o varios nodos: el mismo delta para todos los orígenes y
+  // un único snapshot para que mover el grupo se deshaga en un solo paso.
+  const dragRef = React.useRef<{
+    ids: string[];
+    origins: Map<string, { x: number; y: number }>;
+    sx: number;
+    sy: number;
+    snap: Draft;
+  } | null>(null);
 
   const { nodes, rootId, p, keyType } = draft;
   const isStr = keyType === 'string';
@@ -424,30 +432,72 @@ export function ManualPlayground() {
   }
 
   function onNodePointerDown(e: React.PointerEvent, id: string) {
-    const n = nodes.find((x) => x.id === id);
-    if (!n) return;
-    dragRef.current = { id, nx: n.x, ny: n.y, sx: e.clientX, sy: e.clientY, snap: structuredClone(draft) };
+    const byId = new Map(nodes.map((n) => [n.id, n]));
+    if (!byId.has(id)) return;
+    // Arrastrar un nodo seleccionado mueve toda la selección; arrastrar uno
+    // fuera de ella descarta la selección y mueve solo ese nodo.
+    const ids = selectedNodeIds.has(id) ? [...selectedNodeIds] : [id];
+    if (!selectedNodeIds.has(id)) setSelectedIds(new Set());
+    const origins = new Map<string, { x: number; y: number }>();
+    for (const nodeId of ids) {
+      const node = byId.get(nodeId);
+      if (node) origins.set(nodeId, { x: node.x, y: node.y });
+    }
+    dragRef.current = { ids: [...origins.keys()], origins, sx: e.clientX, sy: e.clientY, snap: structuredClone(draft) };
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
   }
   function onNodePointerMove(e: React.PointerEvent) {
     const d = dragRef.current;
     if (!d) return;
     const k = viewRef.current.k || 1;
-    const nx = d.nx + (e.clientX - d.sx) / k;
-    const ny = d.ny + (e.clientY - d.sy) / k;
-    setDraft((prev) => ({ ...prev, nodes: prev.nodes.map((n) => (n.id === d.id ? { ...n, x: Math.max(0, nx), y: Math.max(0, ny) } : n)) }));
+    // El clamp se aplica al delta común para que el grupo no se deforme al
+    // tocar el borde superior/izquierdo.
+    let minX = Infinity;
+    let minY = Infinity;
+    for (const origin of d.origins.values()) {
+      minX = Math.min(minX, origin.x);
+      minY = Math.min(minY, origin.y);
+    }
+    const dx = Math.max((e.clientX - d.sx) / k, -minX);
+    const dy = Math.max((e.clientY - d.sy) / k, -minY);
+    setDraft((prev) => ({
+      ...prev,
+      nodes: prev.nodes.map((n) => {
+        const origin = d.origins.get(n.id);
+        return origin ? { ...n, x: origin.x + dx, y: origin.y + dy } : n;
+      }),
+    }));
   }
   function onNodePointerUp() {
-    // El arrastre cuenta como una sola acción: si el nodo se movió, se guarda
-    // la posición previa para poder deshacerla.
+    // El arrastre cuenta como una sola acción: si algún nodo se movió, se
+    // guarda el estado previo para deshacer todo el grupo de una vez.
     const d = dragRef.current;
     dragRef.current = null;
     if (!d) return;
-    const cur = draftRef.current.nodes.find((n) => n.id === d.id);
-    if (cur && (cur.x !== d.nx || cur.y !== d.ny)) {
+    const changed = d.ids.some((id) => {
+      const cur = draftRef.current.nodes.find((n) => n.id === id);
+      const origin = d.origins.get(id);
+      return !!cur && !!origin && (cur.x !== origin.x || cur.y !== origin.y);
+    });
+    if (changed) {
       setUndoStack((s) => [...s, d.snap].slice(-6));
       setRedoStack([]);
     }
+  }
+
+  function deleteSelected() {
+    const ids = selectedNodeIds;
+    if (ids.size === 0) return;
+    // Un solo update: el borrado múltiple entra en el historial como un paso.
+    update((d) => {
+      d.nodes = d.nodes.filter((n) => !ids.has(n.id));
+      for (const n of d.nodes) n.slots = n.slots.map((s) => (s && ids.has(s) ? null : s));
+      if (d.rootId && ids.has(d.rootId)) d.rootId = d.nodes[0]?.id ?? null;
+      return d;
+    });
+    setSelectedIds(new Set());
+    if (linking && ids.has(linking.nodeId)) setLinking(null);
+    trackTool('node_delete', { count: ids.size, bulk: true });
   }
 
   return (
@@ -659,6 +709,11 @@ export function ManualPlayground() {
           </ToolbarButton>
         )}
         {linking && <ToolbarButton size="sm" variant="outline" onClick={() => setLinking(null)}><X />Cancelar</ToolbarButton>}
+        {selectedNodeIds.size > 0 && (
+          <ToolbarButton size="sm" variant="outline" onClick={deleteSelected} title="Eliminar los nodos seleccionados">
+            <Trash2 />Eliminar ({selectedNodeIds.size})
+          </ToolbarButton>
+        )}
         <ToolbarSeparator orientation="vertical" className="mx-1" />
         <ToolButton tool={nodeTool} active={activeId === nodeTool.id} onSelect={() => toggleTool(nodeTool.id)} />
         <ToolButton tool={selectionTool} active={activeId === selectionTool.id} onSelect={() => toggleTool(selectionTool.id)} />
