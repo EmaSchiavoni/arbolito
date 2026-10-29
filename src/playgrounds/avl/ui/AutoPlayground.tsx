@@ -41,6 +41,8 @@ import { parseKeyList } from '../../../common/keys/parse-key-list';
 import { trackConfig, trackUi, useToolTracker } from '../../../common/analytics';
 import { cn } from '../../../common/lib/utils';
 import { AVL_KEYS as KEYS, avlStorage } from '../storage';
+import { avlShare, type AvlAutoState } from '../share';
+import { useSharedModeState } from '../../../common/share/use-shared-mode-state';
 import { AVL_H, AVL_W } from './node-metrics';
 
 const load = avlStorage.load;
@@ -55,14 +57,20 @@ function formatSpeed(speed: number): string {
 export function AutoPlayground() {
   const { hidden } = useChrome();
   const trackTool = useToolTracker('avl', 'auto');
+  const shared = useSharedModeState<AvlAutoState>({ tree: 'avl', mode: 'auto', adapter: avlShare });
+  const sharedInitial = shared.initial;
+  const commitShared = shared.commit;
   const [tree, setTree] = React.useState<AvlTree>(() => {
+    if (sharedInitial) return sharedInitial.tree;
     const saved = load<AvlTree | null>(KEYS.autoTree, null);
     if (saved && (saved.keyType === 'string' || saved.keyType === 'number')) {
       return { root: saved.root ?? null, keyType: saved.keyType };
     }
     return createTree('number');
   });
-  const [history, setHistory] = React.useState<HistoryItem[]>(() => load<HistoryItem[]>(KEYS.autoHistory, []));
+  const [history, setHistory] = React.useState<HistoryItem[]>(() =>
+    sharedInitial ? [] : load<HistoryItem[]>(KEYS.autoHistory, []),
+  );
   const [keyInput, setKeyInput] = React.useState('');
   const [highlight, setHighlight] = React.useState<Set<string>>(new Set());
   const [traversalHighlight, setTraversalHighlight] = React.useState<TraversalHighlight>({
@@ -96,12 +104,16 @@ export function AutoPlayground() {
   const { initialView, handleViewChange } = useViewPersistence(KEYS.autoView, { x: 16, y: 150, k: 1 });
 
   React.useEffect(() => {
-    save(KEYS.autoTree, tree);
-  }, [tree]);
+    if (!shared.active) save(KEYS.autoTree, tree);
+  }, [tree, shared.active]);
 
   React.useEffect(() => {
-    save(KEYS.autoHistory, history.slice(0, 60));
-  }, [history]);
+    if (!shared.active) save(KEYS.autoHistory, history.slice(0, 60));
+  }, [history, shared.active]);
+
+  React.useEffect(() => {
+    commitShared({ tree });
+  }, [tree, commitShared]);
 
   React.useEffect(() => {
     save(KEYS.autoSpeed, animationSpeed);
@@ -384,11 +396,14 @@ export function AutoPlayground() {
     return new Set([...traversalHighlight.edges, ...animationEdges]);
   }, [traversalHighlight.edges, animationEdges]);
 
+  const share = React.useMemo(() => ({ adapter: avlShare, state: { tree } }), [tree]);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <AppShell
         playgroundId="avl"
         mode="auto"
+        share={share}
         config={
           <AvlConfig
             keyType={tree.keyType}
