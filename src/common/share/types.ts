@@ -38,7 +38,7 @@ export interface PlaygroundShareAdapter {
   /** Persiste el estado del modo como su copia guardada. */
   save: (mode: Mode, state: unknown) => boolean;
   /** ¿El estado no contiene ningún dato que valga la pena compartir? */
-  isEmpty: (state: unknown) => boolean;
+  isEmpty: (mode: Mode, state: unknown) => boolean;
 }
 
 /** Elección explícita del diálogo de guardado. */
