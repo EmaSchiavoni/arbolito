@@ -17,7 +17,7 @@ import type { Key, KeyType } from '../../../common/types';
 import { trackConfig, trackThrottled, useToolTracker } from '../../../common/analytics';
 import { createScopedStorage } from '../../../common/storage/storage';
 import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
-import { createNodeTool, useCanvasTool, type ToolPoint } from '../../../common/tools';
+import { createNodeTool, useCanvasTool, useMarqueeSelection, type ToolPoint } from '../../../common/tools';
 import { cn } from '../../../common/lib/utils';
 
 const storage = createScopedStorage('avl');
@@ -70,6 +70,7 @@ export function ManualPlayground() {
     return seed();
   });
   const [linking, setLinking] = React.useState<{ nodeId: string; slot: number } | null>(null);
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(() => new Set());
   const [result, setResult] = React.useState<ValidationResult | null>(null);
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [confirmType, setConfirmType] = React.useState<KeyType | null>(null);
@@ -81,10 +82,30 @@ export function ManualPlayground() {
 
   const { nodes, rootId, keyType } = draft;
 
+  // La selección solo expone ids que todavía existen en el árbol (borrados,
+  // undo/redo o cambios de tipo pueden dejar ids huérfanos en el estado).
+  const selectedNodeIds = React.useMemo(() => {
+    if (selectedIds.size === 0) return selectedIds;
+    const existing = new Set(nodes.map((n) => n.id));
+    let changed = false;
+    const next = new Set<string>();
+    for (const id of selectedIds) {
+      if (existing.has(id)) next.add(id);
+      else changed = true;
+    }
+    return changed ? next : selectedIds;
+  }, [selectedIds, nodes]);
+
   const { initialView, viewRef, handleViewChange } = useViewPersistence(KEYS.manualView);
 
   const nodeTool = createNodeTool({ onPlace: (point) => addNodeAt(point) });
-  const { activeTool, activeId, toggleTool } = useCanvasTool([nodeTool]);
+  const { tool: selectionTool, rect: marquee } = useMarqueeSelection({
+    nodes,
+    selectedIds: selectedNodeIds,
+    getNodeBox: () => ({ width: NODE_W, height: NODE_H }),
+    onSelectionChange: setSelectedIds,
+  });
+  const { activeTool, activeId, toggleTool } = useCanvasTool([nodeTool, selectionTool]);
 
   const [initialCenter] = React.useState<{ x: number; y: number } | null>(() => {
     if (draft.nodes.length === 0) return null;
@@ -221,6 +242,12 @@ export function ManualPlayground() {
       return d;
     });
     if (linking?.nodeId === id) setLinking(null);
+    setSelectedIds((prev) => {
+      if (!prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
     trackTool('node_delete');
   }
 
@@ -289,6 +316,7 @@ export function ManualPlayground() {
   function doClear() {
     update((d) => ({ ...d, nodes: [], rootId: null }));
     setLinking(null);
+    setSelectedIds(new Set());
     trackTool('clear');
   }
 
@@ -377,9 +405,11 @@ export function ManualPlayground() {
             initialView={initialView}
             onViewChange={handleViewChange}
             tool={activeTool}
+            marquee={marquee}
             renderNode={(n) => {
               const isRoot = n.id === rootId;
               const isTarget = !!linking && linking.nodeId !== n.id;
+              const isSelected = selectedNodeIds.has(n.id);
               const bad = errorIds.has(n.id);
               return (
                 <div
@@ -392,6 +422,7 @@ export function ManualPlayground() {
                         ? 'border-zinc-900 dark:border-zinc-100'
                         : 'border-border dark:border-zinc-700',
                     isTarget && 'ring-2 ring-dashed ring-zinc-500',
+                    isSelected && 'outline-2 outline-offset-2 outline-zinc-500 [outline-style:solid] dark:outline-zinc-400',
                   )}
                 >
                   <div
@@ -503,6 +534,7 @@ export function ManualPlayground() {
         {linking && <ToolbarButton size="sm" variant="outline" onClick={() => setLinking(null)}><X />Cancelar</ToolbarButton>}
         <ToolbarSeparator orientation="vertical" className="mx-1" />
         <ToolButton tool={nodeTool} active={activeId === nodeTool.id} onSelect={() => toggleTool(nodeTool.id)} />
+        <ToolButton tool={selectionTool} active={activeId === selectionTool.id} onSelect={() => toggleTool(selectionTool.id)} />
       </BottomToolbar>
 
       <ValidationSheet
