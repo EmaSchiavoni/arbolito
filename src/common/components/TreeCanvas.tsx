@@ -35,6 +35,13 @@ interface Props<T extends CanvasNode> {
   getSlotX?: (node: T, slot: number) => number;
   // Alto del nodo (de dónde sale la flecha). Por defecto NODE_HEIGHT.
   nodeHeight?: number;
+  // Anima el movimiento de los nodos al cambiar el layout (rotaciones).
+  animateNodes?: boolean;
+  animationDurationMs?: number;
+  // Hace un fade-in de los arcos cuando cambia `edgeFadeKey`. Se usa en las
+  // rotaciones para disimular el salto de las flechas SVG.
+  fadeEdges?: boolean;
+  edgeFadeKey?: string | number;
   // Punto virtual a centrar en el contenedor al montar (una sola vez).
   // Se ignora si hay vista guardada: la restauración tiene prioridad.
   initialCenter?: { x: number; y: number } | null;
@@ -44,7 +51,7 @@ interface Props<T extends CanvasNode> {
   onViewChange?: (view: { x: number; y: number; k: number; w: number; h: number }) => void;
 }
 
-export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, highlightEdges, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotCount, getSlotX, nodeHeight, initialCenter, initialView, onViewChange }: Props<T>) {
+export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, highlightIds, highlightEdges, errorIds, linking, onBackgroundClick, extraSvg, getNodeWidth, getSlotCount, getSlotX, nodeHeight, animateNodes, animationDurationMs = 300, fadeEdges, edgeFadeKey, initialCenter, initialView, onViewChange }: Props<T>) {
   const ref = React.useRef<HTMLDivElement>(null);
   const [pan, setPan] = React.useState(() => initialView ?? { x: 16, y: 16, k: 1 });
   const panRef = React.useRef(pan);
@@ -257,6 +264,67 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  const positionsRef = React.useRef(new Map<string, { x: number; y: number }>());
+  const rafRef = React.useRef<number | null>(null);
+  const lastTargetKey = React.useRef('');
+  const [animatedPositions, setAnimatedPositions] = React.useState<Map<string, { x: number; y: number }> | null>(null);
+  const targetKey = React.useMemo(() => nodes.map((n) => `${n.id}:${n.x}:${n.y}`).join('|'), [nodes]);
+
+  React.useEffect(() => {
+    const current = nodes;
+    const target = new Map(current.map((n) => [n.id, { x: n.x, y: n.y }]));
+
+    if (!animateNodes) {
+      lastTargetKey.current = targetKey;
+      positionsRef.current = target;
+      return;
+    }
+    if (targetKey === lastTargetKey.current) return;
+    lastTargetKey.current = targetKey;
+
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    const from = new Map(positionsRef.current);
+    if (from.size === 0) {
+      positionsRef.current = target;
+      return;
+    }
+
+    const duration = Math.max(0, animationDurationMs);
+    const start = performance.now();
+    const tick = (now: number) => {
+      const progress = duration === 0 ? 1 : Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const next = new Map<string, { x: number; y: number }>();
+      for (const n of current) {
+        const to = target.get(n.id);
+        if (!to) continue;
+        const fromNode = from.get(n.id) ?? to;
+        next.set(n.id, {
+          x: fromNode.x + (to.x - fromNode.x) * eased,
+          y: fromNode.y + (to.y - fromNode.y) * eased,
+        });
+      }
+      positionsRef.current = next;
+      setAnimatedPositions(next);
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        positionsRef.current = target;
+        rafRef.current = null;
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+  }, [nodes, targetKey, animateNodes, animationDurationMs]);
+
+  const positionOf = (n: T) => (animateNodes ? animatedPositions?.get(n.id) : undefined) ?? { x: n.x, y: n.y };
+
   const byId = React.useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
 
   const widthOf = getNodeWidth ?? (() => DEFAULT_NODE_WIDTH);
@@ -265,13 +333,18 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
   const contentH = Math.max(400, ...nodes.map((n) => n.y + heightOf + 120));
 
   function edgePath(from: T, to: T, slot: number): string {
-    const fw = widthOf(from);
-    const slotCount = getSlotCount ? getSlotCount(from) : 1;
-    const x1 = getSlotX ? getSlotX(from, slot) : from.x + ((slot + 0.5) / Math.max(1, slotCount)) * fw;
-    const y1 = from.y + heightOf;
+    const fromPos = positionOf(from);
+    const toPos = positionOf(to);
+    const positionedFrom = { ...from, x: fromPos.x, y: fromPos.y };
+    const fw = widthOf(positionedFrom);
+    const slotCount = getSlotCount ? getSlotCount(positionedFrom) : 1;
+    const x1 = getSlotX
+      ? getSlotX(positionedFrom, slot)
+      : fromPos.x + ((slot + 0.5) / Math.max(1, slotCount)) * fw;
+    const y1 = fromPos.y + heightOf;
     const tw = widthOf(to);
-    const x2 = to.x + tw / 2;
-    const y2 = to.y;
+    const x2 = toPos.x + tw / 2;
+    const y2 = toPos.y;
     const mid = (y1 + y2) / 2;
     return `M ${x1} ${y1} C ${x1} ${mid}, ${x2} ${mid}, ${x2} ${y2}`;
   }
@@ -297,28 +370,34 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
         style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${pan.k})`, transformOrigin: '0 0', width: contentW, height: contentH }}
       >
         <svg width={contentW} height={contentH} className="absolute left-0 top-0 overflow-visible">
-          {edges.map((e, i) => {
-            const f = byId.get(e.from);
-            const t = byId.get(e.to);
-            if (!f || !t) return null;
-            // La flecha se resalta explícitamente si se está recorriendo ese
-            // arco; sin lista explícita, se resalta solo si ambos extremos
-            // pertenecen al camino marcado.
-            const hot = highlightEdges
-              ? highlightEdges.has(`${e.from}:${e.to}`)
-              : !!highlightIds?.has(e.from) && !!highlightIds?.has(e.to);
-            const bad = errorIds?.has(e.from) || errorIds?.has(e.to);
-            return (
-              <path
-                key={`${e.from}-${e.to}-${i}`}
-                d={edgePath(f, t, e.slot)}
-                fill="none"
-                strokeWidth={hot ? 2.5 : 1.5}
-                className={bad ? 'stroke-red-500 dark:stroke-red-400' : hot ? 'stroke-zinc-900 dark:stroke-zinc-100' : 'stroke-zinc-400 dark:stroke-zinc-500'}
-                markerEnd="url(#arrow)"
-              />
-            );
-          })}
+          <g
+            key={fadeEdges ? `edges-${edgeFadeKey ?? 0}` : 'edges'}
+            className={fadeEdges ? 'animate-edge-fade' : undefined}
+            style={fadeEdges ? { animationDuration: `${animationDurationMs}ms` } : undefined}
+          >
+            {edges.map((e, i) => {
+              const f = byId.get(e.from);
+              const t = byId.get(e.to);
+              if (!f || !t) return null;
+              // La flecha se resalta explícitamente si se está recorriendo ese
+              // arco; sin lista explícita, se resalta solo si ambos extremos
+              // pertenecen al camino marcado.
+              const hot = highlightEdges
+                ? highlightEdges.has(`${e.from}:${e.to}`)
+                : !!highlightIds?.has(e.from) && !!highlightIds?.has(e.to);
+              const bad = errorIds?.has(e.from) || errorIds?.has(e.to);
+              return (
+                <path
+                  key={`${e.from}-${e.to}-${i}`}
+                  d={edgePath(f, t, e.slot)}
+                  fill="none"
+                  strokeWidth={hot ? 2.5 : 1.5}
+                  className={bad ? 'stroke-red-500 dark:stroke-red-400' : hot ? 'stroke-zinc-900 dark:stroke-zinc-100' : 'stroke-zinc-400 dark:stroke-zinc-500'}
+                  markerEnd="url(#arrow)"
+                />
+              );
+            })}
+          </g>
           <defs>
             <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
               <path d="M0,0 L6,3 L0,6" fill="none" strokeWidth="1.2" className="stroke-zinc-500 dark:stroke-zinc-400" />
@@ -326,11 +405,14 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
           </defs>
           {extraSvg}
         </svg>
-        {nodes.map((n) => (
-          <div key={n.id} className="absolute" style={{ left: n.x, top: n.y, width: widthOf(n) }}>
-            {renderNode(n)}
-          </div>
-        ))}
+        {nodes.map((n) => {
+          const pos = positionOf(n);
+          return (
+            <div key={n.id} className="absolute" style={{ left: pos.x, top: pos.y, width: widthOf(n) }}>
+              {renderNode({ ...n, x: pos.x, y: pos.y })}
+            </div>
+          );
+        })}
       </div>
       <span
         title="Zoom actual en % (Enter para aplicar, Esc para cancelar)"
