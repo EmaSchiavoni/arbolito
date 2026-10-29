@@ -20,6 +20,8 @@ import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
 import { createNodeTool, panTool, useCanvasTool, useMarqueeSelection, type ToolPoint } from '../../../common/tools';
 import { cn } from '../../../common/lib/utils';
 import { BTREE_KEYS as KEYS, btreeStorage } from '../storage';
+import { btreeShare, type BTreeManualState } from '../share';
+import { useSharedModeState } from '../../../common/share/use-shared-mode-state';
 import { MANUAL_SLOT_W as SLOT_COL_W, manualNodeWidth, manualSlotX } from './node-metrics';
 
 const load = btreeStorage.load;
@@ -55,7 +57,11 @@ function fixSlots(keys: Key[], slots: (string | null)[]): (string | null)[] {
 export function ManualPlayground() {
   const { hidden } = useChrome();
   const trackTool = useToolTracker('btree', 'manual');
+  const shared = useSharedModeState<BTreeManualState>({ tree: 'btree', mode: 'manual', adapter: btreeShare });
+  const sharedInitial = shared.initial;
+  const commitShared = shared.commit;
   const [draft, setDraft] = React.useState<Draft>(() => {
+    if (sharedInitial) return sharedInitial;
     const saved = load<Draft | null>(KEYS.manual, null);
     if (saved && Array.isArray(saved.nodes)) {
       return {
@@ -161,8 +167,12 @@ export function ManualPlayground() {
   draftRef.current = draft;
 
   React.useEffect(() => {
-    save(KEYS.manual, draft);
-  }, [draft]);
+    if (!shared.active) save(KEYS.manual, draft);
+  }, [draft, shared.active]);
+
+  React.useEffect(() => {
+    commitShared(draft);
+  }, [draft, commitShared]);
 
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -478,11 +488,14 @@ export function ManualPlayground() {
     trackTool('node_delete', { count: ids.size, bulk: true });
   }
 
+  const share = React.useMemo(() => ({ adapter: btreeShare, state: draft }), [draft]);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <AppShell
         playgroundId="btree"
         mode="manual"
+        share={share}
         config={
           <BTreeConfig
             id="orden-manual"
