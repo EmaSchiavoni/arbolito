@@ -23,11 +23,20 @@ En este proyecto, el orden `p` es la cantidad máxima de punteros de árbol por 
 - **Automático:** inserta, elimina y busca claves; muestra el árbol con altura y factor de balance por nodo, resalta el camino de búsqueda, la clave nueva y los nodos tocados por rotaciones. El historial detalla inserciones, reemplazo por sucesor y rotaciones simples/dobles.
 - **Manual:** editor libre con un nodo por clave y dos punteros (izquierdo/derecho), arrastre, linking, undo/redo y Validar. El validador comprueba BST, un solo padre, alcanzabilidad, ausencia de ciclos, tipos/duplicados y factor de balance en `{-1, 0, 1}`.
 
+## Compartir árboles
+
+Cada playground tiene un botón para compartir el árbol actual. El enlace lleva el árbol comprimido en la URL y funciona sin cuenta. Quien lo abre ve el árbol tal como fue compartido y puede explorarlo y editarlo en ambos modos, pero el guardado automático queda desactivado para no pisar lo que ya tenía guardado.
+
+- Si no había datos guardados en el modo del enlace, se guarda automáticamente y se limpia la URL, sin avisos.
+- Si había datos, aparece un aviso no descartable que se puede minimizar a un banner arriba a la derecha.
+- Al guardar se elige explícitamente si se sobrescribe el árbol automático, el manual o ambos. El historial del modo guardado se reinicia.
+- Los cambios sin guardar se pierden al actualizar o salir de la página; el navegador pide confirmación si hay ediciones pendientes.
+
 ## Estructura del código
 
 - `src/app/`: `App`/router, `registry.ts` (playgrounds y rutas), `AppShell` (header y modo inmersivo) y contexto de tema/header.
 - `src/landing/`: landing page (`/`), grilla interactiva en canvas, arte SVG animado y estilos propios.
-- `src/common/`: canvas compartido (`TreeCanvas`, `layoutTree`), storage con namespaces y migración, parseo de claves, validación estructural, hooks y primitivas shadcn.
+- `src/common/`: canvas compartido (`TreeCanvas`, `layoutTree`), storage con namespaces y migración, parseo de claves, validación estructural, hooks, primitivas shadcn y enlaces compartidos (`share/`).
 - `src/playgrounds/btree/`: modelo puro (`model/btree.ts`, `model/validate.ts`) y UI del playground.
 - `src/playgrounds/avl/`: modelo puro (`model/avl.ts`, `model/validate.ts`) y UI del playground.
 - La lógica de los modelos no depende de React. Para agregar un playground alcanza con crear su carpeta y sumar una entrada al registry.
