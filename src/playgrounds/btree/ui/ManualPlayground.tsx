@@ -551,7 +551,8 @@ export function ManualPlayground() {
                 data-node
                 className={cn(
                   'rounded-md border bg-card shadow-sm',
-                  bad ? 'border-red-500 ring-1 ring-red-500 dark:border-red-400 dark:ring-red-400' : isRoot ? 'border-zinc-900 dark:border-zinc-100' : 'border-border dark:border-zinc-700',
+                  bad ? 'border-red-500 ring-1 ring-red-500 dark:border-red-400 dark:ring-red-400' : 'border-border dark:border-zinc-700',
+                  isRoot && 'bg-zinc-100 dark:bg-zinc-800',
                   isTarget && 'ring-2 ring-dashed ring-zinc-500',
                   isSelected && 'outline-2 outline-offset-2 outline-zinc-500 [outline-style:solid] dark:outline-zinc-400',
                 )}
