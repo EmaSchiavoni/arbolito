@@ -26,6 +26,7 @@ import {
   type AvlTree,
 } from '../model/avl';
 import { avlStatLabels, computeAvlStats } from '../model/stats';
+import { TraversalPopover } from './TraversalPopover';
 import type { Key, KeyType } from '../../../common/types';
 import { layoutTree } from '../../../common/tree/layout';
 import { createScopedStorage } from '../../../common/storage/storage';
@@ -57,6 +58,7 @@ export function AutoPlayground() {
   const [history, setHistory] = React.useState<HistoryItem[]>(() => load<HistoryItem[]>(KEYS.autoHistory, []));
   const [keyInput, setKeyInput] = React.useState('');
   const [highlight, setHighlight] = React.useState<Set<string>>(new Set());
+  const [traversalHighlight, setTraversalHighlight] = React.useState<Set<string>>(new Set());
   const [lastKey, setLastKey] = React.useState<Key | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
   const [showHistory, setShowHistory] = React.useState(false);
@@ -253,6 +255,11 @@ export function AutoPlayground() {
 
   const badges = React.useMemo(() => avlStatLabels(computeAvlStats(tree.root), tree.root === null), [tree.root]);
 
+  const highlightIds = React.useMemo(() => {
+    if (traversalHighlight.size === 0) return highlight;
+    return new Set([...highlight, ...traversalHighlight]);
+  }, [highlight, traversalHighlight]);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <AppShell
@@ -280,7 +287,7 @@ export function AutoPlayground() {
           <TreeCanvas
             nodes={layout.nodes}
             edges={layout.edges}
-            highlightIds={highlight}
+            highlightIds={highlightIds}
             getNodeWidth={() => AVL_W}
             getSlotCount={() => 2}
             getSlotX={(n, slot) => n.x + (slot === 0 ? AVL_W * 0.25 : AVL_W * 0.75)}
@@ -344,6 +351,7 @@ export function AutoPlayground() {
         <div className="flex items-center justify-center gap-2 max-[510px]:w-full">
           <ToolbarButton size="sm" variant="ghost" onClick={doRandom} title="Insertar clave aleatoria"><Dices />Azar</ToolbarButton>
           <ToolbarButton size="sm" variant="ghost" onClick={() => setConfirmClear(true)} title="Vaciar árbol"><Eraser />Vaciar</ToolbarButton>
+          <TraversalPopover root={tree.root} onHighlightChange={setTraversalHighlight} />
           <ToolbarButton size="sm" variant="outline" onClick={() => setShowHistory(true)}>
             Historial
           </ToolbarButton>
