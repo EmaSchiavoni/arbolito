@@ -96,7 +96,7 @@ function parseManual(value: unknown, keyType: KeyType): AvlManualState | null {
     if (typeof id !== 'string' || ids.has(id)) return null;
     if (key !== null && !validKey(keyType, key)) return null;
     if (!Array.isArray(rawSlots) || rawSlots.length !== 2) return null;
-    const slots = rawSlots.filter((s): s is string => typeof s === 'string');
+    const slots = rawSlots.filter((s): s is string | null => s === null || typeof s === 'string');
     if (slots.length !== rawSlots.length) return null;
     if (typeof x !== 'number' || !Number.isFinite(x)) return null;
     if (typeof y !== 'number' || !Number.isFinite(y)) return null;

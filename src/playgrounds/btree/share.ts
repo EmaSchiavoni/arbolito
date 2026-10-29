@@ -129,7 +129,7 @@ function parseManual(value: unknown, p: number, keyType: KeyType): BTreeManualSt
     if (typeof rawY !== 'number' || !Number.isFinite(rawY)) return null;
     const keys = rawKeys.filter((k): k is Key => validKey(keyType, k));
     if (keys.length !== rawKeys.length) return null;
-    const slots = rawSlots.filter((s): s is string => typeof s === 'string');
+    const slots = rawSlots.filter((s): s is string | null => s === null || typeof s === 'string');
     if (slots.length !== rawSlots.length) return null;
     const need = keys.length + 1;
     const trimmed: (string | null)[] = slots.slice(0, need);
@@ -184,7 +184,11 @@ function manualToAuto(state: BTreeManualState): { tree: BTree; degraded: boolean
     const build = (id: string, depth: number): BNode | null => {
       const n = byId.get(id);
       if (!n || depth > 10000) return null;
-      const children = n.slots.map((slot) => (slot ? build(slot, depth + 1) : null));
+      // En un nodo interno validado todos los slots están conectados; en una
+      // hoja todos son nulos.
+      const children = n.slots
+        .filter((slot): slot is string => slot !== null)
+        .map((slot) => build(slot, depth + 1));
       if (children.some((c) => c === null)) return null;
       return { id, keys: [...n.keys], children: children as BNode[] };
     };
