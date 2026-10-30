@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "postbuild": "node scripts/spa-fallback.mjs && node scripts/sitemap.mjs",
-    "lint": "oxlint",
+    "lint": "oxlint && node scripts/check-structure.mjs",
+    "lint:arch": "node scripts/check-structure.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
