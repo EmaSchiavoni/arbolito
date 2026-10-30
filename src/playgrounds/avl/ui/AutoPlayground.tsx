@@ -10,7 +10,7 @@ import { BottomToolbar } from '@/common/components/BottomToolbar';
 import { CanvasNotice } from '@/common/components/CanvasNotice';
 import { HistoryDialog, type HistoryItem } from '@/common/components/HistoryDialog';
 import { TreeBadges } from '@/common/components/TreeBadges';
-import { TreeCanvas } from '@/common/components/TreeCanvas';
+import { TreeCanvas } from '@/common/canvas/TreeCanvas';
 import { ConfirmDialog } from '@/common/components/ui/alert-dialog';
 import { toast } from '@/common/components/ui/use-toast';
 import { AvlConfig } from '@/playgrounds/avl/ui/AvlConfig';

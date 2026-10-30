@@ -9,7 +9,7 @@ import { useChrome } from '@/app/use-chrome';
 import { BottomToolbar } from '@/common/components/BottomToolbar';
 import { CanvasNotice } from '@/common/components/CanvasNotice';
 import { ValidationSheet } from '@/common/components/ValidationSheet';
-import { TreeCanvas } from '@/common/components/TreeCanvas';
+import { TreeCanvas } from '@/common/canvas/TreeCanvas';
 import { AvlConfig } from '@/playgrounds/avl/ui/AvlConfig';
 import { validateManualAvl, type AvlManualNode } from '@/playgrounds/avl/model/validate';
 import type { ValidationResult } from '@/common/validate/graph';

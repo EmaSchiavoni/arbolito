@@ -10,7 +10,7 @@ import { HistoryDialog, type HistoryItem } from '@/common/components/HistoryDial
 import { ORDER_MAX, ORDER_MIN } from '@/common/components/OrderPicker';
 import { SettingsDialog } from '@/playgrounds/btree/ui/SettingsDialog';
 import { BTreeConfig } from '@/playgrounds/btree/ui/BTreeConfig';
-import { TreeCanvas } from '@/common/components/TreeCanvas';
+import { TreeCanvas } from '@/common/canvas/TreeCanvas';
 import { cmpKey, contains, countKeys, createTree, deleteKeyLogged, formatStep, insertKey, insertKeyLogged, searchPath, toTreeKey, type BTree, type BTreePolicy, type Key } from '@/playgrounds/btree/model/btree';
 import { layoutTree } from '@/common/tree/layout';
 import { useViewPersistence } from '@/common/hooks/use-view-persistence';

@@ -12,7 +12,7 @@ import { ORDER_MAX, ORDER_MIN } from '@/common/components/OrderPicker';
 import { AppShell } from '@/app/AppShell';
 import { useChrome } from '@/app/use-chrome';
 import { BTreeConfig } from '@/playgrounds/btree/ui/BTreeConfig';
-import { TreeCanvas } from '@/common/components/TreeCanvas';
+import { TreeCanvas } from '@/common/canvas/TreeCanvas';
 import { validateManualTree, type ManualNode, type ValidationResult } from '@/playgrounds/btree/model/validate';
 import type { Key, KeyType } from '@/common/types';
 import { trackConfig, trackThrottled, useToolTracker } from '@/common/analytics';
