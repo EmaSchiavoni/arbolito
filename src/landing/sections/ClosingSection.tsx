@@ -5,7 +5,8 @@ import { buttonVariants } from '@/common/components/ui/button-variants';
 import { cn } from '@/common/lib/utils';
 import type { PlaygroundDefinition } from '@/common/playground';
 import { Reveal } from '@/landing/components/Reveal';
-import { AvlArt, RotationArt } from '@/landing/TreeArt';
+import { AvlArt } from '@/landing/art/AvlArt';
+import { RotationArt } from '@/landing/art/RotationArt';
 
 export function ClosingSection({ last }: { last: PlaygroundDefinition }) {
   return (

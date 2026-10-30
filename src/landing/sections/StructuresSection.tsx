@@ -1,6 +1,9 @@
 import { Reveal } from '@/landing/components/Reveal';
 import { TiltCard } from '@/landing/components/TiltCard';
-import { AvlArt, BTreeArt, NaryArt, RotationArt } from '@/landing/TreeArt';
+import { AvlArt } from '@/landing/art/AvlArt';
+import { BTreeArt } from '@/landing/art/BTreeArt';
+import { NaryArt } from '@/landing/art/NaryArt';
+import { RotationArt } from '@/landing/art/RotationArt';
 
 const CARDS = [
   {

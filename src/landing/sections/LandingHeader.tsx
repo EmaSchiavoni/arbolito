@@ -8,7 +8,7 @@ import { buttonVariants } from '@/common/components/ui/button-variants';
 import { cn } from '@/common/lib/utils';
 import type { PlaygroundDefinition } from '@/common/playground';
 import { REPO_URL } from '@/common/repo';
-import { GithubMark } from '@/landing/TreeArt';
+import { GithubMark } from '@/common/components/GithubMark';
 
 export function LandingHeader({ last }: { last: PlaygroundDefinition }) {
   const { dark, toggleTheme } = useChrome();

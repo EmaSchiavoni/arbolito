@@ -3,7 +3,7 @@ import { PLAYGROUNDS } from '@/app/registry';
 import { setNavSource, trackLandingCta, trackOutbound } from '@/common/analytics';
 import { Logo } from '@/common/components/Logo';
 import { REPO_URL } from '@/common/repo';
-import { GithubMark } from '@/landing/TreeArt';
+import { GithubMark } from '@/common/components/GithubMark';
 
 export function LandingFooter() {
   return (

@@ -3,7 +3,7 @@ import { PLAYGROUNDS } from '@/app/registry';
 import { MODES } from '@/common/playground';
 import { Reveal } from '@/landing/components/Reveal';
 import { useSectionParallax } from '@/landing/hooks';
-import { NaryArt } from '@/landing/TreeArt';
+import { NaryArt } from '@/landing/art/NaryArt';
 
 const FEATURES = [
   {

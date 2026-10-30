@@ -1,6 +1,8 @@
 import { cn } from '@/common/lib/utils';
 import type { PlaygroundDefinition } from '@/common/playground';
-import { AvlArt, BTreeArt, NaryArt } from '@/landing/TreeArt';
+import { AvlArt } from '@/landing/art/AvlArt';
+import { BTreeArt } from '@/landing/art/BTreeArt';
+import { NaryArt } from '@/landing/art/NaryArt';
 
 export function PlaygroundPreview({ playground }: { playground: PlaygroundDefinition }) {
   const isBTree = playground.id === 'btree';

@@ -6,7 +6,10 @@ import { cn } from '@/common/lib/utils';
 import { REPO_URL } from '@/common/repo';
 import { HeroCard } from '@/landing/components/HeroCard';
 import { useParallaxScene } from '@/landing/hooks';
-import { AvlArt, BTreeArt, FlowRibbon, GithubMark } from '@/landing/TreeArt';
+import { GithubMark } from '@/common/components/GithubMark';
+import { AvlArt } from '@/landing/art/AvlArt';
+import { BTreeArt } from '@/landing/art/BTreeArt';
+import { FlowRibbon } from '@/landing/art/FlowRibbon';
 
 const LETTERS = [
   { char: 'a', weight: 200 },
