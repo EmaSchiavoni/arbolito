@@ -513,7 +513,7 @@ export function AutoPlayground() {
       )}
 
       <BottomToolbar label="Acciones del playground automático de AVL">
-        <div className="flex items-center justify-center gap-2 max-[665px]:w-full">
+        <div className="flex flex-wrap items-center justify-center gap-2 max-[665px]:w-full">
           <Input
             value={keyInput}
             disabled={animating}
@@ -524,14 +524,14 @@ export function AutoPlayground() {
             inputMode={tree.keyType === 'string' ? 'text' : 'numeric'}
             placeholder="Claves: 1, 2, 3"
             aria-label="Claves (una sola o lista separada por coma, punto, guion o espacio)"
-            className="w-36"
+            className="w-36 min-w-0 max-w-full"
           />
           <ToolbarButton size="sm" onClick={doInsert} disabled={animating} title="Insertar" aria-label="Insertar" className="px-2"><Plus /></ToolbarButton>
           <ToolbarButton size="sm" variant="secondary" onClick={doDelete} disabled={animating} title="Eliminar" aria-label="Eliminar" className="px-2"><Trash2 /></ToolbarButton>
           <ToolbarButton size="sm" variant="outline" onClick={doSearch} disabled={animating} title="Buscar" aria-label="Buscar" className="px-2"><Search /></ToolbarButton>
         </div>
         <ToolbarSeparator className="mx-0.5 max-[665px]:hidden" />
-        <div className="flex items-center justify-center gap-2 max-[665px]:w-full">
+        <div className="flex flex-wrap items-center justify-center gap-2 max-[665px]:w-full">
           <ToolbarButton size="sm" variant="ghost" onClick={doRandom} disabled={animating} title="Insertar clave aleatoria"><Dices />Azar</ToolbarButton>
           <ToolbarButton size="sm" variant="ghost" onClick={() => setConfirmClear(true)} disabled={animating} title="Vaciar árbol"><Eraser />Vaciar</ToolbarButton>
           <TraversalDrawer root={tree.root} disabled={animating} onHighlightChange={setTraversalHighlight} />
