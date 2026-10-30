@@ -725,7 +725,7 @@ function OpenSourceSection() {
                   </span>
                 </div>
                 <pre className="mt-4 overflow-x-auto font-display text-[11px] leading-relaxed text-background/80">
-                  <code className="whitespace-pre-wrap">{`git clone ${REPO_URL}.git
+                  <code className="whitespace-pre-wrap break-all">{`git clone ${REPO_URL}.git
 cd ${REPO_NAME}
 npm install
 npm run dev`}</code>

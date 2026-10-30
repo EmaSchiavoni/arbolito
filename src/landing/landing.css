@@ -15,6 +15,12 @@
   background: linear-gradient(45deg, #0000004a, #000 30%, #000000c9 60%, #000);
 }
 
+@media (max-width: 384.98px) {
+  .landing-root h2 {
+    font-size: 8vw;
+  }
+}
+
 .dark .landing-root .landing-card.collab-panel {
   background: linear-gradient(45deg, #ffffff4a, #fff 30%, #ffffffc9 60%, #ffffff);
 }
