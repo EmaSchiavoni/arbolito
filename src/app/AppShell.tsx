@@ -32,17 +32,15 @@ import { SaveSharedTreeDialog } from '@/common/components/SaveSharedTreeDialog';
 import { ShareDialog } from '@/common/components/ShareDialog';
 import { SharedTreeNotice } from '@/common/components/SharedTreeNotice';
 import { ThemeToggle } from '@/common/components/ThemeToggle';
-import { toast } from '@/common/components/ui/use-toast';
 import { setNavSource, trackUi } from '@/common/analytics';
-import { copyText } from '@/common/lib/clipboard';
 import { useMediaQuery } from '@/common/hooks/use-media-query';
 import type { Mode, PlaygroundDefinition } from '@/common/playground';
-import { buildShareQuery } from '@/common/share/codec';
-import { attemptNativeShare } from '@/common/share/native';
 import { useSharedSession } from '@/common/share/session-context';
 import type { PlaygroundShareAdapter } from '@/common/share/types';
 import { useChrome } from '@/app/use-chrome';
 import { getPlayground, PLAYGROUNDS } from '@/app/registry';
+import { useHeaderHeight } from './shell/use-header-height';
+import { useShareActions } from './shell/use-share-actions';
 
 export interface AppShellShare {
   adapter: PlaygroundShareAdapter;
@@ -122,12 +120,6 @@ function PlaygroundMenu({ playground, mode }: { playground: PlaygroundDefinition
       </DropdownMenuContent>
     </DropdownMenu>
   );
-}
-
-function msBucket(ms: number): string {
-  if (ms < 1000) return 'lt1s';
-  if (ms < 5000) return '1-5s';
-  return 'gt5s';
 }
 
 function ChromeMenu({
@@ -218,8 +210,6 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
   const { hidden, showHeader, hideHeader, dark, toggleTheme } = useChrome();
   const [configOpen, setConfigOpen] = React.useState(false);
   const [playgroundsOpen, setPlaygroundsOpen] = React.useState(false);
-  const [shareOpen, setShareOpen] = React.useState(false);
-  const [shareUrl, setShareUrl] = React.useState<string | null>(null);
   const [saveOpen, setSaveOpen] = React.useState(false);
   const isSmall = useMediaQuery('(max-width: 639px)');
   const routerLocation = useLocation();
@@ -232,76 +222,13 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
   const noticeVisible = !!share && session.active && session.status === 'protected';
   const canSave = noticeVisible && !!share;
 
-  // El aviso minimizado flota debajo del header. Su alto cambia con el ancho
-  // (la fila de configuración se envuelve) y desaparece en modo inmersivo, así
-  // que se mide y se publica en una variable CSS para no tapar nada.
-  const headerRef = React.useRef<HTMLElement | null>(null);
-  React.useLayoutEffect(() => {
-    const root = document.documentElement;
-    const header = headerRef.current;
-    if (!header) {
-      root.style.setProperty('--chrome-top', '4.5rem');
-      return () => root.style.removeProperty('--chrome-top');
-    }
-    const update = () => {
-      const height = Math.ceil(header.getBoundingClientRect().height);
-      root.style.setProperty('--chrome-top', `${height + 12}px`);
-    };
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(header);
-    return () => {
-      observer.disconnect();
-      root.style.removeProperty('--chrome-top');
-    };
-  }, [hidden]);
-
-  // Todo el camino hasta acá es síncrono: la API nativa exige conservar la
-  // activación de usuario que disparó el click.
-  function resolveShareUrl(): string | null {
-    if (!share || !canShare) return null;
-    const data = share.adapter.serialize(mode, share.state);
-    if (!data) {
-      toast({ description: 'No se pudo preparar el árbol para compartirlo.' });
-      return null;
-    }
-    const query = buildShareQuery({ tree: playground.id, mode, ...data });
-    if (!query) {
-      toast({ description: 'El árbol es demasiado grande para compartirlo por enlace.' });
-      return null;
-    }
-    return `${window.location.origin}${window.location.pathname}?${query}`;
-  }
-
-  function openShareFallback(url: string) {
-    setShareUrl(url);
-    setShareOpen(true);
-  }
-
-  async function launchShare() {
-    const url = resolveShareUrl();
-    if (!url) return;
-    trackUi('share', { playground: playground.id, mode });
-    const { outcome, elapsedMs } = await attemptNativeShare({
-      url,
-      title: 'Árbol compartido · Arbolito',
-      text: 'Mirá este árbol en Arbolito.',
-    });
-    trackUi('share_result', { playground: playground.id, mode, outcome, ms: msBucket(elapsedMs) });
-    // Compartido o cancelado por el usuario: no hace falta decir nada.
-    if (outcome === 'shared' || outcome === 'cancelled') return;
-    // Sin pistas para el usuario: si en realidad pudo compartir, cierra el
-    // diálogo y listo.
-    openShareFallback(url);
-  }
-
-  async function copyShareLink() {
-    const url = resolveShareUrl();
-    if (!url) return;
-    const ok = await copyText(url);
-    trackUi('share_copy', { playground: playground.id, mode, ok });
-    toast({ description: ok ? 'Enlace copiado.' : 'No se pudo copiar el enlace.' });
-  }
+  const headerRef = useHeaderHeight(hidden);
+  const { shareOpen, setShareOpen, shareUrl, launchShare, copyShareLink } = useShareActions({
+    playgroundId: playground.id,
+    mode,
+    share,
+    canShare,
+  });
 
   function showHeaderTop() {
     setConfigOpen(false);
