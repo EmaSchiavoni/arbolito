@@ -601,7 +601,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
           onClick={recenterOnNodes}
           title="Centrar el árbol"
           aria-label="Centrar el árbol"
-          className="absolute bottom-[calc(var(--bottom-toolbar-offset,0px)+0.75rem)] left-1/2 z-20 -translate-x-1/2 bg-card/95 shadow-lg backdrop-blur"
+          className="absolute bottom-[var(--bottom-toolbar-offset,1rem)] left-1/2 z-20 -translate-x-1/2 bg-card/95 shadow-lg backdrop-blur"
         >
           <Focus />
           Centrar el árbol

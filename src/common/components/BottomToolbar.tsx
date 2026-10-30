@@ -15,15 +15,17 @@ export function BottomToolbar({
 }) {
   const ref = React.useRef<HTMLDivElement>(null);
 
-  // Publica cuánto espacio ocupa la barra desde el borde inferior para que
-  // otros flotantes (el botón de "Centrar el árbol") se ubiquen justo encima,
-  // aun cuando envuelve en varias filas o cambia su separación en mobile.
+  // Publica cuánto espacio ocupa la barra desde el borde inferior, incluida la
+  // separación para otros flotantes (el botón de "Centrar el árbol"), para que
+  // queden justo encima aun cuando la barra envuelve en varias filas o cambia
+  // su separación en mobile.
   React.useLayoutEffect(() => {
     const el = ref.current;
     const root = document.documentElement;
     if (!el) return;
+    const gap = 16;
     const update = () => {
-      const offset = Math.max(0, window.innerHeight - el.getBoundingClientRect().top);
+      const offset = Math.max(0, window.innerHeight - el.getBoundingClientRect().top) + gap;
       root.style.setProperty('--bottom-toolbar-offset', `${offset}px`);
     };
     update();
