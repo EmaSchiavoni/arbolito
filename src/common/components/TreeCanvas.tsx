@@ -1,5 +1,7 @@
 import * as React from 'react';
+import { Focus } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { Button } from './ui/button';
 import type { CanvasTool, ToolPoint } from '../tools/types';
 
 export interface CanvasNode {
@@ -63,6 +65,12 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
   const panRef = React.useRef(pan);
   // Arrastre de fondo en curso: solo cambia el cursor (grab → grabbing).
   const [panning, setPanning] = React.useState(false);
+  // El paneo dejó todos los nodos fuera de pantalla: se ofrece recuperarlos.
+  const [showRecenter, setShowRecenter] = React.useState(false);
+  // El chequeo se guarda en un ref para invocarlo desde listeners nativos
+  // registrados una sola vez (rueda, teclado, resize).
+  const checkRecenterRef = React.useRef<() => void>(() => {});
+  const wheelTimer = React.useRef<number | null>(null);
   const drag = React.useRef<{ sx: number; sy: number; px: number; py: number; active: boolean }>({ sx: 0, sy: 0, px: 0, py: 0, active: false });
   const pointers = React.useRef(new Map<number, { x: number; y: number; node: boolean }>());
   const pinchStart = React.useRef<{ d: number } | null>(null);
@@ -91,6 +99,9 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     function measure() {
       const r = target.getBoundingClientRect();
       sizeRef.current = { w: r.width, h: r.height };
+      // El tamaño cambió (resize, rotación del dispositivo): puede haber
+      // nodos visibles u ocultos distintos.
+      checkRecenterRef.current();
     }
     measure();
     const ro = new ResizeObserver(measure);
@@ -115,6 +126,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     if (r.width === 0 || r.height === 0) return;
     didCenter.current = true;
     applyPan({ x: r.width / 2 - initialCenter.x, y: r.height / 2 - initialCenter.y, k: 1 });
+    checkRecenterRef.current();
   }, [initialCenter, initialView]);
 
   // Zoom que mantiene fijo el punto (sx, sy) relativo al contenedor.
@@ -171,6 +183,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     }
     const r = ref.current?.getBoundingClientRect();
     zoomAt(r ? r.width / 2 : 200, r ? r.height / 2 : 200, target / 100 / panRef.current.k);
+    checkRecenterRef.current();
     setZoomDraft(null);
   }
 
@@ -274,6 +287,8 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     if (pointers.current.size === 0) {
       drag.current.active = false;
       setPanning(false);
+      // Se evalúa acá y no en cada move: el arrastre ya terminó.
+      checkRecenterRef.current();
     }
   }
   function cancelPointer(e: React.PointerEvent) {
@@ -283,6 +298,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     if (pointers.current.size === 0) {
       drag.current.active = false;
       setPanning(false);
+      checkRecenterRef.current();
     }
   }
 
@@ -292,12 +308,21 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     const el = ref.current;
     if (!el) return;
     const target: HTMLDivElement = el;
+    // La rueda no tiene "release": se evalúa al terminar el gesto.
+    function scheduleCheck() {
+      if (wheelTimer.current !== null) window.clearTimeout(wheelTimer.current);
+      wheelTimer.current = window.setTimeout(() => {
+        wheelTimer.current = null;
+        checkRecenterRef.current();
+      }, 150);
+    }
     function onWheelNative(e: WheelEvent) {
       if (!e.ctrlKey && !e.metaKey) {
         const cur = panRef.current;
         const next = { ...cur, x: cur.x - e.deltaX * 0.5, y: cur.y - e.deltaY * 0.5 };
         panRef.current = next;
         setPan(next);
+        scheduleCheck();
         return;
       }
       e.preventDefault();
@@ -311,9 +336,16 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
       const next = { k: k2, x: sx - (sx - cur.x) * ratio, y: sy - (sy - cur.y) * ratio };
       panRef.current = next;
       setPan(next);
+      scheduleCheck();
     }
     target.addEventListener('wheel', onWheelNative, { passive: false });
-    return () => target.removeEventListener('wheel', onWheelNative);
+    return () => {
+      target.removeEventListener('wheel', onWheelNative);
+      if (wheelTimer.current !== null) {
+        window.clearTimeout(wheelTimer.current);
+        wheelTimer.current = null;
+      }
+    };
   }, []);
 
   // Teclado: Ctrl/Cmd + (+/-) zoom centrado, Ctrl/Cmd + 0 restablece.
@@ -326,6 +358,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
       e.preventDefault();
       const r = ref.current?.getBoundingClientRect();
       zoomAt(r ? r.width / 2 : 200, r ? r.height / 2 : 200, e.key === '-' ? 1 / 1.25 : e.key === '0' ? 1 / panRef.current.k : 1.25);
+      checkRecenterRef.current();
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -398,6 +431,68 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
   const heightOf = nodeHeight ?? NODE_HEIGHT;
   const contentW = Math.max(600, ...nodes.map((n) => n.x + widthOf(n) + 80));
   const contentH = Math.max(400, ...nodes.map((n) => n.y + heightOf + 120));
+
+  // ¿Quedó algún nodo a la vista? Se evalúa en el momento (no en cada render)
+  // para no recorrer el árbol durante el arrastre ni hacer parpadear el botón.
+  function checkRecenter() {
+    const { w, h } = sizeRef.current;
+    if (nodes.length === 0 || w === 0 || h === 0) {
+      setShowRecenter(false);
+      return;
+    }
+    const view = panRef.current;
+    const anyVisible = nodes.some((n) => {
+      const pos = positionOf(n);
+      const nw = widthOf(n) * view.k;
+      const nh = heightOf * view.k;
+      const x = pos.x * view.k + view.x;
+      const y = pos.y * view.k + view.y;
+      return x + nw > 0 && x < w && y + nh > 0 && y < h;
+    });
+    setShowRecenter(!anyVisible);
+  }
+
+  React.useLayoutEffect(() => {
+    checkRecenterRef.current = checkRecenter;
+  });
+
+  // Cambió el árbol (inserción, borrado, layout): puede haber quedado fuera.
+  React.useEffect(() => {
+    checkRecenterRef.current();
+  }, [nodes]);
+
+  // Centra el bounding box de los nodos en el área libre (por encima de la
+  // toolbar) y baja el zoom solo si no entra completo.
+  function recenterOnNodes() {
+    if (nodes.length === 0) return;
+    const { w, h } = sizeRef.current;
+    if (w === 0 || h === 0) return;
+    const toolbar = Number.parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue('--bottom-toolbar-offset'),
+    ) || 0;
+    const freeH = Math.max(1, h - toolbar);
+    const margin = 24;
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    for (const n of nodes) {
+      const pos = positionOf(n);
+      minX = Math.min(minX, pos.x);
+      minY = Math.min(minY, pos.y);
+      maxX = Math.max(maxX, pos.x + widthOf(n));
+      maxY = Math.max(maxY, pos.y + heightOf);
+    }
+    const bw = Math.max(1, maxX - minX);
+    const bh = Math.max(1, maxY - minY);
+    const k = clampK(
+      Math.min(panRef.current.k, (w - margin * 2) / bw, (freeH - margin * 2) / bh),
+    );
+    const cx = (minX + maxX) / 2;
+    const cy = (minY + maxY) / 2;
+    applyPan({ k, x: w / 2 - cx * k, y: freeH / 2 - cy * k });
+    checkRecenterRef.current();
+  }
 
   function edgePath(from: T, to: T, slot: number): string {
     const fromPos = positionOf(from);
@@ -499,6 +594,19 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
           );
         })}
       </div>
+      {showRecenter && (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={recenterOnNodes}
+          title="Centrar el árbol"
+          aria-label="Centrar el árbol"
+          className="absolute bottom-[calc(var(--bottom-toolbar-offset,0px)+0.75rem)] left-1/2 z-20 -translate-x-1/2 bg-card/95 shadow-lg backdrop-blur"
+        >
+          <Focus />
+          Centrar el árbol
+        </Button>
+      )}
       <span
         title="Zoom actual en % (Enter para aplicar, Esc para cancelar)"
         className="absolute bottom-2 right-2 z-10 hidden items-center gap-0.5 rounded-full border bg-card/95 px-2 py-0.5 text-[11px] text-muted-foreground shadow-sm backdrop-blur sm:flex"

@@ -13,8 +13,33 @@ export function BottomToolbar({
   className?: string;
   label: string;
 }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  // Publica cuánto espacio ocupa la barra desde el borde inferior para que
+  // otros flotantes (el botón de "Centrar el árbol") se ubiquen justo encima,
+  // aun cuando envuelve en varias filas o cambia su separación en mobile.
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    const root = document.documentElement;
+    if (!el) return;
+    const update = () => {
+      const offset = Math.max(0, window.innerHeight - el.getBoundingClientRect().top);
+      root.style.setProperty('--bottom-toolbar-offset', `${offset}px`);
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    window.addEventListener('resize', update);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', update);
+      root.style.removeProperty('--bottom-toolbar-offset');
+    };
+  }, []);
+
   return (
     <Toolbar
+      ref={ref}
       orientation="horizontal"
       aria-label={label}
       className={cn(
