@@ -61,6 +61,8 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
   const ref = React.useRef<HTMLDivElement>(null);
   const [pan, setPan] = React.useState(() => initialView ?? { x: 16, y: 16, k: 1 });
   const panRef = React.useRef(pan);
+  // Arrastre de fondo en curso: solo cambia el cursor (grab → grabbing).
+  const [panning, setPanning] = React.useState(false);
   const drag = React.useRef<{ sx: number; sy: number; px: number; py: number; active: boolean }>({ sx: 0, sy: 0, px: 0, py: 0, active: false });
   const pointers = React.useRef(new Map<number, { x: number; y: number; node: boolean }>());
   const pinchStart = React.useRef<{ d: number } | null>(null);
@@ -207,6 +209,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
         const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
         pinchStart.current = { d };
         drag.current.active = false;
+        setPanning(false);
       }
       // Un segundo dedo inicia pinch: se cancela el gesto de la herramienta.
       toolGesture.current = null;
@@ -218,7 +221,8 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     } catch {
       // noop
     }
-    if (tool) {
+    // La tool fija (paneo) no captura gestos: el fondo se arrastra normalmente.
+    if (tool && !tool.pinned) {
       // La herramienta captura el fondo: no se panea mientras haya una activa.
       toolGesture.current = { pointerId: e.pointerId, startX: e.clientX, startY: e.clientY, onNode: inert, dragged: false };
       tool.onPress?.(toolPoint(e, inert, false));
@@ -227,6 +231,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     }
     const cur = panRef.current;
     drag.current = { sx: e.clientX, sy: e.clientY, px: cur.x, py: cur.y, active: pinchStart.current === null };
+    if (drag.current.active) setPanning(true);
   }
   function onPointerMove(e: React.PointerEvent) {
     const m = pointers.current.get(e.pointerId);
@@ -266,13 +271,19 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
     }
     pointers.current.delete(e.pointerId);
     if (pointers.current.size < 2) pinchStart.current = null;
-    if (pointers.current.size === 0) drag.current.active = false;
+    if (pointers.current.size === 0) {
+      drag.current.active = false;
+      setPanning(false);
+    }
   }
   function cancelPointer(e: React.PointerEvent) {
     if (toolGesture.current?.pointerId === e.pointerId) toolGesture.current = null;
     pointers.current.delete(e.pointerId);
     if (pointers.current.size < 2) pinchStart.current = null;
-    if (pointers.current.size === 0) drag.current.active = false;
+    if (pointers.current.size === 0) {
+      drag.current.active = false;
+      setPanning(false);
+    }
   }
 
   // Rueda: sin Ctrl mueve el canvas; con Ctrl (o Cmd) hace zoom sobre el cursor.
@@ -412,6 +423,9 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
       }
     : undefined;
 
+  // Las tools fijas (paneo) muestran grab y, mientras se arrastra, grabbing.
+  const cursor = tool?.cursor ? (panning && tool.draggingCursor ? tool.draggingCursor : tool.cursor) : undefined;
+
   return (
     <div
       ref={ref}
@@ -428,7 +442,7 @@ export function TreeCanvas<T extends CanvasNode>({ nodes, edges, renderNode, hig
         gridBackground && 'bg-canvas-grid',
         linking && 'ring-1 ring-inset ring-zinc-500',
       )}
-      style={{ ...patternStyle, cursor: tool?.cursor }}
+      style={{ ...patternStyle, cursor }}
     >
       <div
         className="absolute left-0 top-0"

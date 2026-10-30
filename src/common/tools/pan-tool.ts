@@ -8,5 +8,7 @@ export const panTool: CanvasTool = {
   id: 'pan',
   label: 'Paneo',
   icon: Hand,
+  cursor: 'grab',
+  draggingCursor: 'grabbing',
   pinned: true,
 };

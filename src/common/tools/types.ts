@@ -25,6 +25,9 @@ export interface CanvasTool {
   icon: ComponentType<{ className?: string }>;
   // Valor CSS de cursor mientras la tool está activa (ej. 'crosshair').
   cursor?: string;
+  // Cursor mientras se arrastra con la tool. Solo lo usan las tools fijas
+  // (paneo), que muestran su cursor sin capturar los gestos del fondo.
+  draggingCursor?: string;
   // Tool fija: representa el estado sin herramienta (paneo). No captura
   // gestos y no se puede deseleccionar.
   pinned?: boolean;

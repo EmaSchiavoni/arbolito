@@ -482,7 +482,7 @@ export function ManualPlayground() {
                   )}
                 >
                   <div
-                    className="flex h-6 cursor-grab touch-none items-center gap-1 border-b border-border px-1 text-muted-foreground active:cursor-grabbing dark:border-zinc-700"
+                    className="flex h-6 cursor-move touch-none items-center gap-1 border-b border-border px-1 text-muted-foreground dark:border-zinc-700"
                     onPointerDown={(e) => {
                       if ((e.target as HTMLElement).closest('input,button')) return;
                       onNodePointerDown(e, n.id);

@@ -9,13 +9,14 @@ export function useCanvasTool(tools: CanvasTool[], initialToolId: string | null 
 
   const pinnedId = React.useMemo(() => tools.find((tool) => tool.pinned)?.id ?? null, [tools]);
 
-  // El paneo siempre está seleccionado si no hay otra tool activa. Para el
-  // canvas equivale a no tener tool: así conserva el paneo de siempre.
   const activeId = rawId ?? pinnedId;
 
+  // El paneo siempre está seleccionado si no hay otra tool activa. Se devuelve
+  // como cualquier otra: `TreeCanvas` usa `pinned` para mostrar su cursor pero
+  // no captura los gestos del fondo (el paneo sigue funcionando igual).
   const activeTool = React.useMemo(
-    () => (activeId === pinnedId ? null : tools.find((tool) => tool.id === activeId) ?? null),
-    [tools, activeId, pinnedId],
+    () => tools.find((tool) => tool.id === activeId) ?? null,
+    [tools, activeId],
   );
 
   const toggleTool = React.useCallback(
