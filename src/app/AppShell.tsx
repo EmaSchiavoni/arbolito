@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { useLocation } from 'react-router-dom';
 import { trackUi } from '@/common/analytics';
-import { SaveSharedTreeDialog } from '@/common/components/SaveSharedTreeDialog';
-import { ShareDialog } from '@/common/components/ShareDialog';
-import { SharedTreeNotice } from '@/common/components/SharedTreeNotice';
+import { SaveSharedTreeDialog } from '@/common/components/share/SaveSharedTreeDialog';
+import { ShareDialog } from '@/common/components/share/ShareDialog';
+import { SharedTreeNotice } from '@/common/components/share/SharedTreeNotice';
 import { useMediaQuery } from '@/common/hooks/use-media-query';
 import type { Mode } from '@/common/playground';
 import { useSharedSession } from '@/common/share/session-context';

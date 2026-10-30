@@ -2,13 +2,13 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useChrome } from '@/app/use-chrome';
 import { setNavSource, trackLandingCta, trackOutbound, trackUi } from '@/common/analytics';
-import { Logo } from '@/common/components/Logo';
-import { ThemeToggle } from '@/common/components/ThemeToggle';
+import { Logo } from '@/common/components/brand/Logo';
+import { ThemeToggle } from '@/common/components/controls/ThemeToggle';
 import { buttonVariants } from '@/common/components/ui/button-variants';
 import { cn } from '@/common/lib/utils';
 import type { PlaygroundDefinition } from '@/common/playground';
 import { REPO_URL } from '@/common/repo';
-import { GithubMark } from '@/common/components/GithubMark';
+import { GithubMark } from '@/common/components/brand/GithubMark';
 
 export function LandingHeader({ last }: { last: PlaygroundDefinition }) {
   const { dark, toggleTheme } = useChrome();

@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { ORDER_MAX, ORDER_MIN } from '@/common/components/OrderPicker';
-import type { HistoryItem } from '@/common/components/HistoryDialog';
+import { ORDER_MAX, ORDER_MIN } from '@/common/components/controls/OrderPicker';
+import type { HistoryItem } from '@/common/components/feedback/HistoryDialog';
 import { toast } from '@/common/components/ui/use-toast';
 import { useViewPersistence } from '@/common/hooks/use-view-persistence';
 import { parseKeyList } from '@/common/keys/parse-key-list';

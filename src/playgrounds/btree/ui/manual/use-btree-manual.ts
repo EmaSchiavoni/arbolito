@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ORDER_MAX, ORDER_MIN } from '@/common/components/OrderPicker';
+import { ORDER_MAX, ORDER_MIN } from '@/common/components/controls/OrderPicker';
 import { useHistory } from '@/common/editor/use-history';
 import { useManualSelection } from '@/common/editor/use-manual-selection';
 import { useManualShortcuts } from '@/common/editor/use-manual-shortcuts';

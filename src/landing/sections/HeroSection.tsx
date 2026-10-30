@@ -6,7 +6,7 @@ import { cn } from '@/common/lib/utils';
 import { REPO_URL } from '@/common/repo';
 import { HeroCard } from '@/landing/components/HeroCard';
 import { useParallaxScene } from '@/landing/hooks';
-import { GithubMark } from '@/common/components/GithubMark';
+import { GithubMark } from '@/common/components/brand/GithubMark';
 import { AvlArt } from '@/landing/art/AvlArt';
 import { BTreeArt } from '@/landing/art/BTreeArt';
 import { FlowRibbon } from '@/landing/art/FlowRibbon';

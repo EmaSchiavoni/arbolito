@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowUpRight, Menu } from 'lucide-react';
-import { GithubMark } from '@/common/components/GithubMark';
-import { Logo } from '@/common/components/Logo';
-import { ThemeToggle } from '@/common/components/ThemeToggle';
+import { GithubMark } from '@/common/components/brand/GithubMark';
+import { Logo } from '@/common/components/brand/Logo';
+import { ThemeToggle } from '@/common/components/controls/ThemeToggle';
 import { Button } from '@/common/components/ui/button';
 import { buttonVariants } from '@/common/components/ui/button-variants';
 import {

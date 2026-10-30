@@ -1,6 +1,6 @@
 import { Eraser, Redo2, ShieldCheck, Trash2, Undo2, X } from 'lucide-react';
-import { BottomToolbar } from '@/common/components/BottomToolbar';
-import { ToolButton } from '@/common/components/ToolButton';
+import { BottomToolbar } from '@/common/components/controls/BottomToolbar';
+import { ToolButton } from '@/common/components/controls/ToolButton';
 import { ToolbarButton, ToolbarSeparator } from '@/common/components/ui/toolbar';
 import type { CanvasTool } from '@/common/tools/types';
 

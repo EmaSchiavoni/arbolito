@@ -1,5 +1,5 @@
 import { Dices, Eraser, Plus, Search, Trash2 } from 'lucide-react';
-import { BottomToolbar } from '@/common/components/BottomToolbar';
+import { BottomToolbar } from '@/common/components/controls/BottomToolbar';
 import { Input } from '@/common/components/ui/input';
 import { ToolbarButton, ToolbarSeparator } from '@/common/components/ui/toolbar';
 import type { KeyType } from '@/common/types';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { HistoryItem } from '@/common/components/HistoryDialog';
+import type { HistoryItem } from '@/common/components/feedback/HistoryDialog';
 import { toast } from '@/common/components/ui/use-toast';
 import { useViewPersistence } from '@/common/hooks/use-view-persistence';
 import { parseKeyList } from '@/common/keys/parse-key-list';

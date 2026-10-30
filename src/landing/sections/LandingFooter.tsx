@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { PLAYGROUNDS } from '@/app/registry';
 import { setNavSource, trackLandingCta, trackOutbound } from '@/common/analytics';
-import { Logo } from '@/common/components/Logo';
+import { Logo } from '@/common/components/brand/Logo';
 import { REPO_URL } from '@/common/repo';
-import { GithubMark } from '@/common/components/GithubMark';
+import { GithubMark } from '@/common/components/brand/GithubMark';
 
 export function LandingFooter() {
   return (

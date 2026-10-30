@@ -1,8 +1,8 @@
 import { AppShell } from '@/app/AppShell';
 import { useChrome } from '@/app/use-chrome';
 import { TreeCanvas } from '@/common/canvas/TreeCanvas';
-import { CanvasNotice } from '@/common/components/CanvasNotice';
-import { HistoryDialog } from '@/common/components/HistoryDialog';
+import { CanvasNotice } from '@/common/components/feedback/CanvasNotice';
+import { HistoryDialog } from '@/common/components/feedback/HistoryDialog';
 import { ConfirmDialog } from '@/common/components/ui/alert-dialog';
 import { BTreeConfig } from '@/playgrounds/btree/ui/BTreeConfig';
 import { SettingsDialog } from '@/playgrounds/btree/ui/SettingsDialog';

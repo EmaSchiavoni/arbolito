@@ -1,6 +1,6 @@
 import { Button } from '@/common/components/ui/button';
-import { OrderPicker } from '@/common/components/OrderPicker';
-import { KeyTypeSelector } from '@/common/components/KeyTypeSelector';
+import { OrderPicker } from '@/common/components/controls/OrderPicker';
+import { KeyTypeSelector } from '@/common/components/controls/KeyTypeSelector';
 import type { KeyType } from '@/common/types';
 
 interface BTreeConfigProps {

@@ -3,7 +3,7 @@ import { trackOutbound } from '@/common/analytics';
 import { REPO_ISSUES_URL, REPO_NAME, REPO_URL } from '@/common/repo';
 import { Reveal } from '@/landing/components/Reveal';
 import { TechIcon, type TechIconName } from '@/landing/TechIcons';
-import { GithubMark } from '@/common/components/GithubMark';
+import { GithubMark } from '@/common/components/brand/GithubMark';
 import { FlowRibbon } from '@/landing/art/FlowRibbon';
 
 const STACK: Array<{ name: TechIconName; label: string }> = [

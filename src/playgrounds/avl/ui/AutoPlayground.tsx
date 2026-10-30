@@ -1,9 +1,9 @@
 import { AppShell } from '@/app/AppShell';
 import { useChrome } from '@/app/use-chrome';
 import { TreeCanvas } from '@/common/canvas/TreeCanvas';
-import { CanvasNotice } from '@/common/components/CanvasNotice';
-import { HistoryDialog } from '@/common/components/HistoryDialog';
-import { TreeBadges } from '@/common/components/TreeBadges';
+import { CanvasNotice } from '@/common/components/feedback/CanvasNotice';
+import { HistoryDialog } from '@/common/components/feedback/HistoryDialog';
+import { TreeBadges } from '@/common/components/tree/TreeBadges';
 import { ConfirmDialog } from '@/common/components/ui/alert-dialog';
 import { AvlConfig } from '@/playgrounds/avl/ui/AvlConfig';
 import { AvlSettingsDialog } from '@/playgrounds/avl/ui/AvlSettingsDialog';
