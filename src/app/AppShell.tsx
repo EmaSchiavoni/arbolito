@@ -225,6 +225,30 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
   const noticeVisible = !!share && session.active && session.status === 'protected';
   const canSave = noticeVisible && !!share;
 
+  // El aviso minimizado flota debajo del header. Su alto cambia con el ancho
+  // (la fila de configuración se envuelve) y desaparece en modo inmersivo, así
+  // que se mide y se publica en una variable CSS para no tapar nada.
+  const headerRef = React.useRef<HTMLElement | null>(null);
+  React.useLayoutEffect(() => {
+    const root = document.documentElement;
+    const header = headerRef.current;
+    if (!header) {
+      root.style.setProperty('--chrome-top', '4.5rem');
+      return () => root.style.removeProperty('--chrome-top');
+    }
+    const update = () => {
+      const height = Math.ceil(header.getBoundingClientRect().height);
+      root.style.setProperty('--chrome-top', `${height + 12}px`);
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(header);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty('--chrome-top');
+    };
+  }, [hidden]);
+
   // Todo el camino hasta acá es síncrono: la API nativa exige conservar la
   // activación de usuario que disparó el click.
   function resolveShareUrl(): string | null {
@@ -322,7 +346,7 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
           )}
         </>
       ) : (
-        <header className="shrink-0 border-b bg-background">
+        <header ref={headerRef} className="shrink-0 border-b bg-background">
           <div className="flex items-center gap-2 px-3 py-2">
             <Link to="/" aria-label="Ir a la landing">
               <Logo />

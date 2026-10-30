@@ -54,6 +54,9 @@
 
 @layer base {
   :root {
+    /* Alto reservado por el header (o el cluster inmersivo) para los avisos
+       flotantes. AppShell lo mide y lo actualiza. */
+    --chrome-top: 4.5rem;
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;

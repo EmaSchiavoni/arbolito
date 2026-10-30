@@ -1,4 +1,5 @@
-import { ChevronUp, Info, Save } from 'lucide-react';
+import { IconArrowsDiagonal2 } from '@tabler/icons-react';
+import { Info, Save } from 'lucide-react';
 import { Button } from './ui/button';
 import {
   Dialog,
@@ -26,11 +27,11 @@ export function SharedTreeNotice({ visible, minimized, onMinimize, onExpand, onS
 
   if (minimized) {
     return (
-      <div className="fixed right-3 top-16 z-40 w-[min(22rem,calc(100vw-1.5rem))] rounded-2xl border bg-card/95 p-3 shadow-lg backdrop-blur">
+      <div className="fixed right-3 top-[var(--chrome-top)] z-40 w-[min(22rem,calc(100vw-1.5rem))] rounded-2xl border bg-card/95 p-3 shadow-lg backdrop-blur">
         <p className="text-xs text-muted-foreground">{WARNING}</p>
         <div className="mt-2 flex items-center justify-end gap-1">
           <Button variant="outline" size="sm" onClick={onExpand}>
-            <ChevronUp />
+            <IconArrowsDiagonal2 />
             Expandir
           </Button>
           <Button size="sm" onClick={onSave}>
