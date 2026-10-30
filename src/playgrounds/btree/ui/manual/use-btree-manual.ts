@@ -44,7 +44,7 @@ export function useBTreeManual() {
   const { selectedIds, setSelectedIds, selectedNodeIds } = useManualSelection(nodes);
   const history = useHistory<BTreeManualDraft>();
   const draftRef = React.useRef(draft);
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     draftRef.current = draft;
   });
 

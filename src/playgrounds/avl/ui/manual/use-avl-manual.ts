@@ -42,7 +42,7 @@ export function useAvlManual() {
   const { selectedIds, setSelectedIds, selectedNodeIds } = useManualSelection(nodes);
   const history = useHistory<AvlManualDraft>();
   const draftRef = React.useRef(draft);
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     draftRef.current = draft;
   });
 
