@@ -3,19 +3,21 @@ import { Check, Copy, Link2 } from 'lucide-react';
 import {
   EmailIcon,
   EmailShareButton,
+  NativeShareIcon,
   TelegramIcon,
   TelegramShareButton,
   WhatsappIcon,
   WhatsappShareButton,
-  XIcon,
-  XShareButton,
+  canNativeShare,
 } from 'react-share';
 import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
 import { Input } from './ui/input';
 import { toast } from './ui/use-toast';
 import { trackOutbound } from '../analytics';
+import { copyText } from '../lib/clipboard';
 import { LONG_URL_WARNING } from '../share/codec';
+import { attemptNativeShare } from '../share/native';
 
 interface ShareDialogProps {
   open: boolean;
@@ -26,14 +28,22 @@ interface ShareDialogProps {
 const SOCIALS = [
   { id: 'whatsapp', label: 'WhatsApp', Button: WhatsappShareButton, Icon: WhatsappIcon },
   { id: 'telegram', label: 'Telegram', Button: TelegramShareButton, Icon: TelegramIcon },
-  { id: 'x', label: 'X', Button: XShareButton, Icon: XIcon },
   { id: 'email', label: 'Correo', Button: EmailShareButton, Icon: EmailIcon },
 ] as const;
+
+const SOCIAL_CLASS =
+  'flex flex-col items-center gap-1 rounded-xl px-1 py-2 text-[11px] text-muted-foreground hover:bg-zinc-100 dark:hover:bg-zinc-800';
+
+const NATIVE_SHARE = {
+  title: 'Árbol compartido · Arbolito',
+  text: 'Mirá este árbol en Arbolito.',
+};
 
 // Alternativa a la hoja nativa: copiar el enlace o abrir una red social.
 export function ShareDialog({ open, onOpenChange, url }: ShareDialogProps) {
   const [copied, setCopied] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
+  const canShareNative = canNativeShare({ url, ...NATIVE_SHARE });
 
   function handleOpen(next: boolean) {
     if (!next) setCopied(false);
@@ -41,19 +51,23 @@ export function ShareDialog({ open, onOpenChange, url }: ShareDialogProps) {
   }
 
   async function copy() {
-    try {
-      await navigator.clipboard.writeText(url);
+    const ok = await copyText(url);
+    if (ok) {
       setCopied(true);
       toast({ description: 'Enlace copiado.' });
-    } catch {
-      // Fallback para navegadores sin Clipboard API.
-      const input = inputRef.current;
-      if (!input) return;
-      input.select();
-      const ok = document.execCommand('copy');
-      setCopied(ok);
-      toast({ description: ok ? 'Enlace copiado.' : 'No se pudo copiar el enlace.' });
+      return;
     }
+    // Sin portapapeles disponible al menos dejamos el enlace seleccionado.
+    inputRef.current?.select();
+    setCopied(false);
+    toast({ description: 'No se pudo copiar el enlace.' });
+  }
+
+  // En desktop "Más" puede fallar como la hoja del sistema; no importa:
+  // el usuario ya está en el diálogo con el enlace a mano.
+  async function shareWithSystem() {
+    const { outcome } = await attemptNativeShare({ url, ...NATIVE_SHARE });
+    if (outcome === 'shared') handleOpen(false);
   }
 
   return (
@@ -85,19 +99,25 @@ export function ShareDialog({ open, onOpenChange, url }: ShareDialogProps) {
           </p>
         )}
 
-        <div className="grid grid-cols-4 gap-2">
+        <div className={canShareNative ? 'grid grid-cols-4 gap-2' : 'grid grid-cols-3 gap-2'}>
           {SOCIALS.map(({ id, label, Button: SocialButton, Icon }) => (
             <SocialButton
               key={id}
               url={url}
               title="Árbol compartido · Arbolito"
-              className="flex flex-col items-center gap-1 rounded-xl px-1 py-2 text-[11px] text-muted-foreground hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className={SOCIAL_CLASS}
               onClick={() => trackOutbound(id, 'share_dialog')}
             >
               <Icon size={34} />
               {label}
             </SocialButton>
           ))}
+          {canShareNative && (
+            <button type="button" onClick={shareWithSystem} className={SOCIAL_CLASS}>
+              <NativeShareIcon size={34} />
+              Más
+            </button>
+          )}
         </div>
 
         <p className="flex items-start gap-1.5 text-xs text-muted-foreground">

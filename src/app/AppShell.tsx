@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   ChevronDown,
   ChevronUp,
+  Copy,
   EllipsisVertical,
   Maximize,
   Minimize,
@@ -12,7 +13,6 @@ import {
   SlidersHorizontal,
   Sun,
 } from 'lucide-react';
-import { canNativeShare, shareNative } from 'react-share';
 import { Button } from '../common/components/ui/button';
 import { buttonVariants } from '../common/components/ui/button-variants';
 import { cn } from '../common/lib/utils';
@@ -33,9 +33,11 @@ import { SharedTreeNotice } from '../common/components/SharedTreeNotice';
 import { ThemeToggle } from '../common/components/ThemeToggle';
 import { toast } from '../common/components/ui/use-toast';
 import { setNavSource, trackUi } from '../common/analytics';
+import { copyText } from '../common/lib/clipboard';
 import { useMediaQuery } from '../common/hooks/use-media-query';
 import type { Mode, PlaygroundDefinition } from '../common/playground';
 import { buildShareQuery } from '../common/share/codec';
+import { attemptNativeShare } from '../common/share/native';
 import { useSharedSession } from '../common/share/session-context';
 import type { PlaygroundShareAdapter } from '../common/share/types';
 import { useChrome } from './use-chrome';
@@ -121,6 +123,12 @@ function PlaygroundMenu({ playground, mode }: { playground: PlaygroundDefinition
   );
 }
 
+function msBucket(ms: number): string {
+  if (ms < 1000) return 'lt1s';
+  if (ms < 5000) return '1-5s';
+  return 'gt5s';
+}
+
 function ChromeMenu({
   playground,
   mode,
@@ -128,6 +136,7 @@ function ChromeMenu({
   canShare,
   canSave,
   onShare,
+  onCopyLink,
   onSave,
   onOpenConfig,
   onOpenPlaygrounds,
@@ -138,6 +147,7 @@ function ChromeMenu({
   canShare: boolean;
   canSave: boolean;
   onShare: () => void;
+  onCopyLink: () => void;
   onSave: () => void;
   onOpenConfig: () => void;
   onOpenPlaygrounds: () => void;
@@ -160,6 +170,10 @@ function ChromeMenu({
       <DropdownMenuItem disabled={!canShare} onSelect={onShare}>
         <Share2 />
         Compartir árbol
+      </DropdownMenuItem>
+      <DropdownMenuItem disabled={!canShare} onSelect={onCopyLink}>
+        <Copy />
+        Copiar enlace
       </DropdownMenuItem>
       {canSave && (
         <DropdownMenuItem onSelect={onSave}>
@@ -211,32 +225,51 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
   const noticeVisible = !!share && session.active && session.status === 'protected';
   const canSave = noticeVisible && !!share;
 
-  async function launchShare() {
-    if (!share || !canShare) return;
+  // Todo el camino hasta acá es síncrono: la API nativa exige conservar la
+  // activación de usuario que disparó el click.
+  function resolveShareUrl(): string | null {
+    if (!share || !canShare) return null;
     const data = share.adapter.serialize(mode, share.state);
     if (!data) {
       toast({ description: 'No se pudo preparar el árbol para compartirlo.' });
-      return;
+      return null;
     }
     const query = buildShareQuery({ tree: playground.id, mode, ...data });
     if (!query) {
       toast({ description: 'El árbol es demasiado grande para compartirlo por enlace.' });
-      return;
+      return null;
     }
-    const url = `${window.location.origin}${window.location.pathname}?${query}`;
-    trackUi('share', { playground: playground.id, mode });
-    // La API nativa necesita conservar la activación de usuario: todo el
-    // camino hasta acá es síncrono.
-    if (canNativeShare({ url, title: 'Arbolito' })) {
-      try {
-        await shareNative({ url, title: 'Árbol compartido · Arbolito', text: 'Mirá este árbol en Arbolito.' });
-        return;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') return;
-      }
-    }
+    return `${window.location.origin}${window.location.pathname}?${query}`;
+  }
+
+  function openShareFallback(url: string) {
     setShareUrl(url);
     setShareOpen(true);
+  }
+
+  async function launchShare() {
+    const url = resolveShareUrl();
+    if (!url) return;
+    trackUi('share', { playground: playground.id, mode });
+    const { outcome, elapsedMs } = await attemptNativeShare({
+      url,
+      title: 'Árbol compartido · Arbolito',
+      text: 'Mirá este árbol en Arbolito.',
+    });
+    trackUi('share_result', { playground: playground.id, mode, outcome, ms: msBucket(elapsedMs) });
+    // Compartido o cancelado por el usuario: no hace falta decir nada.
+    if (outcome === 'shared' || outcome === 'cancelled') return;
+    // Sin pistas para el usuario: si en realidad pudo compartir, cierra el
+    // diálogo y listo.
+    openShareFallback(url);
+  }
+
+  async function copyShareLink() {
+    const url = resolveShareUrl();
+    if (!url) return;
+    const ok = await copyText(url);
+    trackUi('share_copy', { playground: playground.id, mode, ok });
+    toast({ description: ok ? 'Enlace copiado.' : 'No se pudo copiar el enlace.' });
   }
 
   function showHeaderTop() {
@@ -261,6 +294,7 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
       canShare={canShare}
       canSave={canSave}
       onShare={launchShare}
+      onCopyLink={copyShareLink}
       onSave={() => setSaveOpen(true)}
       onOpenConfig={() => setConfigOpen(true)}
       onOpenPlaygrounds={() => setPlaygroundsOpen(true)}
