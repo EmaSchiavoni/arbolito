@@ -32,7 +32,7 @@ Cada pantalla (`AutoPlayground`, `ManualPlayground`) solo compone: recibe el est
 ## Convenciones de módulos
 
 - **Un propósito por archivo.** Una pantalla compone, un componente renderiza, un hook maneja estado/efectos y un módulo calcula. Los subcomponentes privados chicos pueden quedar junto a su padre; si crecen o se reutilizan, se extraen.
-- **Imports absolutos.** Usar el alias `@/` para todo lo que esté dentro de `src` (`@/common/...`, `@/playgrounds/...`). Los imports relativos quedan solo para archivos hermanos y CSS.
+- **Imports absolutos.** Usar el alias `@/` para todo el código dentro de `src` (`@/common/...`, `@/playgrounds/...`, `@/landing/...`). Los imports relativos quedan solo para CSS.
 - **Sin barrels nuevos.** No agregar `index.ts` que reexporten una carpeta completa: se importa el archivo concreto para no romper el tree-shaking de Vite.
 - **Dirección de dependencias.** `src/common` no importa `app`, `landing` ni `playgrounds`. Un playground no importa otro playground ni la landing. Estas reglas se validan con `npm run lint:arch`.
 - **Nombres.** `PascalCase.tsx` para componentes, `kebab-case.ts` para hooks, modelos y utilidades. El hook se llama igual que su archivo.
