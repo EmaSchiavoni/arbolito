@@ -13,18 +13,18 @@
 
 import * as React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import type { Mode } from '../playground';
-import { toast } from '../components/ui/use-toast';
-import { trackUi } from '../analytics';
-import { isSharedSearch, parseShareSearch } from './codec';
-import { SharedSessionContext, type SharedSessionValue } from './session-context';
+import type { Mode } from '@/common/playground';
+import { toast } from '@/common/components/ui/use-toast';
+import { trackUi } from '@/common/analytics';
+import { isSharedSearch, parseShareSearch } from '@/common/share/codec';
+import { SharedSessionContext, type SharedSessionValue } from '@/common/share/session-context';
 import type {
   HydratedModes,
   PlaygroundShareAdapter,
   SaveTarget,
   SharedLink,
   SharedSessionStatus,
-} from './types';
+} from '@/common/share/types';
 
 interface SessionMemory {
   link: SharedLink;

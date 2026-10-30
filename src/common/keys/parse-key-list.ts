@@ -8,7 +8,7 @@
 // enteros (con signo opcional); en modo texto todo es cadena, incluso lo que
 // son solo dígitos.
 
-import type { Key, KeyType } from '../types';
+import type { Key, KeyType } from '@/common/types';
 
 export type KeyListError = 'empty' | 'invalid';
 

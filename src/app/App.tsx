@@ -1,19 +1,19 @@
 import * as React from 'react';
 import { BrowserRouter, Link, Route, Routes, useLocation } from 'react-router-dom';
-import { Toaster } from '../common/components/ui/toast';
-import { TooltipProvider } from '../common/components/ui/tooltip';
-import { MODES, type Mode } from '../common/playground';
-import { takeNavSource, track, useSessionEngaged } from '../common/analytics';
-import { GLOBAL_KEYS } from '../common/storage/keys';
-import { save } from '../common/storage/storage';
-import { SharedSessionProvider, useSharedSession } from '../common/share';
-import LandingPage from '../landing/LandingPage';
-import { ChromeProvider } from './chrome';
-import { getPlayground, PLAYGROUNDS } from './registry';
-import { usePageMeta } from './seo';
+import { Toaster } from '@/common/components/ui/toast';
+import { TooltipProvider } from '@/common/components/ui/tooltip';
+import { MODES, type Mode } from '@/common/playground';
+import { takeNavSource, track, useSessionEngaged } from '@/common/analytics';
+import { GLOBAL_KEYS } from '@/common/storage/keys';
+import { save } from '@/common/storage/storage';
+import { SharedSessionProvider, useSharedSession } from '@/common/share';
+import LandingPage from '@/landing/LandingPage';
+import { ChromeProvider } from '@/app/chrome';
+import { getPlayground, PLAYGROUNDS } from '@/app/registry';
+import { usePageMeta } from '@/app/seo';
 
-const DocsIndex = React.lazy(() => import('../docs/DocsIndex').then((m) => ({ default: m.DocsIndex })));
-const DocsPage = React.lazy(() => import('../docs/DocsPage').then((m) => ({ default: m.DocsPage })));
+const DocsIndex = React.lazy(() => import('@/docs/DocsIndex').then((m) => ({ default: m.DocsIndex })));
+const DocsPage = React.lazy(() => import('@/docs/DocsPage').then((m) => ({ default: m.DocsPage })));
 
 function RouteTracker() {
   const location = useLocation();

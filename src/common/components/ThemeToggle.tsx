@@ -1,6 +1,6 @@
 import { Moon, Sun } from 'lucide-react';
-import { Button } from './ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { Button } from '@/common/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/common/components/ui/tooltip';
 
 export function ThemeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
   return (

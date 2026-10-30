@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { GLOBAL_KEYS } from '../storage/keys';
-import { load, save } from '../storage/storage';
+import { GLOBAL_KEYS } from '@/common/storage/keys';
+import { load, save } from '@/common/storage/storage';
 
 export function useTheme() {
   const [dark, setDark] = React.useState<boolean>(() => {

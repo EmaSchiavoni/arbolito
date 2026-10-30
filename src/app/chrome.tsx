@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { useTheme } from '../common/hooks/use-theme';
-import { GLOBAL_KEYS } from '../common/storage/keys';
-import { load, save } from '../common/storage/storage';
-import { ChromeContext, type ChromeValue } from './chrome-context';
+import { useTheme } from '@/common/hooks/use-theme';
+import { GLOBAL_KEYS } from '@/common/storage/keys';
+import { load, save } from '@/common/storage/storage';
+import { ChromeContext, type ChromeValue } from '@/app/chrome-context';
 
 export function ChromeProvider({ children }: { children: React.ReactNode }) {
   const { dark, toggle } = useTheme();

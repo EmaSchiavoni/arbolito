@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useLocation } from 'react-router-dom';
-import { getPlayground } from './registry';
+import { getPlayground } from '@/app/registry';
 
 // Único punto donde vive el texto SEO de cada ruta. Las etiquetas base están
 // en index.html y acá se reemplazan al navegar, para que cada playground se

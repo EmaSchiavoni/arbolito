@@ -1,6 +1,6 @@
 // Claves de localStorage del Árbol AVL, en un solo lugar. Se usan tanto en
 // los playgrounds como en el adaptador de enlaces compartidos.
-import { createScopedStorage } from '../../common/storage/storage';
+import { createScopedStorage } from '@/common/storage/storage';
 
 export const avlStorage = createScopedStorage('avl');
 

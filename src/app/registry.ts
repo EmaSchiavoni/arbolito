@@ -1,11 +1,11 @@
 import { lazy } from 'react';
 import { PencilRuler, Sparkles } from 'lucide-react';
-import type { PlaygroundDefinition } from '../common/playground';
+import type { PlaygroundDefinition } from '@/common/playground';
 
-const BTreeAuto = lazy(() => import('../playgrounds/btree/ui/AutoPlayground').then((m) => ({ default: m.AutoPlayground })));
-const BTreeManual = lazy(() => import('../playgrounds/btree/ui/ManualPlayground').then((m) => ({ default: m.ManualPlayground })));
-const AvlAuto = lazy(() => import('../playgrounds/avl/ui/AutoPlayground').then((m) => ({ default: m.AutoPlayground })));
-const AvlManual = lazy(() => import('../playgrounds/avl/ui/ManualPlayground').then((m) => ({ default: m.ManualPlayground })));
+const BTreeAuto = lazy(() => import('@/playgrounds/btree/ui/AutoPlayground').then((m) => ({ default: m.AutoPlayground })));
+const BTreeManual = lazy(() => import('@/playgrounds/btree/ui/ManualPlayground').then((m) => ({ default: m.ManualPlayground })));
+const AvlAuto = lazy(() => import('@/playgrounds/avl/ui/AutoPlayground').then((m) => ({ default: m.AutoPlayground })));
+const AvlManual = lazy(() => import('@/playgrounds/avl/ui/ManualPlayground').then((m) => ({ default: m.ManualPlayground })));
 
 // Única fuente de verdad para la navegación y las rutas: agregar un
 // playground es sumar una entrada a este arreglo.

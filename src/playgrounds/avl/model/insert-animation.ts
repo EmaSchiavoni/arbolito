@@ -4,7 +4,7 @@
 // 3. una rotación por vez (las dobles se parten en dos) con su snapshot.
 // No depende de React.
 
-import { cmpKey, isValidKey, toKey, type Key, type KeyType } from '../../../common/types';
+import { cmpKey, isValidKey, toKey, type Key, type KeyType } from '@/common/types';
 import {
   balanceOf,
   formatStep,
@@ -15,9 +15,9 @@ import {
   type AvlNode,
   type AvlStep,
   type AvlTree,
-} from './avl';
-import type { AnimationFrame, RotationLog, TreeAnimation } from './animation';
-import { rotationMessage } from './animation';
+} from '@/playgrounds/avl/model/avl';
+import type { AnimationFrame, RotationLog, TreeAnimation } from '@/playgrounds/avl/model/animation';
+import { rotationMessage } from '@/playgrounds/avl/model/animation';
 
 
 export interface InsertAnimation {

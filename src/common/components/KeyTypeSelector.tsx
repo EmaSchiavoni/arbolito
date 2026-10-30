@@ -1,5 +1,5 @@
-import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
-import type { KeyType } from '../types';
+import { ToggleGroup, ToggleGroupItem } from '@/common/components/ui/toggle-group';
+import type { KeyType } from '@/common/types';
 
 interface KeyTypeSelectorProps {
   value: KeyType;

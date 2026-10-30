@@ -1,13 +1,13 @@
 import { IconArrowsDiagonal2 } from '@tabler/icons-react';
 import { Info, Save } from 'lucide-react';
-import { Button } from './ui/button';
+import { Button } from '@/common/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from './ui/dialog';
+} from '@/common/components/ui/dialog';
 
 interface SharedTreeNoticeProps {
   visible: boolean;

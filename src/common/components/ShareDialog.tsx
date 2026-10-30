@@ -10,14 +10,14 @@ import {
   WhatsappShareButton,
   canNativeShare,
 } from 'react-share';
-import { Button } from './ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
-import { Input } from './ui/input';
-import { toast } from './ui/use-toast';
-import { trackOutbound } from '../analytics';
-import { copyText } from '../lib/clipboard';
-import { LONG_URL_WARNING } from '../share/codec';
-import { attemptNativeShare } from '../share/native';
+import { Button } from '@/common/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/common/components/ui/dialog';
+import { Input } from '@/common/components/ui/input';
+import { toast } from '@/common/components/ui/use-toast';
+import { trackOutbound } from '@/common/analytics';
+import { copyText } from '@/common/lib/clipboard';
+import { LONG_URL_WARNING } from '@/common/share/codec';
+import { attemptNativeShare } from '@/common/share/native';
 
 interface ShareDialogProps {
   open: boolean;

@@ -1,8 +1,8 @@
 // Hook de integración de un playground con la sesión compartida.
 import * as React from 'react';
-import type { Mode } from '../playground';
-import { useSharedSession } from './session-context';
-import type { PlaygroundShareAdapter } from './types';
+import type { Mode } from '@/common/playground';
+import { useSharedSession } from '@/common/share/session-context';
+import type { PlaygroundShareAdapter } from '@/common/share/types';
 
 interface UseSharedModeStateOptions {
   tree: string;

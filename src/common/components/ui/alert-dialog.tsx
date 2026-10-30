@@ -1,5 +1,5 @@
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog';
-import { cn } from '../../lib/utils';
+import { cn } from '@/common/lib/utils';
 
 interface ConfirmDialogProps {
   open: boolean;

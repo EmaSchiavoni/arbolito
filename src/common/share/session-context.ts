@@ -1,14 +1,14 @@
 // Contexto de la sesión compartida. Vive separado del provider para que el
 // archivo del componente solo exporte componentes (Fast Refresh).
 import * as React from 'react';
-import type { Mode } from '../playground';
+import type { Mode } from '@/common/playground';
 import type {
   HydratedModes,
   PlaygroundShareAdapter,
   SaveTarget,
   SharedLink,
   SharedSessionStatus,
-} from './types';
+} from '@/common/share/types';
 
 export interface SharedSessionValue {
   link: SharedLink | null;

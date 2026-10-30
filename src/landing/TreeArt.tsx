@@ -1,6 +1,6 @@
-import { cn } from '../common/lib/utils';
+import { cn } from '@/common/lib/utils';
 
-export { GithubMark } from '../common/components/GithubMark';
+export { GithubMark } from '@/common/components/GithubMark';
 
 export function FlowRibbon({ className }: { className?: string }) {
   return (

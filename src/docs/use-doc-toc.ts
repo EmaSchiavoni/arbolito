@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { TocItem } from './DocsLayout';
+import type { TocItem } from '@/docs/DocsLayout';
 
 /**
  * Lee los headings ya renderizados para que el TOC use exactamente los ids

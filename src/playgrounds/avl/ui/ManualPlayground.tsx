@@ -1,32 +1,32 @@
 import * as React from 'react';
 import { ArrowDownToLine, Crown, GripVertical, Plus, Trash2, X, ShieldCheck, Eraser, Undo2, Redo2 } from 'lucide-react';
-import { Input } from '../../../common/components/ui/input';
-import { ConfirmDialog } from '../../../common/components/ui/alert-dialog';
-import { ToolbarButton, ToolbarSeparator } from '../../../common/components/ui/toolbar';
-import { ToolButton } from '../../../common/components/ToolButton';
-import { AppShell } from '../../../app/AppShell';
-import { useChrome } from '../../../app/use-chrome';
-import { BottomToolbar } from '../../../common/components/BottomToolbar';
-import { CanvasNotice } from '../../../common/components/CanvasNotice';
-import { ValidationSheet } from '../../../common/components/ValidationSheet';
-import { TreeCanvas } from '../../../common/components/TreeCanvas';
-import { AvlConfig } from './AvlConfig';
-import { validateManualAvl, type AvlManualNode } from '../model/validate';
-import type { ValidationResult } from '../../../common/validate/graph';
-import type { Key, KeyType } from '../../../common/types';
-import { trackConfig, trackThrottled, useToolTracker } from '../../../common/analytics';
-import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
-import { createNodeTool, panTool, useCanvasTool, useMarqueeSelection, type ToolPoint } from '../../../common/tools';
-import { cn } from '../../../common/lib/utils';
-import { AVL_KEYS as KEYS, avlStorage } from '../storage';
-import { avlShare, type AvlManualState } from '../share';
-import { useSharedModeState } from '../../../common/share/use-shared-mode-state';
+import { Input } from '@/common/components/ui/input';
+import { ConfirmDialog } from '@/common/components/ui/alert-dialog';
+import { ToolbarButton, ToolbarSeparator } from '@/common/components/ui/toolbar';
+import { ToolButton } from '@/common/components/ToolButton';
+import { AppShell } from '@/app/AppShell';
+import { useChrome } from '@/app/use-chrome';
+import { BottomToolbar } from '@/common/components/BottomToolbar';
+import { CanvasNotice } from '@/common/components/CanvasNotice';
+import { ValidationSheet } from '@/common/components/ValidationSheet';
+import { TreeCanvas } from '@/common/components/TreeCanvas';
+import { AvlConfig } from '@/playgrounds/avl/ui/AvlConfig';
+import { validateManualAvl, type AvlManualNode } from '@/playgrounds/avl/model/validate';
+import type { ValidationResult } from '@/common/validate/graph';
+import type { Key, KeyType } from '@/common/types';
+import { trackConfig, trackThrottled, useToolTracker } from '@/common/analytics';
+import { useViewPersistence } from '@/common/hooks/use-view-persistence';
+import { createNodeTool, panTool, useCanvasTool, useMarqueeSelection, type ToolPoint } from '@/common/tools';
+import { cn } from '@/common/lib/utils';
+import { AVL_KEYS as KEYS, avlStorage } from '@/playgrounds/avl/storage';
+import { avlShare, type AvlManualState } from '@/playgrounds/avl/share';
+import { useSharedModeState } from '@/common/share/use-shared-mode-state';
 import {
   MANUAL_NODE_H as NODE_H,
   MANUAL_NODE_W as NODE_W,
   MANUAL_SLOT_W as SLOT_W,
   manualSlotX as slotX,
-} from './node-metrics';
+} from '@/playgrounds/avl/ui/node-metrics';
 
 const load = avlStorage.load;
 const save = avlStorage.save;

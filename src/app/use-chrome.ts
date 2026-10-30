@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ChromeContext, type ChromeValue } from './chrome-context';
+import { ChromeContext, type ChromeValue } from '@/app/chrome-context';
 
 export function useChrome(): ChromeValue {
   const value = React.useContext(ChromeContext);

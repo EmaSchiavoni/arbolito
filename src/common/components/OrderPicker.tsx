@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Slider } from './ui/slider';
+import { Input } from '@/common/components/ui/input';
+import { Label } from '@/common/components/ui/label';
+import { Slider } from '@/common/components/ui/slider';
 
 export const ORDER_MIN = 3;
 export const ORDER_SLIDER_MAX = 8;

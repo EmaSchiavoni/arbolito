@@ -1,6 +1,6 @@
 import * as React from 'react';
-import type { Mode } from '../playground';
-import { track, trackOnce, type AnalyticsData } from './core';
+import type { Mode } from '@/common/playground';
+import { track, trackOnce, type AnalyticsData } from '@/common/analytics/core';
 
 // La primera interacción real marca la sesión como "enganchada". Sirve para
 // separar personas de bots/prefetch: Googlebot ejecuta JS y dispara pageviews,

@@ -1,6 +1,6 @@
-import { Badge } from './ui/badge';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
-import type { ValidationResult } from '../validate/graph';
+import { Badge } from '@/common/components/ui/badge';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/common/components/ui/sheet';
+import type { ValidationResult } from '@/common/validate/graph';
 
 interface ValidationSheetProps {
   open: boolean;

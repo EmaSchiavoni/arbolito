@@ -1,10 +1,10 @@
 // Validador de Árbol B manual. Trabaja sobre un grafo libre de nodos
 // donde cada nodo guarda ids de hijos por slot (null = sin puntero).
 
-import { cmpKey, type Key, type KeyType } from '../../../common/types';
-import { checkGraphStructure, type ValidationResult } from '../../../common/validate/graph';
+import { cmpKey, type Key, type KeyType } from '@/common/types';
+import { checkGraphStructure, type ValidationResult } from '@/common/validate/graph';
 
-export type { ValidationIssue, ValidationResult } from '../../../common/validate/graph';
+export type { ValidationIssue, ValidationResult } from '@/common/validate/graph';
 
 export interface ManualNode {
   id: string;

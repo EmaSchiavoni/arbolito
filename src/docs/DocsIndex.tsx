@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { applyPageMeta, SITE_URL } from '../app/seo';
-import { DocsLayout } from './DocsLayout';
-import { Markdown } from './Markdown';
-import { DOCS, DOCS_INDEX } from './content';
-import { useDocToc } from './use-doc-toc';
+import { applyPageMeta, SITE_URL } from '@/app/seo';
+import { DocsLayout } from '@/docs/DocsLayout';
+import { Markdown } from '@/docs/Markdown';
+import { DOCS, DOCS_INDEX } from '@/docs/content';
+import { useDocToc } from '@/docs/use-doc-toc';
 
 const INDEX_META = {
   title: 'Documentación para desarrolladores — arbolito',

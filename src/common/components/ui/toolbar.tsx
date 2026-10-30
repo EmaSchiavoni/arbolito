@@ -1,8 +1,8 @@
 import * as React from 'react';
 import * as ToolbarPrimitive from '@radix-ui/react-toolbar';
 import type { VariantProps } from 'class-variance-authority';
-import { buttonVariants } from './button-variants';
-import { cn } from '../../lib/utils';
+import { buttonVariants } from '@/common/components/ui/button-variants';
+import { cn } from '@/common/lib/utils';
 
 const Toolbar = React.forwardRef<
   React.ElementRef<typeof ToolbarPrimitive.Root>,

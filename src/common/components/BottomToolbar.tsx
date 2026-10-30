@@ -1,6 +1,6 @@
 import * as React from 'react';
-import { Toolbar } from './ui/toolbar';
-import { cn } from '../lib/utils';
+import { Toolbar } from '@/common/components/ui/toolbar';
+import { cn } from '@/common/lib/utils';
 
 // Barra de acciones flotante, abajo y centrada, con ancho mínimo.
 // No usar top bars ni sidebars para acciones: todo pasa por acá.

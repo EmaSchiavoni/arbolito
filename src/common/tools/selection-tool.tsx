@@ -1,6 +1,6 @@
 import * as React from 'react';
-import type { CanvasTool } from './types';
-import { Marquee2Icon } from './marquee-icon';
+import type { CanvasTool } from '@/common/tools/types';
+import { Marquee2Icon } from '@/common/tools/marquee-icon';
 
 export interface MarqueeNode {
   id: string;

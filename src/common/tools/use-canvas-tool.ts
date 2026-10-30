@@ -1,5 +1,5 @@
 import * as React from 'react';
-import type { CanvasTool } from './types';
+import type { CanvasTool } from '@/common/tools/types';
 
 // Estado de la herramienta activa del canvas. Hay una sola a la vez y volver
 // a elegir la misma la deselecciona, salvo la tool fija (paneo), que queda

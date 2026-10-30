@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import type { CanvasTool, ToolPoint } from './types';
+import type { CanvasTool, ToolPoint } from '@/common/tools/types';
 
 // Herramienta compartida por los editores manuales: un click en el fondo crea
 // un nodo en esa posición. El playground decide dónde ubicarlo exactamente.

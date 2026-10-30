@@ -5,7 +5,7 @@
 // - Equilibrio: mira cuántos hijos tiene cada nivel respecto de la altura.
 // En AVL el máximo de hijos por nodo es k = 2.
 
-import { heightOf, type AvlNode } from './avl';
+import { heightOf, type AvlNode } from '@/playgrounds/avl/model/avl';
 
 export type BalanceLevel = 'perfect' | 'balanced' | 'unbalanced';
 export type HeightMode = 'nodes' | 'edges';

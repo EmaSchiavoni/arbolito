@@ -3,7 +3,7 @@ import ReactMarkdown, { type Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import rehypeHighlight from 'rehype-highlight';
-import { resolveDocHref } from './content';
+import { resolveDocHref } from '@/docs/content';
 
 const components: Components = {
   a({ href, title, children }) {

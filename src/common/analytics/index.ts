@@ -1,2 +1,2 @@
-export * from './core';
-export * from './hooks';
+export * from '@/common/analytics/core';
+export * from '@/common/analytics/hooks';

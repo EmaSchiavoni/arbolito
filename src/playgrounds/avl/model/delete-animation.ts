@@ -2,7 +2,7 @@
 // búsqueda, reemplazo por sucesor si hace falta, extracción estructural y
 // rebalanceo con una rotación por vez. No depende de React.
 
-import { cmpKey, isValidKey, toKey, type Key, type KeyType } from '../../../common/types';
+import { cmpKey, isValidKey, toKey, type Key, type KeyType } from '@/common/types';
 import {
   balanceOf,
   cloneTree,
@@ -12,8 +12,8 @@ import {
   type AvlNode,
   type AvlStep,
   type AvlTree,
-} from './avl';
-import { rotationMessage, type AnimationFrame, type RotationLog, type TreeAnimation } from './animation';
+} from '@/playgrounds/avl/model/avl';
+import { rotationMessage, type AnimationFrame, type RotationLog, type TreeAnimation } from '@/playgrounds/avl/model/animation';
 
 function updateHeight(node: AvlNode): void {
   node.height = 1 + Math.max(heightOf(node.left), heightOf(node.right));

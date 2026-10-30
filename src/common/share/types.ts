@@ -2,8 +2,8 @@
 // vive en `codec.ts`; cada playground implementa un `PlaygroundShareAdapter`
 // que traduce su estado interno a/desde `SharedTreeData`.
 
-import type { Mode } from '../playground';
-import type { KeyType } from '../types';
+import type { Mode } from '@/common/playground';
+import type { KeyType } from '@/common/types';
 
 /** Datos neutros de un árbol compartido, comunes a todos los playgrounds. */
 export interface SharedTreeData {

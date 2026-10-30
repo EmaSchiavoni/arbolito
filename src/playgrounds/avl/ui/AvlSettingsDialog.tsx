@@ -1,6 +1,6 @@
-import type { AvlSettings } from '../model/stats';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../common/components/ui/dialog';
-import { ToggleGroup, ToggleGroupItem } from '../../../common/components/ui/toggle-group';
+import type { AvlSettings } from '@/playgrounds/avl/model/stats';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/common/components/ui/dialog';
+import { ToggleGroup, ToggleGroupItem } from '@/common/components/ui/toggle-group';
 
 function SettingsRow<T extends string>({
   label,

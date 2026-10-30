@@ -8,9 +8,9 @@
 // activación de usuario que exige navigator.share.
 
 import { compressToBase64, decompressFromBase64 } from 'lz-string';
-import type { Mode } from '../playground';
-import type { KeyType } from '../types';
-import type { SharedLink } from './types';
+import type { Mode } from '@/common/playground';
+import type { KeyType } from '@/common/types';
+import type { SharedLink } from '@/common/share/types';
 
 export const SHARE_PARAM = 'shared';
 export const SHARE_VERSION = '1';

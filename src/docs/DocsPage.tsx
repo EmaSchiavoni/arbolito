@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { applyPageMeta, SITE_URL } from '../app/seo';
-import { DocsLayout } from './DocsLayout';
-import { Markdown } from './Markdown';
-import { DOCS, getDoc } from './content';
-import { useDocToc } from './use-doc-toc';
+import { applyPageMeta, SITE_URL } from '@/app/seo';
+import { DocsLayout } from '@/docs/DocsLayout';
+import { Markdown } from '@/docs/Markdown';
+import { DOCS, getDoc } from '@/docs/content';
+import { useDocToc } from '@/docs/use-doc-toc';
 
 const NOT_FOUND_META = {
   title: 'Página no encontrada — Documentación — arbolito',

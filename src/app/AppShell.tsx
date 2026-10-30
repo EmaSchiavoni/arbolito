@@ -14,9 +14,9 @@ import {
   SlidersHorizontal,
   Sun,
 } from 'lucide-react';
-import { Button } from '../common/components/ui/button';
-import { buttonVariants } from '../common/components/ui/button-variants';
-import { cn } from '../common/lib/utils';
+import { Button } from '@/common/components/ui/button';
+import { buttonVariants } from '@/common/components/ui/button-variants';
+import { cn } from '@/common/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,25 +24,25 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../common/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from '../common/components/ui/sheet';
-import { Tooltip, TooltipContent, TooltipTrigger } from '../common/components/ui/tooltip';
-import { Logo } from '../common/components/Logo';
-import { SaveSharedTreeDialog } from '../common/components/SaveSharedTreeDialog';
-import { ShareDialog } from '../common/components/ShareDialog';
-import { SharedTreeNotice } from '../common/components/SharedTreeNotice';
-import { ThemeToggle } from '../common/components/ThemeToggle';
-import { toast } from '../common/components/ui/use-toast';
-import { setNavSource, trackUi } from '../common/analytics';
-import { copyText } from '../common/lib/clipboard';
-import { useMediaQuery } from '../common/hooks/use-media-query';
-import type { Mode, PlaygroundDefinition } from '../common/playground';
-import { buildShareQuery } from '../common/share/codec';
-import { attemptNativeShare } from '../common/share/native';
-import { useSharedSession } from '../common/share/session-context';
-import type { PlaygroundShareAdapter } from '../common/share/types';
-import { useChrome } from './use-chrome';
-import { getPlayground, PLAYGROUNDS } from './registry';
+} from '@/common/components/ui/dropdown-menu';
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/common/components/ui/sheet';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/common/components/ui/tooltip';
+import { Logo } from '@/common/components/Logo';
+import { SaveSharedTreeDialog } from '@/common/components/SaveSharedTreeDialog';
+import { ShareDialog } from '@/common/components/ShareDialog';
+import { SharedTreeNotice } from '@/common/components/SharedTreeNotice';
+import { ThemeToggle } from '@/common/components/ThemeToggle';
+import { toast } from '@/common/components/ui/use-toast';
+import { setNavSource, trackUi } from '@/common/analytics';
+import { copyText } from '@/common/lib/clipboard';
+import { useMediaQuery } from '@/common/hooks/use-media-query';
+import type { Mode, PlaygroundDefinition } from '@/common/playground';
+import { buildShareQuery } from '@/common/share/codec';
+import { attemptNativeShare } from '@/common/share/native';
+import { useSharedSession } from '@/common/share/session-context';
+import type { PlaygroundShareAdapter } from '@/common/share/types';
+import { useChrome } from '@/app/use-chrome';
+import { getPlayground, PLAYGROUNDS } from '@/app/registry';
 
 export interface AppShellShare {
   adapter: PlaygroundShareAdapter;

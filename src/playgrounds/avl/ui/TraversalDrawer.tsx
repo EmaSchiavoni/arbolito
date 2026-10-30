@@ -1,20 +1,20 @@
 import * as React from 'react';
 import { Pause, Play, RotateCcw, Route, X } from 'lucide-react';
-import { Button } from '../../../common/components/ui/button';
+import { Button } from '@/common/components/ui/button';
 import {
   Drawer,
   DrawerContent,
   DrawerDescription,
   DrawerTitle,
   DrawerTrigger,
-} from '../../../common/components/ui/drawer';
-import { Label } from '../../../common/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '../../../common/components/ui/radio-group';
-import { Slider } from '../../../common/components/ui/slider';
-import { ToolbarButton } from '../../../common/components/ui/toolbar';
-import { track } from '../../../common/analytics';
-import type { AvlNode } from '../model/avl';
-import { TRAVERSAL_LABELS, traverseAvl, type TraversalKind } from '../model/traversal';
+} from '@/common/components/ui/drawer';
+import { Label } from '@/common/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/common/components/ui/radio-group';
+import { Slider } from '@/common/components/ui/slider';
+import { ToolbarButton } from '@/common/components/ui/toolbar';
+import { track } from '@/common/analytics';
+import type { AvlNode } from '@/playgrounds/avl/model/avl';
+import { TRAVERSAL_LABELS, traverseAvl, type TraversalKind } from '@/playgrounds/avl/model/traversal';
 
 const KINDS: TraversalKind[] = ['pre', 'in', 'post', 'level'];
 const DEFAULT_SPEED = 4;

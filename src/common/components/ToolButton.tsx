@@ -1,7 +1,7 @@
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
-import { ToolbarButton } from './ui/toolbar';
-import { cn } from '../lib/utils';
-import type { CanvasTool } from '../tools/types';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/common/components/ui/tooltip';
+import { ToolbarButton } from '@/common/components/ui/toolbar';
+import { cn } from '@/common/lib/utils';
+import type { CanvasTool } from '@/common/tools/types';
 
 interface Props {
   tool: CanvasTool;

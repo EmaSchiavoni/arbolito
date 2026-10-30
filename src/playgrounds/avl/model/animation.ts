@@ -1,7 +1,7 @@
 // Tipos comunes para animar inserciones y eliminaciones del AVL.
 
-import type { Key } from '../../../common/types';
-import type { AvlStep, AvlTree } from './avl';
+import type { Key } from '@/common/types';
+import type { AvlStep, AvlTree } from '@/playgrounds/avl/model/avl';
 
 export type RotationCase = 'LL' | 'RR' | 'LR' | 'RL';
 

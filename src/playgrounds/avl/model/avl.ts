@@ -2,7 +2,7 @@
 // Cada nodo guarda una clave y sus dos subárboles; la altura se recalcula al
 // volver de cada operación y el factor de balance queda en {-1, 0, 1}.
 
-import { cmpKey, isValidKey, toKey, type Key, type KeyType } from '../../../common/types';
+import { cmpKey, isValidKey, toKey, type Key, type KeyType } from '@/common/types';
 
 export interface AvlNode {
   id: string;

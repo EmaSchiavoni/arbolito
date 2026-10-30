@@ -4,13 +4,13 @@
 // derivan las copias de ambos modos. Las alturas se recalculan al hidratar y
 // un grafo manual inválido se reemplaza por inserciones canónicas.
 
-import { cmpKey, isValidKey, type Key, type KeyType } from '../../common/types';
-import type { HydratedModes, PlaygroundShareAdapter, SharedTreeData } from '../../common/share/types';
-import { cloneTree, createTree, insertKey, type AvlNode, type AvlTree } from './model/avl';
-import { validateManualAvl, type AvlManualNode } from './model/validate';
-import { layoutTree } from '../../common/tree/layout';
-import { AVL_KEYS, avlStorage } from './storage';
-import { MANUAL_NODE_H, MANUAL_NODE_W } from './ui/node-metrics';
+import { cmpKey, isValidKey, type Key, type KeyType } from '@/common/types';
+import type { HydratedModes, PlaygroundShareAdapter, SharedTreeData } from '@/common/share/types';
+import { cloneTree, createTree, insertKey, type AvlNode, type AvlTree } from '@/playgrounds/avl/model/avl';
+import { validateManualAvl, type AvlManualNode } from '@/playgrounds/avl/model/validate';
+import { layoutTree } from '@/common/tree/layout';
+import { AVL_KEYS, avlStorage } from '@/playgrounds/avl/storage';
+import { MANUAL_NODE_H, MANUAL_NODE_W } from '@/playgrounds/avl/ui/node-metrics';
 
 export interface AvlAutoState {
   tree: AvlTree;

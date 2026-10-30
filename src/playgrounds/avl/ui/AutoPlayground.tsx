@@ -1,20 +1,20 @@
 import * as React from 'react';
 import { Dices, Eraser, Pause, Play, Plus, Search, Trash2 } from 'lucide-react';
-import { Button } from '../../../common/components/ui/button';
-import { Input } from '../../../common/components/ui/input';
-import { Slider } from '../../../common/components/ui/slider';
-import { ToolbarButton, ToolbarSeparator } from '../../../common/components/ui/toolbar';
-import { AppShell } from '../../../app/AppShell';
-import { useChrome } from '../../../app/use-chrome';
-import { BottomToolbar } from '../../../common/components/BottomToolbar';
-import { CanvasNotice } from '../../../common/components/CanvasNotice';
-import { HistoryDialog, type HistoryItem } from '../../../common/components/HistoryDialog';
-import { TreeBadges } from '../../../common/components/TreeBadges';
-import { TreeCanvas } from '../../../common/components/TreeCanvas';
-import { ConfirmDialog } from '../../../common/components/ui/alert-dialog';
-import { toast } from '../../../common/components/ui/use-toast';
-import { AvlConfig } from './AvlConfig';
-import { AvlSettingsDialog } from './AvlSettingsDialog';
+import { Button } from '@/common/components/ui/button';
+import { Input } from '@/common/components/ui/input';
+import { Slider } from '@/common/components/ui/slider';
+import { ToolbarButton, ToolbarSeparator } from '@/common/components/ui/toolbar';
+import { AppShell } from '@/app/AppShell';
+import { useChrome } from '@/app/use-chrome';
+import { BottomToolbar } from '@/common/components/BottomToolbar';
+import { CanvasNotice } from '@/common/components/CanvasNotice';
+import { HistoryDialog, type HistoryItem } from '@/common/components/HistoryDialog';
+import { TreeBadges } from '@/common/components/TreeBadges';
+import { TreeCanvas } from '@/common/components/TreeCanvas';
+import { ConfirmDialog } from '@/common/components/ui/alert-dialog';
+import { toast } from '@/common/components/ui/use-toast';
+import { AvlConfig } from '@/playgrounds/avl/ui/AvlConfig';
+import { AvlSettingsDialog } from '@/playgrounds/avl/ui/AvlSettingsDialog';
 import {
   balanceOf,
   contains,
@@ -23,27 +23,27 @@ import {
   searchPath,
   toTreeKey,
   type AvlTree,
-} from '../model/avl';
-import type { TreeAnimation } from '../model/animation';
-import { buildDeleteAnimation } from '../model/delete-animation';
-import { buildInsertAnimation, insertKeyAnimated } from '../model/insert-animation';
+} from '@/playgrounds/avl/model/avl';
+import type { TreeAnimation } from '@/playgrounds/avl/model/animation';
+import { buildDeleteAnimation } from '@/playgrounds/avl/model/delete-animation';
+import { buildInsertAnimation, insertKeyAnimated } from '@/playgrounds/avl/model/insert-animation';
 import {
   avlStatLabels,
   computeAvlStats,
   displayHeight,
   type AvlSettings,
-} from '../model/stats';
-import { TraversalDrawer, type TraversalHighlight } from './TraversalDrawer';
-import type { Key, KeyType } from '../../../common/types';
-import { layoutTree } from '../../../common/tree/layout';
-import { useViewPersistence } from '../../../common/hooks/use-view-persistence';
-import { parseKeyList } from '../../../common/keys/parse-key-list';
-import { trackConfig, trackUi, useToolTracker } from '../../../common/analytics';
-import { cn } from '../../../common/lib/utils';
-import { AVL_KEYS as KEYS, avlStorage } from '../storage';
-import { avlShare, type AvlAutoState } from '../share';
-import { useSharedModeState } from '../../../common/share/use-shared-mode-state';
-import { AVL_H, AVL_W } from './node-metrics';
+} from '@/playgrounds/avl/model/stats';
+import { TraversalDrawer, type TraversalHighlight } from '@/playgrounds/avl/ui/TraversalDrawer';
+import type { Key, KeyType } from '@/common/types';
+import { layoutTree } from '@/common/tree/layout';
+import { useViewPersistence } from '@/common/hooks/use-view-persistence';
+import { parseKeyList } from '@/common/keys/parse-key-list';
+import { trackConfig, trackUi, useToolTracker } from '@/common/analytics';
+import { cn } from '@/common/lib/utils';
+import { AVL_KEYS as KEYS, avlStorage } from '@/playgrounds/avl/storage';
+import { avlShare, type AvlAutoState } from '@/playgrounds/avl/share';
+import { useSharedModeState } from '@/common/share/use-shared-mode-state';
+import { AVL_H, AVL_W } from '@/playgrounds/avl/ui/node-metrics';
 
 const load = avlStorage.load;
 const save = avlStorage.save;

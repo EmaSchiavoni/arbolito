@@ -1,26 +1,26 @@
 import * as React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowUpRight, Menu } from 'lucide-react';
-import { GithubMark } from '../common/components/GithubMark';
-import { Logo } from '../common/components/Logo';
-import { ThemeToggle } from '../common/components/ThemeToggle';
-import { Button } from '../common/components/ui/button';
-import { buttonVariants } from '../common/components/ui/button-variants';
+import { GithubMark } from '@/common/components/GithubMark';
+import { Logo } from '@/common/components/Logo';
+import { ThemeToggle } from '@/common/components/ThemeToggle';
+import { Button } from '@/common/components/ui/button';
+import { buttonVariants } from '@/common/components/ui/button-variants';
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from '../common/components/ui/sheet';
-import { cn } from '../common/lib/utils';
-import { REPO_URL } from '../common/repo';
-import { trackUi } from '../common/analytics';
-import { GLOBAL_KEYS } from '../common/storage/keys';
-import { load } from '../common/storage/storage';
-import { getPlayground, PLAYGROUNDS } from '../app/registry';
-import { useChrome } from '../app/use-chrome';
-import { DOCS } from './content';
+} from '@/common/components/ui/sheet';
+import { cn } from '@/common/lib/utils';
+import { REPO_URL } from '@/common/repo';
+import { trackUi } from '@/common/analytics';
+import { GLOBAL_KEYS } from '@/common/storage/keys';
+import { load } from '@/common/storage/storage';
+import { getPlayground, PLAYGROUNDS } from '@/app/registry';
+import { useChrome } from '@/app/use-chrome';
+import { DOCS } from '@/docs/content';
 import './docs.css';
 
 export interface TocItem {

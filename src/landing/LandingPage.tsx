@@ -10,29 +10,29 @@ import {
   Terminal,
   Zap,
 } from 'lucide-react';
-import { getPlayground, PLAYGROUNDS } from '../app/registry';
-import { useChrome } from '../app/use-chrome';
-import { setNavSource, trackLandingCta, trackOutbound, trackUi } from '../common/analytics';
-import { Logo } from '../common/components/Logo';
-import { ThemeToggle } from '../common/components/ThemeToggle';
-import { buttonVariants } from '../common/components/ui/button-variants';
+import { getPlayground, PLAYGROUNDS } from '@/app/registry';
+import { useChrome } from '@/app/use-chrome';
+import { setNavSource, trackLandingCta, trackOutbound, trackUi } from '@/common/analytics';
+import { Logo } from '@/common/components/Logo';
+import { ThemeToggle } from '@/common/components/ThemeToggle';
+import { buttonVariants } from '@/common/components/ui/button-variants';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '../common/components/ui/dropdown-menu';
-import { cn } from '../common/lib/utils';
-import type { Mode, PlaygroundDefinition } from '../common/playground';
-import { MODES } from '../common/playground';
-import { GLOBAL_KEYS } from '../common/storage/keys';
-import { load } from '../common/storage/storage';
-import { useParallaxScene, useReveal, useSectionParallax } from './hooks';
-import { InteractiveGrid } from './InteractiveGrid';
-import { REPO_ISSUES_URL, REPO_NAME, REPO_URL } from '../common/repo';
-import { TechIcon, type TechIconName } from './TechIcons';
-import { AvlArt, BTreeArt, FlowRibbon, GithubMark, NaryArt, RotationArt } from './TreeArt';
+} from '@/common/components/ui/dropdown-menu';
+import { cn } from '@/common/lib/utils';
+import type { Mode, PlaygroundDefinition } from '@/common/playground';
+import { MODES } from '@/common/playground';
+import { GLOBAL_KEYS } from '@/common/storage/keys';
+import { load } from '@/common/storage/storage';
+import { useParallaxScene, useReveal, useSectionParallax } from '@/landing/hooks';
+import { InteractiveGrid } from '@/landing/InteractiveGrid';
+import { REPO_ISSUES_URL, REPO_NAME, REPO_URL } from '@/common/repo';
+import { TechIcon, type TechIconName } from '@/landing/TechIcons';
+import { AvlArt, BTreeArt, FlowRibbon, GithubMark, NaryArt, RotationArt } from '@/landing/TreeArt';
 import './landing.css';
 
 const LETTERS = [

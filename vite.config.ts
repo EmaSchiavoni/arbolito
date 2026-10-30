@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from 'node:url'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
@@ -6,6 +7,13 @@ export default defineConfig({
   // Base raíz: el sitio se sirve en el dominio propio (arbolito.schiavoni.dev).
   base: '/',
   plugins: [react()],
+  resolve: {
+    // Imports absolutos desde src (`@/common/...`) para que mover archivos no
+    // obligue a recalcular rutas relativas.
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
   build: {
     rolldownOptions: {
       output: {

@@ -1,5 +1,5 @@
-import { GLOBAL_KEYS, LEGACY_KEYS, MIGRATION_KEY } from './keys';
-import { load, save, scopedKey } from './storage';
+import { GLOBAL_KEYS, LEGACY_KEYS, MIGRATION_KEY } from '@/common/storage/keys';
+import { load, save, scopedKey } from '@/common/storage/storage';
 
 // Migra el estado de la versión anterior (una sola app de Árbol B) al nuevo
 // esquema con namespaces. Es idempotente y conserva las claves viejas.

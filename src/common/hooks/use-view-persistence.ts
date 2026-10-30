@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { loadView, save } from '../storage/storage';
+import { loadView, save } from '@/common/storage/storage';
 
 export interface CanvasView {
   x: number;

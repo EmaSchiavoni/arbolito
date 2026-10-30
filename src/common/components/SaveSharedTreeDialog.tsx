@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { cn } from '../lib/utils';
-import { Button } from './ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
-import { Label } from './ui/label';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
-import type { SaveTarget } from '../share/types';
+import { cn } from '@/common/lib/utils';
+import { Button } from '@/common/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/common/components/ui/dialog';
+import { Label } from '@/common/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/common/components/ui/radio-group';
+import type { SaveTarget } from '@/common/share/types';
 
 interface SaveSharedTreeDialogProps {
   open: boolean;

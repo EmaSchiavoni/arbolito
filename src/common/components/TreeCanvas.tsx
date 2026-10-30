@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Focus } from 'lucide-react';
-import { cn } from '../lib/utils';
-import { Button } from './ui/button';
-import type { CanvasTool, ToolPoint } from '../tools/types';
+import { cn } from '@/common/lib/utils';
+import { Button } from '@/common/components/ui/button';
+import type { CanvasTool, ToolPoint } from '@/common/tools/types';
 
 export interface CanvasNode {
   id: string;

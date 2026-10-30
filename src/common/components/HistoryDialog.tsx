@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ChevronRight, ListCollapse } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
-import { ScrollArea } from './ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/common/components/ui/dialog';
+import { ScrollArea } from '@/common/components/ui/scroll-area';
 
 export interface HistoryItem {
   id: number;

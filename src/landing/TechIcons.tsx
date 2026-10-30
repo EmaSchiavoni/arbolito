@@ -1,4 +1,4 @@
-import { cn } from '../common/lib/utils';
+import { cn } from '@/common/lib/utils';
 
 export type TechIconName = 'react' | 'typescript' | 'vite' | 'tailwind' | 'shadcn';
 

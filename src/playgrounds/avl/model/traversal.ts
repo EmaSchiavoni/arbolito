@@ -2,8 +2,8 @@
 // La secuencia intercala descensos por arcos con la visita (impresión) de
 // cada nodo; así el nodo se resalta recién cuando se procesa.
 
-import type { Key } from '../../../common/types';
-import type { AvlNode } from './avl';
+import type { Key } from '@/common/types';
+import type { AvlNode } from '@/playgrounds/avl/model/avl';
 
 export type TraversalKind = 'pre' | 'in' | 'post' | 'level';
 

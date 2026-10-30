@@ -5,9 +5,9 @@
 // conserva posiciones y punteros; si el grafo no es un Árbol B válido, la
 // copia automática se reconstruye insertando sus claves en orden.
 
-import { ORDER_MAX, ORDER_MIN } from '../../common/components/OrderPicker';
-import { cmpKey, isValidKey, type Key, type KeyType } from '../../common/types';
-import type { HydratedModes, PlaygroundShareAdapter, SharedTreeData } from '../../common/share/types';
+import { ORDER_MAX, ORDER_MIN } from '@/common/components/OrderPicker';
+import { cmpKey, isValidKey, type Key, type KeyType } from '@/common/types';
+import type { HydratedModes, PlaygroundShareAdapter, SharedTreeData } from '@/common/share/types';
 import {
   CATEDRA_POLICY,
   countKeys,
@@ -15,11 +15,11 @@ import {
   insertKey,
   type BNode,
   type BTree,
-} from './model/btree';
-import { validateManualTree, type ManualNode } from './model/validate';
-import { layoutTree } from '../../common/tree/layout';
-import { BTREE_KEYS, btreeStorage } from './storage';
-import { manualNodeWidth } from './ui/node-metrics';
+} from '@/playgrounds/btree/model/btree';
+import { validateManualTree, type ManualNode } from '@/playgrounds/btree/model/validate';
+import { layoutTree } from '@/common/tree/layout';
+import { BTREE_KEYS, btreeStorage } from '@/playgrounds/btree/storage';
+import { manualNodeWidth } from '@/playgrounds/btree/ui/node-metrics';
 
 export interface BTreeAutoState {
   p: number;

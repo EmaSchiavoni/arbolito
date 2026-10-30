@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useChrome } from '../app/use-chrome';
+import { useChrome } from '@/app/use-chrome';
 
 interface PaintedCell {
   alpha: number;

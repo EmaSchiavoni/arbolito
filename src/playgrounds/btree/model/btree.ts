@@ -4,10 +4,10 @@
 // (o sea, ceil(p/2)-1 claves). Raíz: 2..p punteros, salvo nodo único
 // (hoja con 1..p-1 claves). Hijos: 0 o |claves|+1. Hojas al mismo nivel.
 
-import { cmpKey, toKey, type Key, type KeyType } from '../../../common/types';
+import { cmpKey, toKey, type Key, type KeyType } from '@/common/types';
 
-export type { Key, KeyType } from '../../../common/types';
-export { cmpKey } from '../../../common/types';
+export type { Key, KeyType } from '@/common/types';
+export { cmpKey } from '@/common/types';
 
 export interface BNode {
   id: string;
