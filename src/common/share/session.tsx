@@ -45,7 +45,9 @@ interface SessionEntry {
 const MODES: Mode[] = ['auto', 'manual'];
 
 // Aviso de reconstrucción: el modo automático no puede cargar la estructura
-// inválida del manual, así que se reinsertan sus claves.
+// inválida del manual, así que se reinsertan sus claves. Dura hasta que el
+// usuario lo descarte: perderlo sin leerlo dejaría el árbol distinto del
+// compartido sin explicación.
 const DEGRADED_NOTICE = 'El árbol del enlace no era válido en el modo automático; se reconstruyó con las mismas claves.';
 
 function fingerprint(value: unknown): string {
@@ -185,7 +187,7 @@ export function SharedSessionProvider({ children }: { children: React.ReactNode 
       }
       // La sesión se cierra acá, así que el aviso de reconstrucción se muestra
       // antes de limpiar el enlace; si no, nunca llegaría a verse.
-      if (hydrated.degraded?.length) toast({ description: DEGRADED_NOTICE });
+      if (hydrated.degraded?.length) toast({ description: DEGRADED_NOTICE, duration: Infinity });
       finish();
       return;
     }
@@ -216,9 +218,7 @@ export function SharedSessionProvider({ children }: { children: React.ReactNode 
   const notifyDegraded = React.useCallback((mode: Mode) => {
     if (!session || !session.degraded.has(mode) || session.notified.has(mode)) return;
     session.notified.add(mode);
-    toast({
-      description: 'El árbol del enlace no era válido para este modo; se reconstruyó con las mismas claves.',
-    });
+    toast({ description: DEGRADED_NOTICE, duration: Infinity });
   }, [session]);
 
   const save = React.useCallback((adapter: PlaygroundShareAdapter, target: SaveTarget) => {
