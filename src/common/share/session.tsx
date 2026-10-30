@@ -42,6 +42,12 @@ interface SessionEntry {
   memory: SessionMemory;
 }
 
+const MODES: Mode[] = ['auto', 'manual'];
+
+// Aviso de reconstrucción: el modo automático no puede cargar la estructura
+// inválida del manual, así que se reinsertan sus claves.
+const DEGRADED_NOTICE = 'El árbol del enlace no era válido en el modo automático; se reconstruyó con las mismas claves.';
+
 function fingerprint(value: unknown): string {
   try {
     return JSON.stringify(value) ?? '';
@@ -156,24 +162,31 @@ export function SharedSessionProvider({ children }: { children: React.ReactNode 
   const register = React.useCallback((adapter: PlaygroundShareAdapter, hydrated: HydratedModes) => {
     if (!session || session.registered || session.status !== 'pending') return;
     session.registered = true;
-    for (const m of ['auto', 'manual'] as const) {
+    for (const m of MODES) {
       session.states.set(m, hydrated[m]);
       session.baselines.set(m, fingerprint(hydrated[m]));
     }
     for (const m of hydrated.degraded ?? []) session.degraded.add(m);
 
-    // Sin datos previos no hay nada que proteger: se guarda y se abandona el
-    // modo compartido sin mostrar el aviso.
-    if (!adapter.hasSavedData(session.link.mode)) {
-      const ok = adapter.save(session.link.mode, hydrated[session.link.mode]);
+    // Sin datos previos en ninguno de los dos modos no hay nada que proteger:
+    // se guardan las dos copias y se abandona el modo compartido sin aviso.
+    const hasSavedData = MODES.some((m) => adapter.hasSavedData(m));
+    if (!hasSavedData) {
+      let ok = true;
+      for (const m of MODES) {
+        if (!adapter.save(m, hydrated[m])) ok = false;
+      }
       trackUi('shared_autosave', { playground: session.link.tree, mode: session.link.mode, ok });
-      if (ok) {
-        finish();
-      } else {
+      if (!ok) {
         session.status = 'protected';
         setStatus('protected');
         toast({ description: 'No se pudo guardar el árbol compartido. Probá de nuevo.' });
+        return;
       }
+      // La sesión se cierra acá, así que el aviso de reconstrucción se muestra
+      // antes de limpiar el enlace; si no, nunca llegaría a verse.
+      if (hydrated.degraded?.length) toast({ description: DEGRADED_NOTICE });
+      finish();
       return;
     }
 
