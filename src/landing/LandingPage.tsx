@@ -823,7 +823,7 @@ function LandingFooter() {
       <div className="mx-auto grid max-w-6xl gap-12 px-4 py-14 lg:grid-cols-[1fr_22rem] lg:items-start">
         <div>
           <Logo />
-          <h2 className="mt-6 max-w-4xl font-display text-2xl leading-tight tracking-[-0.04em] sm:text-3xl">
+          <h2 className="mt-6 max-w-xl font-sans text-xl">
             Árboles B y AVL: estructuras que se visualizan, se practican y se validan.
           </h2>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
