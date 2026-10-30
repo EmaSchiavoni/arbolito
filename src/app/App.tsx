@@ -12,6 +12,9 @@ import { ChromeProvider } from './chrome';
 import { getPlayground, PLAYGROUNDS } from './registry';
 import { usePageMeta } from './seo';
 
+const DocsIndex = React.lazy(() => import('../docs/DocsIndex').then((m) => ({ default: m.DocsIndex })));
+const DocsPage = React.lazy(() => import('../docs/DocsPage').then((m) => ({ default: m.DocsPage })));
+
 function RouteTracker() {
   const location = useLocation();
   React.useEffect(() => {
@@ -47,18 +50,24 @@ function AppFrame() {
   const location = useLocation();
   const { resetKey, active } = useSharedSession();
   const isLanding = location.pathname === '/';
+  // La landing y la documentación usan scroll normal; los playgrounds ocupan
+  // toda la ventana.
+  const isScrollable =
+    isLanding || location.pathname === '/docs' || location.pathname.startsWith('/docs/');
   // Al entrar a un enlace compartido desde la SPA hay que remontar la ruta
   // para que el playground inicialice su estado desde la sesión hidratada.
   const routesKey = `${resetKey}:${active ? location.search : ''}`;
   usePageMeta();
 
   return (
-    <div className={isLanding ? 'min-h-dvh' : 'flex h-dvh min-h-0 flex-col'}>
+    <div className={isScrollable ? 'min-h-dvh' : 'flex h-dvh min-h-0 flex-col'}>
       <React.Suspense
         fallback={<div className="flex h-full items-center justify-center text-sm text-muted-foreground">Cargando…</div>}
       >
         <Routes key={routesKey}>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/docs" element={<DocsIndex />} />
+          <Route path="/docs/:slug" element={<DocsPage />} />
           {PLAYGROUNDS.flatMap((playground) =>
             MODES.map((mode: Mode) => {
               const Component = playground.modes[mode].component;

@@ -1,0 +1,190 @@
+/* Estilos propios de la documentación. El resto del artículo usa las clases
+   `prose` de @tailwindcss/typography. */
+
+.docs-prose {
+  --docs-code-bg: hsl(240 4.8% 95.9%);
+  --docs-code-fg: hsl(240 10% 3.9%);
+  --docs-code-border: hsl(var(--border));
+}
+
+.dark .docs-prose {
+  --docs-code-bg: hsl(240 10% 6%);
+  --docs-code-fg: hsl(0 0% 98%);
+}
+
+.docs-prose :where(h1, h2, h3, h4) {
+  scroll-margin-top: 6rem;
+}
+
+.docs-prose :where(pre) {
+  overflow-x: auto;
+  border: 1px solid var(--docs-code-border);
+  border-radius: 0.5rem;
+  background: var(--docs-code-bg);
+  color: var(--docs-code-fg);
+  padding: 1rem 1.25rem;
+  font-size: 0.8125rem;
+  line-height: 1.7;
+}
+
+.docs-prose :where(pre code) {
+  background: transparent;
+  padding: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.docs-prose :where(pre code)::before,
+.docs-prose :where(pre code)::after {
+  content: none;
+}
+
+.docs-prose :where(table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.docs-prose :where(th) {
+  text-align: left;
+  font-weight: 600;
+}
+
+.docs-prose :where(th, td) {
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 0.5rem 0.75rem;
+}
+
+.docs-prose :where(blockquote) {
+  border-left: 3px solid hsl(var(--border));
+  color: hsl(var(--muted-foreground));
+  font-style: normal;
+}
+
+.docs-prose :where(img) {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Resaltado de sintaxis (rehype-highlight / highlight.js). */
+
+.docs-prose .hljs-comment,
+.docs-prose .hljs-quote {
+  color: #6e7781;
+}
+
+.docs-prose .hljs-keyword,
+.docs-prose .hljs-selector-tag,
+.docs-prose .hljs-subst {
+  color: #cf222e;
+}
+
+.docs-prose .hljs-number,
+.docs-prose .hljs-literal,
+.docs-prose .hljs-variable,
+.docs-prose .hljs-template-variable {
+  color: #0550ae;
+}
+
+.docs-prose .hljs-string,
+.docs-prose .hljs-doctag,
+.docs-prose .hljs-regexp {
+  color: #0a3069;
+}
+
+.docs-prose .hljs-title,
+.docs-prose .hljs-section,
+.docs-prose .hljs-selector-id,
+.docs-prose .hljs-selector-class {
+  color: #8250df;
+}
+
+.docs-prose .hljs-type,
+.docs-prose .hljs-class .hljs-title,
+.docs-prose .hljs-built_in {
+  color: #953800;
+}
+
+.docs-prose .hljs-attr,
+.docs-prose .hljs-attribute,
+.docs-prose .hljs-selector-attr,
+.docs-prose .hljs-selector-pseudo {
+  color: #0550ae;
+}
+
+.docs-prose .hljs-meta,
+.docs-prose .hljs-symbol,
+.docs-prose .hljs-bullet,
+.docs-prose .hljs-link {
+  color: #8250df;
+}
+
+.docs-prose .hljs-name,
+.docs-prose .hljs-tag {
+  color: #116329;
+}
+
+.docs-prose .hljs-emphasis {
+  font-style: italic;
+}
+
+.docs-prose .hljs-strong {
+  font-weight: 700;
+}
+
+.dark .docs-prose .hljs-comment,
+.dark .docs-prose .hljs-quote {
+  color: #8b949e;
+}
+
+.dark .docs-prose .hljs-keyword,
+.dark .docs-prose .hljs-selector-tag,
+.dark .docs-prose .hljs-subst {
+  color: #ff7b72;
+}
+
+.dark .docs-prose .hljs-number,
+.dark .docs-prose .hljs-literal,
+.dark .docs-prose .hljs-variable,
+.dark .docs-prose .hljs-template-variable {
+  color: #79c0ff;
+}
+
+.dark .docs-prose .hljs-string,
+.dark .docs-prose .hljs-doctag,
+.dark .docs-prose .hljs-regexp {
+  color: #a5d6ff;
+}
+
+.dark .docs-prose .hljs-title,
+.dark .docs-prose .hljs-section,
+.dark .docs-prose .hljs-selector-id,
+.dark .docs-prose .hljs-selector-class {
+  color: #d2a8ff;
+}
+
+.dark .docs-prose .hljs-type,
+.dark .docs-prose .hljs-class .hljs-title,
+.dark .docs-prose .hljs-built_in {
+  color: #ffa657;
+}
+
+.dark .docs-prose .hljs-attr,
+.dark .docs-prose .hljs-attribute,
+.dark .docs-prose .hljs-selector-attr,
+.dark .docs-prose .hljs-selector-pseudo {
+  color: #79c0ff;
+}
+
+.dark .docs-prose .hljs-meta,
+.dark .docs-prose .hljs-symbol,
+.dark .docs-prose .hljs-bullet,
+.dark .docs-prose .hljs-link {
+  color: #d2a8ff;
+}
+
+.dark .docs-prose .hljs-name,
+.dark .docs-prose .hljs-tag {
+  color: #7ee787;
+}

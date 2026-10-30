@@ -7,6 +7,8 @@ import { getPlayground } from './registry';
 // presente como visualizador de árboles además de lugar de práctica.
 const SITE_URL = 'https://arbolito.schiavoni.dev';
 
+export { SITE_URL };
+
 export interface PageMeta {
   title: string;
   description: string;
@@ -53,7 +55,10 @@ const NOT_FOUND_META: PageMeta = {
   canonical: `${SITE_URL}/`,
 };
 
-export function resolvePageMeta(pathname: string): PageMeta {
+export function resolvePageMeta(pathname: string): PageMeta | null {
+  // La documentación maneja sus propios metadatos desde DocsPage/DocsIndex.
+  if (pathname === '/docs' || pathname.startsWith('/docs/')) return null;
+
   const segments = pathname.split('/').filter(Boolean);
   if (segments.length === 0) return HOME_META;
   if (segments.length !== 2) return NOT_FOUND_META;
@@ -99,6 +104,7 @@ export function applyPageMeta(meta: PageMeta) {
 export function usePageMeta() {
   const { pathname } = useLocation();
   React.useEffect(() => {
-    applyPageMeta(resolvePageMeta(pathname));
+    const meta = resolvePageMeta(pathname);
+    if (meta) applyPageMeta(meta);
   }, [pathname]);
 }

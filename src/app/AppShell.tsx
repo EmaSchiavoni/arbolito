@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
+  BookOpen,
   ChevronDown,
   ChevronUp,
   Copy,
@@ -165,6 +166,12 @@ function ChromeMenu({
         <Link to={`/${playground.id}/${other}${modeSearch}`} onClick={() => setNavSource('header')}>
           <OtherIcon />
           Ir a modo {playground.modes[other].label.toLowerCase()}
+        </Link>
+      </DropdownMenuItem>
+      <DropdownMenuItem asChild>
+        <Link to="/docs">
+          <BookOpen />
+          Documentación
         </Link>
       </DropdownMenuItem>
       <DropdownMenuItem disabled={!canShare} onSelect={onShare}>

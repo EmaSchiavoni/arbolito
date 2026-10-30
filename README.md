@@ -7,9 +7,21 @@ Demo en línea: https://arbolito.schiavoni.dev/ (despliegue automático a GitHub
 ## Rutas
 
 - `/` es la landing page; desde ahí se accede al último playground usado (o a `/btree/auto`).
-- `/btree/auto` y `/btree/manual`.
-- `/avl/auto` y `/avl/manual`.
+- `/docs` y `/docs/<slug>` para la documentación para desarrolladores.
+- `/<estructura>/auto` y `/<estructura>/manual` para cada playground. Por ejemplo, Árbol B vive en `/btree/auto` y `/btree/manual`, y Árbol AVL en `/avl/auto` y `/avl/manual`.
 - Las rutas son limpias (`BrowserRouter`); el build copia `dist/index.html` a `dist/404.html` para que los deep links funcionen en GitHub Pages.
+
+## Documentación
+
+La documentación para colaboradores vive en `docs/*.md` y se publica en `/docs`:
+
+- el primer `H1` es el título y el primer párrafo la descripción;
+- el orden es por nombre de archivo (los prefijos `01-`, `02-` permiten controlarlo);
+- `README.md` es la página de inicio y no genera una página aparte;
+- los archivos que empiezan con `_` no se publican;
+- cada página se agrega automáticamente al sitemap en el build.
+
+Para crear una página alcanza con sumar un `.md` en `docs/`. El motor de render vive en `src/docs/`.
 
 ## Árbol B
 
@@ -39,6 +51,8 @@ Cada playground tiene un botón para compartir el árbol actual. El enlace lleva
 - `src/common/`: canvas compartido (`TreeCanvas`, `layoutTree`), storage con namespaces y migración, parseo de claves, validación estructural, hooks, primitivas shadcn y enlaces compartidos (`share/`).
 - `src/playgrounds/btree/`: modelo puro (`model/btree.ts`, `model/validate.ts`) y UI del playground.
 - `src/playgrounds/avl/`: modelo puro (`model/avl.ts`, `model/validate.ts`) y UI del playground.
+- `docs/`: markdown de la documentación para desarrolladores.
+- `src/docs/`: motor de render, layout, navegación y estilos de `/docs`.
 - La lógica de los modelos no depende de React. Para agregar un playground alcanza con crear su carpeta y sumar una entrada al registry.
 
 ## Persistencia

@@ -30,7 +30,7 @@ import { GLOBAL_KEYS } from '../common/storage/keys';
 import { load } from '../common/storage/storage';
 import { useParallaxScene, useReveal, useSectionParallax } from './hooks';
 import { InteractiveGrid } from './InteractiveGrid';
-import { REPO_ISSUES_URL, REPO_NAME, REPO_URL } from './repo';
+import { REPO_ISSUES_URL, REPO_NAME, REPO_URL } from '../common/repo';
 import { TechIcon, type TechIconName } from './TechIcons';
 import { AvlArt, BTreeArt, FlowRibbon, GithubMark, NaryArt, RotationArt } from './TreeArt';
 import './landing.css';
@@ -139,6 +139,13 @@ function LandingHeader({ last }: { last: PlaygroundDefinition }) {
           >
             Open source
           </a>
+          <Link
+            to="/docs"
+            onClick={() => trackLandingCta('docs', 'header')}
+            className="rounded-full px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            Documentación
+          </Link>
           <a
             href="https://schiavoni.dev/?utm_source=arbolito&utm_medium=header"
             target="_blank"
@@ -871,6 +878,15 @@ function LandingFooter() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                to="/docs"
+                onClick={() => trackLandingCta('docs', 'footer')}
+                className="inline-flex items-center gap-2 text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
+              >
+                Documentación para desarrolladores
+              </Link>
+            </li>
             <li>
               <a
                 href={REPO_URL}
