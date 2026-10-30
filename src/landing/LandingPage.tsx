@@ -11,10 +11,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { getPlayground, PLAYGROUNDS } from '@/app/registry';
-import { useChrome } from '@/app/use-chrome';
-import { setNavSource, trackLandingCta, trackOutbound, trackUi } from '@/common/analytics';
-import { Logo } from '@/common/components/Logo';
-import { ThemeToggle } from '@/common/components/ThemeToggle';
+import { setNavSource, trackLandingCta, trackOutbound } from '@/common/analytics';
 import { buttonVariants } from '@/common/components/ui/button-variants';
 import {
   DropdownMenu,
@@ -28,11 +25,15 @@ import type { Mode, PlaygroundDefinition } from '@/common/playground';
 import { MODES } from '@/common/playground';
 import { GLOBAL_KEYS } from '@/common/storage/keys';
 import { load } from '@/common/storage/storage';
-import { useParallaxScene, useReveal, useSectionParallax } from '@/landing/hooks';
+import { useParallaxScene, useSectionParallax } from '@/landing/hooks';
 import { InteractiveGrid } from '@/landing/InteractiveGrid';
 import { REPO_ISSUES_URL, REPO_NAME, REPO_URL } from '@/common/repo';
 import { TechIcon, type TechIconName } from '@/landing/TechIcons';
 import { AvlArt, BTreeArt, FlowRibbon, GithubMark, NaryArt, RotationArt } from '@/landing/TreeArt';
+import { Reveal } from './components/Reveal';
+import { TiltCard } from './components/TiltCard';
+import { LandingFooter } from './sections/LandingFooter';
+import { LandingHeader } from './sections/LandingHeader';
 import './landing.css';
 
 const LETTERS = [
@@ -45,150 +46,6 @@ const LETTERS = [
   { char: 't', weight: 200 },
   { char: 'o', weight: 900 },
 ];
-
-function Reveal({
-  children,
-  className,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const { ref, visible } = useReveal<HTMLDivElement>();
-  return (
-    <div
-      ref={ref}
-      className={cn('landing-reveal', visible && 'is-visible', className)}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
-    >
-      {children}
-    </div>
-  );
-}
-
-function TiltCard({
-  children,
-  className,
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType === 'touch') return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
-    const y = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
-    event.currentTarget.style.setProperty('--tx', x.toFixed(3));
-    event.currentTarget.style.setProperty('--ty', y.toFixed(3));
-  };
-
-  const onPointerLeave = (event: React.PointerEvent<HTMLDivElement>) => {
-    event.currentTarget.style.setProperty('--tx', '0');
-    event.currentTarget.style.setProperty('--ty', '0');
-  };
-
-  return (
-    <div className={cn('tilt-card', className)} onPointerMove={onPointerMove} onPointerLeave={onPointerLeave}>
-      <Reveal delay={delay} className="h-full">
-        {children}
-      </Reveal>
-    </div>
-  );
-}
-
-function LandingHeader({ last }: { last: PlaygroundDefinition }) {
-  const { dark, toggleTheme } = useChrome();
-
-  return (
-    <header className="fixed inset-x-0 top-0 z-40 border-b border-border/70 bg-background/75 backdrop-blur-xl">
-      <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-3 sm:px-4">
-        <Link
-          to="/"
-          aria-label="Arbolito, inicio"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="shrink-0"
-        >
-          <Logo />
-        </Link>
-
-        <nav className="ml-auto hidden items-center gap-1 md:flex">
-          <a
-            href="#proyecto"
-            className="rounded-full px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            Proyecto
-          </a>
-          <a
-            href="#tipos"
-            className="rounded-full px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            Árboles
-          </a>
-          <a
-            href="#playgrounds"
-            className="rounded-full px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            Playgrounds
-          </a>
-          <a
-            href="#open-source"
-            className="rounded-full px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            Open source
-          </a>
-          <Link
-            to="/docs"
-            onClick={() => trackLandingCta('docs', 'header')}
-            className="rounded-full px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            Documentación
-          </Link>
-          <a
-            href="https://schiavoni.dev/?utm_source=arbolito&utm_medium=header"
-            target="_blank"
-            rel="me noreferrer"
-            onClick={() => trackOutbound('schiavoni.dev', 'header')}
-            className="rounded-full px-3 py-2 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            Autor
-          </a>
-        </nav>
-
-        <div className="ml-auto flex items-center gap-1 md:ml-0">
-          <ThemeToggle
-            dark={dark}
-            onToggle={() => {
-              trackUi('theme', { value: dark ? 'light' : 'dark' });
-              toggleTheme();
-            }}
-          />
-          <a
-            href={REPO_URL}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Ver el repositorio en GitHub"
-            onClick={() => trackOutbound('github', 'header')}
-            className={cn(buttonVariants({ variant: 'outline', size: 'sm' }), 'px-3')}
-          >
-            <GithubMark className="size-4" />
-            <span className="hidden sm:inline">GitHub</span>
-          </a>
-          <Link
-            to={`/${last.id}/auto`}
-            onClick={() => setNavSource('landing')}
-            className={cn(buttonVariants({ size: 'sm' }), 'px-3')}
-          >
-            <span className="hidden sm:inline">Abrir</span>
-            <ArrowUpRight />
-          </Link>
-        </div>
-      </div>
-    </header>
-  );
-}
 
 function HeroCard({
   label,
@@ -814,95 +671,6 @@ function ClosingSection({ last }: { last: PlaygroundDefinition }) {
         </div>
       </Reveal>
     </section>
-  );
-}
-
-function LandingFooter() {
-  return (
-    <footer className="relative z-10 border-t border-border/70 bg-background/70 backdrop-blur">
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-14 lg:grid-cols-[1fr_22rem] lg:items-start">
-        <div>
-          <Logo />
-          <h2 className="mt-6 max-w-xl font-sans text-xl">
-            Árboles B y AVL: estructuras que se visualizan, se practican y se validan.
-          </h2>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Simulador y visualizador de estructuras de datos para practicar y visualizar{' '}
-            <strong className="font-medium text-foreground">árboles B</strong> y{' '}
-            <strong className="font-medium text-foreground">árboles AVL</strong> en el navegador: inserción, eliminación,
-            búsqueda, divisiones, préstamos, fusiones, rotaciones, balanceo y validación de reglas.
-          </p>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Ejercicios de árboles binarios de búsqueda, estructuras n-arias y algoritmos de balanceo, sin backend ni
-            registro.
-          </p>
-          <p className="mt-4 text-sm text-muted-foreground">
-            Autor:{' '}
-            <a
-              href="https://schiavoni.dev/?utm_source=arbolito&utm_medium=footer"
-              target="_blank"
-              rel="me noreferrer"
-              onClick={() => trackOutbound('schiavoni.dev', 'footer')}
-              className="text-foreground underline-offset-4 hover:underline"
-            >
-              Emanuel Schiavoni
-            </a>
-            {' · '}
-            <a
-              href="https://schiavoni.dev/?utm_source=arbolito&utm_medium=footer"
-              target="_blank"
-              rel="me noreferrer"
-              onClick={() => trackOutbound('schiavoni.dev', 'footer')}
-              className="underline-offset-4 hover:text-foreground hover:underline"
-            >
-              SCHIAVONI.DEV
-            </a>
-          </p>
-        </div>
-        <nav aria-label="Playgrounds para practicar y visualizar árboles y colaboración" className="lg:justify-self-end">
-          <p className="font-display text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-            Playgrounds para practicar y visualizar
-          </p>
-          <ul className="mt-5 flex flex-col gap-5 text-lg">
-            {PLAYGROUNDS.map((playground) => (
-              <li key={playground.id}>
-                <Link
-                  to={`/${playground.id}/auto`}
-                  onClick={() => setNavSource('footer')}
-                  className="group block text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-                >
-                  <span className="block">Practicar con {playground.title}</span>
-                  <span className="mt-1 block text-xs leading-relaxed text-muted-foreground/80">
-                    {playground.description}
-                  </span>
-                </Link>
-              </li>
-            ))}
-            <li>
-              <Link
-                to="/docs"
-                onClick={() => trackLandingCta('docs', 'footer')}
-                className="inline-flex items-center gap-2 text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-              >
-                Documentación para desarrolladores
-              </Link>
-            </li>
-            <li>
-              <a
-                href={REPO_URL}
-                target="_blank"
-                rel="noreferrer"
-                onClick={() => trackOutbound('github', 'footer')}
-                className="inline-flex items-center gap-2 text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
-              >
-                <GithubMark className="size-4" />
-                Contribuir al proyecto en GitHub
-              </a>
-            </li>
-          </ul>
-        </nav>
-      </div>
-    </footer>
   );
 }
 
