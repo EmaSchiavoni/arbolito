@@ -269,6 +269,10 @@ export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
 
   return (
     <>
+      <h1 className="sr-only">
+        Visualizador de {playground.title.toLowerCase()} en modo {playground.modes[mode].label.toLowerCase()}: practicar y
+        visualizar árboles
+      </h1>
       {hidden ? (
         <>
           {!configOpen && !playgroundsOpen && (

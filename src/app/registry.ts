@@ -14,7 +14,7 @@ export const PLAYGROUNDS: PlaygroundDefinition[] = [
     id: 'btree',
     title: 'Árbol B',
     short: 'B',
-    description: 'Inserción, eliminación y búsqueda con divisiones, préstamos y fusiones.',
+    description: 'Visualizá y practicá inserciones, eliminaciones y búsquedas con divisiones, préstamos y fusiones.',
     modes: {
       auto: { label: 'Automático', icon: Sparkles, component: BTreeAuto },
       manual: { label: 'Manual', icon: PencilRuler, component: BTreeManual },
@@ -24,7 +24,7 @@ export const PLAYGROUNDS: PlaygroundDefinition[] = [
     id: 'avl',
     title: 'Árbol AVL',
     short: 'AVL',
-    description: 'Árbol binario de búsqueda balanceado con rotaciones simples y dobles.',
+    description: 'Visualizá y practicá un árbol binario de búsqueda balanceado con rotaciones simples y dobles.',
     modes: {
       auto: { label: 'Automático', icon: Sparkles, component: AvlAuto },
       manual: { label: 'Manual', icon: PencilRuler, component: AvlManual },

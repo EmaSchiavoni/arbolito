@@ -256,7 +256,7 @@ function Hero() {
 
       <div className="hero-stagger relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center pb-12 text-center">
         <h1
-          aria-label="arbolito, playground para practicar árboles B y AVL"
+          aria-label="arbolito, visualizador y playground para practicar y visualizar árboles B y AVL"
           className="font-display text-[clamp(3.35rem,15.5vw,13rem)] font-black leading-[0.78] tracking-[-0.09em]"
         >
           <span aria-hidden="true" className="inline-flex items-baseline">
@@ -278,8 +278,9 @@ function Hero() {
         </h1>
 
         <p className="mt-6 max-w-2xl text-balance text-sm leading-relaxed text-muted-foreground sm:mt-8 sm:text-lg">
-          Simulador interactivo para practicar árboles B y AVL. Las operaciones de inserción, eliminación y búsqueda se
-          ejecutan paso a paso, y las estructuras armadas manualmente pueden validarse contra las reglas.
+          Simulador y visualizador interactivo para practicar y visualizar árboles B y AVL. Las operaciones de inserción,
+          eliminación y búsqueda se ejecutan paso a paso, y las estructuras armadas manualmente pueden validarse contra
+          las reglas.
         </p>
 
         <div className="mt-7 flex w-full flex-col items-center justify-center gap-2 sm:mt-9 sm:w-auto sm:flex-row">
@@ -343,12 +344,12 @@ function AboutSection() {
     {
       icon: Sparkles,
       title: 'Operaciones automáticas',
-      text: 'La inserción, la eliminación y la búsqueda se resuelven paso a paso. Se muestran divisiones, préstamos, fusiones y rotaciones.',
+      text: 'La inserción, la eliminación y la búsqueda se resuelven paso a paso. Se pueden visualizar divisiones, préstamos, fusiones y rotaciones.',
     },
     {
       icon: PencilRuler,
       title: 'Editor manual',
-      text: 'Los nodos, las claves y los punteros pueden editarse directamente. La validación comprueba orden, duplicados, alturas y factores de balance.',
+      text: 'Los nodos, las claves y los punteros se editan directamente y se visualizan en el canvas. La validación comprueba orden, duplicados, alturas y factores de balance.',
     },
     {
       icon: Zap,
@@ -362,15 +363,15 @@ function AboutSection() {
       <div className="grid items-center gap-12 lg:grid-cols-[1.06fr_0.94fr]">
         <Reveal>
           <h2 className="max-w-4xl font-display text-4xl leading-[1.02] tracking-[-0.05em] sm:text-6xl">
-            <span className="font-thin">Práctica interactiva</span>
+            <span className="font-thin">Visualizador interactivo</span>
             <br />
             <span className="font-black">de árboles B y AVL.</span>
           </h2>
           <p className="mt-6 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-            Arbolito es un playground de estructuras de datos orientado a la práctica y a la resolución de ejercicios
-            con árboles B y AVL. Las operaciones se ejecutan paso a paso y el estado de cada estructura se conserva en el
-            navegador. El editor manual permite construir nodos y punteros, y la validación comprueba las reglas de cada
-            tipo de árbol.
+            Arbolito es un visualizador y playground de estructuras de datos orientado a practicar, visualizar y resolver
+            ejercicios con árboles B y AVL. Las operaciones se ejecutan paso a paso y el estado de cada estructura se
+            conserva en el navegador. El editor manual permite construir nodos y punteros, y la validación comprueba las
+            reglas de cada tipo de árbol.
           </p>
           <div className="mt-8 flex flex-wrap gap-2">
             {['Código abierto', 'Ejecución local', 'Sin registro'].map((item) => (
@@ -582,7 +583,7 @@ function PlaygroundsSection() {
         <h2 className="max-w-4xl font-display text-4xl leading-[1.02] tracking-[-0.05em] sm:text-6xl">
           Playgrounds disponibles
           <br />
-          <span className="font-thin">para practicar árboles.</span>
+          <span className="font-thin">para practicar y visualizar árboles.</span>
         </h2>
       </Reveal>
 
@@ -816,12 +817,13 @@ function LandingFooter() {
         <div>
           <Logo />
           <h2 className="mt-6 max-w-4xl font-display text-2xl leading-tight tracking-[-0.04em] sm:text-3xl">
-            Árboles B y AVL: estructuras que se practican, se validan y se entienden.
+            Árboles B y AVL: estructuras que se visualizan, se practican y se validan.
           </h2>
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground">
-            Simulador de estructuras de datos para practicar <strong className="font-medium text-foreground">árboles B</strong>{' '}
-            y <strong className="font-medium text-foreground">árboles AVL</strong> en el navegador: inserción,
-            eliminación, búsqueda, divisiones, préstamos, fusiones, rotaciones, balanceo y validación de reglas.
+            Simulador y visualizador de estructuras de datos para practicar y visualizar{' '}
+            <strong className="font-medium text-foreground">árboles B</strong> y{' '}
+            <strong className="font-medium text-foreground">árboles AVL</strong> en el navegador: inserción, eliminación,
+            búsqueda, divisiones, préstamos, fusiones, rotaciones, balanceo y validación de reglas.
           </p>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
             Ejercicios de árboles binarios de búsqueda, estructuras n-arias y algoritmos de balanceo, sin backend ni
@@ -850,9 +852,9 @@ function LandingFooter() {
             </a>
           </p>
         </div>
-        <nav aria-label="Playgrounds para practicar árboles y colaboración" className="lg:justify-self-end">
+        <nav aria-label="Playgrounds para practicar y visualizar árboles y colaboración" className="lg:justify-self-end">
           <p className="font-display text-[10px] font-semibold uppercase tracking-[0.24em] text-muted-foreground">
-            Playgrounds para practicar
+            Playgrounds para practicar y visualizar
           </p>
           <ul className="mt-5 flex flex-col gap-5 text-lg">
             {PLAYGROUNDS.map((playground) => (

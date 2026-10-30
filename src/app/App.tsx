@@ -10,6 +10,7 @@ import { SharedSessionProvider, useSharedSession } from '../common/share';
 import LandingPage from '../landing/LandingPage';
 import { ChromeProvider } from './chrome';
 import { getPlayground, PLAYGROUNDS } from './registry';
+import { usePageMeta } from './seo';
 
 function RouteTracker() {
   const location = useLocation();
@@ -49,6 +50,7 @@ function AppFrame() {
   // Al entrar a un enlace compartido desde la SPA hay que remontar la ruta
   // para que el playground inicialice su estado desde la sesión hidratada.
   const routesKey = `${resetKey}:${active ? location.search : ''}`;
+  usePageMeta();
 
   return (
     <div className={isLanding ? 'min-h-dvh' : 'flex h-dvh min-h-0 flex-col'}>
