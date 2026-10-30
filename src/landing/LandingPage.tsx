@@ -1,188 +1,24 @@
-import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ArrowUpRight, Check, ChevronDown, Terminal } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Check, Terminal } from 'lucide-react';
 import { getPlayground, PLAYGROUNDS } from '@/app/registry';
 import { setNavSource, trackLandingCta, trackOutbound } from '@/common/analytics';
 import { buttonVariants } from '@/common/components/ui/button-variants';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from '@/common/components/ui/dropdown-menu';
 import { cn } from '@/common/lib/utils';
-import type { Mode, PlaygroundDefinition } from '@/common/playground';
-import { MODES } from '@/common/playground';
+import type { PlaygroundDefinition } from '@/common/playground';
 import { GLOBAL_KEYS } from '@/common/storage/keys';
 import { load } from '@/common/storage/storage';
 import { InteractiveGrid } from '@/landing/InteractiveGrid';
 import { REPO_ISSUES_URL, REPO_NAME, REPO_URL } from '@/common/repo';
 import { TechIcon, type TechIconName } from '@/landing/TechIcons';
-import { AvlArt, BTreeArt, FlowRibbon, GithubMark, NaryArt, RotationArt } from '@/landing/TreeArt';
+import { AvlArt, FlowRibbon, GithubMark, RotationArt } from '@/landing/TreeArt';
 import { Reveal } from './components/Reveal';
 import { AboutSection } from './sections/AboutSection';
 import { HeroSection } from './sections/HeroSection';
 import { LandingFooter } from './sections/LandingFooter';
 import { LandingHeader } from './sections/LandingHeader';
+import { PlaygroundsSection } from './sections/PlaygroundsSection';
 import { StructuresSection } from './sections/StructuresSection';
 import './landing.css';
-
-function PlaygroundSelect({ value, onChange }: { value: string; onChange: (id: string) => void }) {
-  const selected = getPlayground(value) ?? PLAYGROUNDS[0];
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          aria-label="Elegir playground"
-          className="group flex w-full items-center gap-3 rounded-2xl border border-border/80 bg-card/75 px-4 py-3 text-left shadow-sm outline-none backdrop-blur transition-colors hover:bg-card focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:ring-2 data-[state=open]:ring-ring"
-        >
-          <span className="min-w-0 flex-1">
-            <span className="block font-display text-[9px] uppercase tracking-[0.28em] text-muted-foreground">
-              Playground
-            </span>
-            <span className="block truncate text-base font-semibold">{selected.title}</span>
-          </span>
-          <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[18rem]">
-        <DropdownMenuLabel>Disponibles ahora · {PLAYGROUNDS.length}</DropdownMenuLabel>
-        {PLAYGROUNDS.map((playground) => (
-          <DropdownMenuItem
-            key={playground.id}
-            onSelect={() => onChange(playground.id)}
-            className="items-start gap-3 py-3"
-          >
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-medium">{playground.title}</span>
-              <span className="block text-xs leading-relaxed text-muted-foreground">{playground.description}</span>
-            </span>
-            {playground.id === value && <Check className="mt-1 size-4 shrink-0" />}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-function PlaygroundPreview({ playground }: { playground: PlaygroundDefinition }) {
-  const isBTree = playground.id === 'btree';
-  const isAvl = playground.id === 'avl';
-  const meta = isBTree ? '[p configurable]' : isAvl ? '[auto-balanceado]' : '[muchas ramas]';
-
-  return (
-    <div className="flex h-full min-h-[340px] flex-col">
-      <div className="flex items-center justify-between gap-4">
-        <span className="font-display text-[9px] uppercase tracking-[0.26em] text-muted-foreground">vista previa</span>
-        <span
-          className={cn(
-            'font-display text-[8px] uppercase tracking-[0.18em] text-muted-foreground',
-            isBTree && 'rounded-full border border-border/80 px-2.5 py-1',
-          )}
-        >
-          {meta}
-        </span>
-      </div>
-      <div className="landing-card relative mt-4 flex-1 overflow-hidden rounded-2xl border border-border/80 bg-background/60">
-        <div className="absolute inset-0 bg-canvas-grid opacity-80" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/0 via-background/0 to-background/80" />
-        <div className="absolute inset-0 grid place-items-center p-4">
-          {isBTree ? (
-            <BTreeArt className="w-full max-w-md" />
-          ) : isAvl ? (
-            <AvlArt className="w-full max-w-md" />
-          ) : (
-            <NaryArt className="w-full max-w-md" />
-          )}
-        </div>
-        <span className="landing-scan pointer-events-none absolute inset-0" />
-      </div>
-      <div className="mt-4 flex flex-wrap gap-2">
-        {['historial paso a paso', 'validar', 'deshacer / rehacer'].map((chip) => (
-          <span
-            key={chip}
-            className="rounded-full border border-border/80 bg-background/50 px-2.5 py-1 font-display text-[8px] uppercase tracking-[0.14em] text-muted-foreground"
-          >
-            {chip}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function PlaygroundsSection() {
-  const [selectedId, setSelectedId] = React.useState(PLAYGROUNDS[0].id);
-  const selected = getPlayground(selectedId) ?? PLAYGROUNDS[0];
-
-  return (
-    <section id="playgrounds" className="relative mx-auto w-full max-w-6xl scroll-mt-24 px-4 py-24 sm:py-28">
-      <Reveal>
-        <h2 className="max-w-4xl font-display text-4xl leading-[1.02] tracking-[-0.05em] sm:text-6xl">
-          Playgrounds disponibles
-          <br />
-          <span className="font-thin">para practicar y visualizar árboles.</span>
-        </h2>
-      </Reveal>
-
-      <div className="mt-10 grid gap-4 lg:grid-cols-[0.86fr_1.14fr]">
-        <Reveal className="space-y-4">
-          <PlaygroundSelect value={selected.id} onChange={setSelectedId} />
-
-          <div className="landing-card rounded-3xl border border-border/80 bg-card/55 p-6 backdrop-blur-sm">
-            <div className="flex items-center justify-between gap-3">
-              <span className="font-display text-[9px] uppercase tracking-[0.22em] text-muted-foreground">
-                {selected.short} · playground
-              </span>
-              <span className="font-display text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
-                {MODES.length} modos
-              </span>
-            </div>
-            <h3 className="mt-3 text-2xl font-semibold tracking-tight">{selected.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{selected.description}</p>
-
-            <div className="mt-6 grid gap-2 sm:grid-cols-2">
-              {MODES.map((mode: Mode) => {
-                const definition = selected.modes[mode];
-                const Icon = definition.icon;
-                return (
-                  <Link
-                    key={mode}
-                    to={`/${selected.id}/${mode}`}
-                    onClick={() => setNavSource('landing')}
-                    className={cn(
-                      buttonVariants({ variant: mode === 'auto' ? 'default' : 'outline', size: 'lg' }),
-                      'justify-between px-4',
-                    )}
-                  >
-                    <span className="flex items-center gap-2">
-                      <Icon className="size-4" />
-                      {definition.label}
-                    </span>
-                    <ArrowUpRight className="size-4" />
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-
-        </Reveal>
-
-        <Reveal delay={140} className="relative">
-          <div className="landing-card relative h-full overflow-hidden rounded-[2rem] border border-border/80 bg-card/40 p-5 shadow-[0_40px_120px_-70px_rgba(0,0,0,0.65)] backdrop-blur-sm">
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-foreground/[0.025] to-transparent" />
-            <div className="relative h-full">
-              <PlaygroundPreview key={selected.id} playground={selected} />
-            </div>
-          </div>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
 
 function OpenSourceSection() {
   const stack: Array<{ name: TechIconName; label: string }> = [
