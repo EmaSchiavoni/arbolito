@@ -39,3 +39,6 @@ El build ejecuta `tsc -b` antes de Vite. Si una ruta nueva no está en el sitema
 ## Siguiente paso
 
 - [Arquitectura](./02-arquitectura.md) explica las capas y las carpetas.
+- [Convenciones y calidad](./03-convenciones-y-calidad.md) reúne el estilo y las verificaciones.
+- [Crear un playground](./04-nuevo-playground.md) es la guía completa para sumar una estructura.
+- [Herramientas del canvas](./05-herramientas-del-canvas.md) y [Enlaces compartidos](./06-enlaces-compartidos.md) cubren las dos integraciones que suelen necesitar código propio.

@@ -4,6 +4,15 @@ Arbolito es un playground de estructuras de árbol pensado para practicar, visua
 
 La guía está pensada para leerse en orden, pero cada página funciona de forma independiente. Si es tu primera vez, empezá por [Introducción](./01-introduccion.md) y seguí con [Arquitectura](./02-arquitectura.md).
 
+## Recorrido recomendado
+
+1. [Introducción](./01-introduccion.md): qué es arbolito, stack, scripts y rutas.
+2. [Arquitectura](./02-arquitectura.md): capas, carpetas, registry y dirección de dependencias.
+3. [Convenciones y calidad](./03-convenciones-y-calidad.md): estilo, TypeScript, React, UI, accesibilidad y verificaciones.
+4. [Crear un playground](./04-nuevo-playground.md): paso a paso completo con un árbol n-ario de ejemplo.
+5. [Herramientas del canvas](./05-herramientas-del-canvas.md): tipos de la interfaz, ciclo de vida e integración paso a paso.
+6. [Enlaces compartidos](./06-enlaces-compartidos.md): formato de URL, sesión y adaptador por playground.
+
 ## Cómo colaborar
 
 1. Hacé un fork del repositorio y creá una rama descriptiva desde `main` (por ejemplo, `docs/guia-de-estilos` o `fix/validacion-avl`).

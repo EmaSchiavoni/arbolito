@@ -49,3 +49,10 @@ El sitemap se valida en `scripts/sitemap.mjs` contra el registry y, desde que ex
 2. Si es estado persistente, se declara en el `storage.ts` del playground.
 3. Si es UI o edición compartida, va en `src/common`.
 4. Si es una ruta nueva, se suma al registry o al router y se actualiza el SEO y el sitemap.
+
+Para el detalle operativo:
+
+- [Convenciones y calidad](./03-convenciones-y-calidad.md): reglas de código, archivos, estilo y checks.
+- [Crear un playground](./04-nuevo-playground.md): modelo, validación, hooks, pantallas, registry, SEO y sitemap.
+- [Herramientas del canvas](./05-herramientas-del-canvas.md): contrato `CanvasTool` y cómo integrar una herramienta nueva.
+- [Enlaces compartidos](./06-enlaces-compartidos.md): `PlaygroundShareAdapter`, sesión, formato de URL y pruebas.
