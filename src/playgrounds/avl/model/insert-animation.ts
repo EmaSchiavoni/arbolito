@@ -19,7 +19,6 @@ import {
 import type { AnimationFrame, RotationLog, TreeAnimation } from '@/playgrounds/avl/model/animation';
 import { rotationMessage } from '@/playgrounds/avl/model/animation';
 
-
 export interface InsertAnimation {
   inserted: boolean;
   tree: AvlTree;
@@ -191,7 +190,6 @@ export function insertKeyAnimated(tree: AvlTree, key: Key): InsertAnimation {
         recordRotation('RL', 'left', 2, node, newTop);
         snapshot();
       } else {
-        // RR.
         const newTop = rotateLeft(node);
         attach(i, node, newTop);
         recordRotation('RR', 'left', 1, node, newTop);
@@ -211,7 +209,6 @@ export function insertKeyAnimated(tree: AvlTree, key: Key): InsertAnimation {
         recordRotation('LR', 'right', 2, node, newTop);
         snapshot();
       } else {
-        // LL.
         const newTop = rotateRight(node);
         attach(i, node, newTop);
         recordRotation('LL', 'right', 1, node, newTop);

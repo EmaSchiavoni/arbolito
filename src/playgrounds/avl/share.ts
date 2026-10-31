@@ -43,8 +43,6 @@ function validKey(keyType: KeyType, value: unknown): value is Key {
   return (typeof value === 'number' || typeof value === 'string') && isValidKey(keyType, value);
 }
 
-// ---------- Serialización ----------
-
 function serializeNode(node: AvlNode | null): SerializedAutoNode | null {
   if (!node) return null;
   return [node.key, serializeNode(node.left), serializeNode(node.right)];
@@ -57,8 +55,6 @@ function serializeManual(state: AvlManualState): SerializedManual {
     nodes: state.nodes.map((n) => [n.id, n.key, [...n.slots], Math.round(n.x), Math.round(n.y)]),
   };
 }
-
-// ---------- Lectura del formato ----------
 
 function parseAutoNode(value: unknown, keyType: KeyType, nextId: { n: number }): AvlNode | null {
   if (nextId.n >= 5000) return null;
@@ -116,8 +112,6 @@ function parseManual(value: unknown, keyType: KeyType): AvlManualState | null {
   return { nodes, rootId, keyType };
 }
 
-// ---------- Conversiones entre modos ----------
-
 function layoutManual(state: AvlAutoState): AvlManualState {
   const { tree } = state;
   const layout = layoutTree(tree.root, {
@@ -174,8 +168,6 @@ function manualToAuto(state: AvlManualState): { tree: AvlTree; degraded: boolean
   for (const key of keys) tree = insertKey(tree, key);
   return { tree, degraded: true };
 }
-
-// ---------- Adaptador ----------
 
 export const avlShare: PlaygroundShareAdapter = {
   serialize(mode, state) {

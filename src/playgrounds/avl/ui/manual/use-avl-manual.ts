@@ -238,7 +238,6 @@ export function useAvlManual() {
   function deleteSelected() {
     const ids = selectedNodeIds;
     if (ids.size === 0) return;
-    // Un solo update: el borrado múltiple entra en el historial como un paso.
     update((d) => {
       d.nodes = d.nodes.filter((n) => !ids.has(n.id));
       for (const n of d.nodes) n.slots = n.slots.map((s) => (s && ids.has(s) ? null : s));

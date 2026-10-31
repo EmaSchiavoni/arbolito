@@ -1,6 +1,3 @@
-// Medidas compartidas por el canvas automático y el editor manual de AVL.
-// El nodo automático es una caja con clave + altura/factor; el manual suma una
-// barra de arrastre y los dos slots de puntero.
 
 export const AVL_W = 120;
 export const AVL_H = 56;

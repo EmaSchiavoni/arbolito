@@ -1,5 +1,3 @@
-// Validador del editor manual de AVL: estructura libre de nodos con hasta dos
-// hijos por nodo. Comprueba BST, claves y factor de balance.
 
 import { cmpKey, type Key, type KeyType } from '@/common/types';
 import { checkGraphStructure, type ValidationIssue, type ValidationResult } from '@/common/validate/graph';

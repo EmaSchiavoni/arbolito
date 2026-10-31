@@ -17,7 +17,6 @@ export interface AvlTree {
   keyType: KeyType;
 }
 
-// Eventos estructurales para el historial.
 export type AvlStep =
   | { t: 'insert-leaf'; key: Key; parent: Key | null }
   | { t: 'remove-leaf'; key: Key }
