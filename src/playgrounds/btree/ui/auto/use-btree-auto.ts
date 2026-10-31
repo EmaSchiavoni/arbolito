@@ -57,8 +57,6 @@ export function useBTreeAuto() {
   const [confirmType, setConfirmType] = React.useState<BTree['keyType'] | null>(null);
   const [showSettings, setShowSettings] = React.useState(false);
 
-  // Política del algoritmo (qué lado priorizar). Por defecto la cátedra.
-  // Se aplica a las operaciones futuras y se conserva en localStorage.
   const [policy, setPolicy] = React.useState<BTreePolicy>(() => {
     const saved = load<Partial<BTreePolicy> | null>(KEYS.autoPolicy, null);
     const side = (v: unknown): 'left' | 'right' => (v === 'left' || v === 'right' ? v : 'left');
@@ -73,8 +71,6 @@ export function useBTreeAuto() {
     save(KEYS.autoPolicy, policy);
   }, [policy]);
 
-  // Vista del canvas (paneo/zoom): se restaura al abrir y se guarda con
-  // debounce en cada cambio (más un volcado al desmontar por cambio de modo).
   const { initialView, handleViewChange } = useViewPersistence(KEYS.autoView, { x: 16, y: 150, k: 1 });
 
   React.useEffect(() => {
@@ -121,8 +117,6 @@ export function useBTreeAuto() {
     return `${n} ${n === 1 ? one : many}`;
   }
 
-  // Cambiar el tipo con el árbol vacío es directo; con claves pide
-  // confirmación porque vacía el árbol.
   function changeKeyType(next: BTree['keyType']) {
     if (next === tree.keyType) return;
     if (countKeys(tree.root) === 0) {
@@ -266,7 +260,6 @@ export function useBTreeAuto() {
   }
 
   function doClear() {
-    // Vaciar conserva el tipo elegido (es un ajuste como el orden).
     setTree({ p, root: null, keyType: tree.keyType });
     setHighlight(new Set());
     setLastKey(null);
@@ -278,7 +271,6 @@ export function useBTreeAuto() {
   function changeP(next: number) {
     const clamped = Math.min(ORDER_MAX, Math.max(ORDER_MIN, next));
     if (clamped === p) return;
-    // Cambiar p reconstruye insertando las claves existentes en orden.
     const keys: Key[] = [];
     (function walk(n = tree.root) {
       if (!n) return;

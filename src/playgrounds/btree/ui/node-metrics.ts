@@ -1,6 +1,3 @@
-// Medidas compartidas por el canvas automático y el editor manual de Árbol B.
-// El nodo automático muestra la tabla completa de p punteros + p-1 claves; el
-// manual agrega una barra de arrastre y celdas de clave más anchas.
 
 export const AUTO_PTR_W = 14;
 export const AUTO_KEY_W = 40;

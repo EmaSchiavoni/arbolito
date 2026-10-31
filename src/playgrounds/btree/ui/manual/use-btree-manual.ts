@@ -90,7 +90,6 @@ export function useBTreeManual() {
   function doUndo() {
     const prev = history.undo(draft);
     if (!prev) return;
-    // Se restauran nodos y raíz; el orden p actual se conserva.
     setDraft((d) => ({ ...prev, p: d.p }));
     setResult(null);
     setSheetOpen(false);
@@ -101,7 +100,6 @@ export function useBTreeManual() {
   function doRedo() {
     const next = history.redo(draft);
     if (!next) return;
-    // Se restauran nodos y raíz; el orden p actual se conserva.
     setDraft((d) => ({ ...next, p: d.p }));
     setResult(null);
     setSheetOpen(false);
@@ -109,8 +107,6 @@ export function useBTreeManual() {
     trackTool('redo');
   }
 
-  // Cambiar el tipo sin claves es directo; con claves pide confirmación
-  // porque vacía los nodos (se puede deshacer).
   function changeKeyType(next: KeyType) {
     if (next === keyType) return;
     if (!nodes.some((n) => n.keys.length > 0)) {
@@ -181,7 +177,6 @@ export function useBTreeManual() {
   }
 
   function parseCell(raw: string): Key | null {
-    // En modo texto todo es cadena; en numérico solo enteros.
     if (isStr) {
       const v = raw.trim();
       return v === '' ? null : v;
@@ -207,7 +202,6 @@ export function useBTreeManual() {
     trackTool('key_add');
   }
 
-  // Lleva el foco a la primera celda de clave vacía del nodo.
   function focusEmptyKey(id: string) {
     const el = document.querySelector<HTMLInputElement>(`input[data-empty-cell="${id}"]`);
     el?.focus();

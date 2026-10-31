@@ -110,7 +110,7 @@ export function BTreeManualNode({
 
       <div className="grid h-10 w-full" style={{ gridTemplateColumns: cols.join(' ') }}>
         {Array.from({ length: p }, (_, slot) => {
-          const live = slot <= node.keys.length; // slots existentes: |claves|+1
+          const live = slot <= node.keys.length;
           const linked = live ? node.slots[slot] : null;
           return (
             <span key={`cells-${slot}`} className="contents">

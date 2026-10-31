@@ -12,7 +12,6 @@ interface BTreeConfigProps {
   onOpenSettings?: () => void;
 }
 
-// Controles de configuración del Árbol B (orden, tipo y ajustes del algoritmo).
 export function BTreeConfig({ id, p, onPChange, keyType, onKeyTypeChange, onOpenSettings }: BTreeConfigProps) {
   return (
     <div className="flex flex-wrap items-center gap-6 sm:gap-2 md:gap-6">
