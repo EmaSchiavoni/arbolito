@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { applyPageMeta, SITE_URL } from '@/app/seo';
 import { DocsLayout } from '@/docs/DocsLayout';
 import { Markdown } from '@/docs/Markdown';
@@ -16,10 +16,22 @@ const INDEX_META = {
 export function DocsIndex() {
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const toc = useDocToc(contentRef, 'index');
+  const { hash } = useLocation();
 
   React.useEffect(() => {
     applyPageMeta(INDEX_META);
   }, []);
+
+  React.useEffect(() => {
+    const id = decodeURIComponent(hash.replace(/^#/, ''));
+    if (!id) return;
+
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(id)?.scrollIntoView({ block: 'start' });
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [hash]);
 
   return (
     <DocsLayout toc={toc}>
