@@ -1,4 +1,3 @@
-// Hook de integración de un playground con la sesión compartida.
 import * as React from 'react';
 import type { Mode } from '@/common/playground';
 import { useSharedSession } from '@/common/share/session-context';
@@ -16,8 +15,6 @@ export interface SharedModeState<T> {
   commit: (state: T) => void;
 }
 
-// Devuelve el estado inicial hidratado (o null si no hay sesión compartida) y
-// un `commit` que mantiene la copia en memoria para cambiar de modo o guardar.
 export function useSharedModeState<T>({ tree, mode, adapter }: UseSharedModeStateOptions): SharedModeState<T> {
   const session = useSharedSession();
   const link = session.link;

@@ -74,7 +74,6 @@ export function isSharedSearch(search: string): boolean {
   return new URLSearchParams(search).get(SHARE_PARAM) !== null;
 }
 
-/** Construye la query (sin `?`) de un enlace; `null` si el árbol está vacío. */
 export function buildShareQuery(link: SharedLink): string | null {
   const nodes = encodeNodes(link.nodes);
   if (!nodes) return null;
@@ -88,7 +87,6 @@ export function buildShareQuery(link: SharedLink): string | null {
   return params.toString();
 }
 
-/** Decodifica la query de un enlace; `null` si es inválida o está corrupta. */
 export function parseShareSearch(search: string): SharedLink | null {
   const params = new URLSearchParams(search);
   if (params.get(SHARE_PARAM) !== SHARE_VERSION) return null;

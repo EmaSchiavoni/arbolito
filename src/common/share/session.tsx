@@ -1,11 +1,11 @@
 // Provider de la sesión de un árbol compartido por enlace.
 //
 // Reglas:
-// - Vive solo en memoria: nada se escribe en localStorage hasta guardar.
+// - El árbol, la configuración y el historial viven solo en memoria hasta guardar.
 // - Cada modo mantiene una copia independiente derivada del mismo enlace.
 // - Cambiar de modo conserva el `?shared=...` y las copias ya editadas.
-// - Si el modo del enlace no tenía datos guardados, se guarda solo y se
-//   limpia la URL; si tenía, se protege con el aviso y el botón Guardar.
+// - Si ninguno de los dos modos tenía datos guardados, se guardan las dos
+//   copias y se limpia la URL; si alguno tenía, se protege con el aviso.
 //
 // La sesión es un objeto mutable en memoria: los mapas de estados y el flag
 // `status` se actualizan fuera de los setters de React a propósito.
@@ -110,7 +110,6 @@ export function SharedSessionProvider({ children }: { children: React.ReactNode 
     navigate({ pathname: location.pathname, search: '' }, { replace: true });
   }, [navigate, location.pathname, session]);
 
-  // Validar el enlace y alinear la ruta con lo que indica.
   React.useEffect(() => {
     if (!sharedSearch) {
       handledRef.current = null;
@@ -135,7 +134,6 @@ export function SharedSessionProvider({ children }: { children: React.ReactNode 
     }
   }, [sharedSearch, parsed, treeId, modeId, location.search, navigate, finish, session]);
 
-  // Refrescar los estados derivados cuando cambia la sesión.
   React.useEffect(() => {
     if (!session) {
       setStatus('idle');
@@ -150,7 +148,6 @@ export function SharedSessionProvider({ children }: { children: React.ReactNode 
     dirtyRef.current = false;
   }, [session]);
 
-  // Aviso nativo al cerrar o actualizar con cambios sin guardar.
   React.useEffect(() => {
     if (!dirty) return;
     const onBeforeUnload = (event: BeforeUnloadEvent) => {

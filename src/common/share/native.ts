@@ -30,7 +30,6 @@ const STRIKE_MS = 1000;
 let suspicions = 0;
 let unreliable = false;
 
-/** Clasificación pura para poder verificarla sin tocar el navegador. */
 export function classifyNativeShare({
   errorName,
   elapsedMs,
