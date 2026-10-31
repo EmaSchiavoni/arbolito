@@ -58,8 +58,6 @@ function validKey(keyType: KeyType, value: unknown): value is Key {
   return (typeof value === 'number' || typeof value === 'string') && isValidKey(keyType, value);
 }
 
-// ---------- Serialización ----------
-
 function serializeNode(node: BNode | null): SerializedAutoNode | null {
   if (!node) return null;
   return [[...node.keys], node.children.map(serializeNode).filter((c): c is SerializedAutoNode => c !== null)];
@@ -76,8 +74,6 @@ function serializeManual(state: BTreeManualState): SerializedManual {
     nodes: state.nodes.map((n) => [n.id, [...n.keys], [...n.slots], Math.round(n.x), Math.round(n.y)]),
   };
 }
-
-// ---------- Lectura del formato ----------
 
 function parseAutoNode(
   value: unknown,
@@ -109,8 +105,6 @@ function parseAuto(value: unknown, p: number, keyType: KeyType): BTree | null {
   const root = parseAutoNode(value.root, keyType, p, { n: 0 });
   if (!root) return null;
   const tree: BTree = { root, p, keyType };
-  // Reutiliza el validador del editor manual: garantiza que el enlace solo
-  // reconstruya un Árbol B que cumpla las reglas de la cátedra.
   const check = layoutManual({ p, tree });
   if (!validateManualTree(check.nodes, p, check.rootId, keyType).valid) return null;
   return tree;
@@ -151,8 +145,6 @@ function parseManual(value: unknown, p: number, keyType: KeyType): BTreeManualSt
   return { nodes, rootId, p, keyType };
 }
 
-// ---------- Conversiones entre modos ----------
-
 function layoutManual(state: BTreeAutoState): BTreeManualState {
   const { p, tree } = state;
   const layout = layoutTree(tree.root, {
@@ -186,8 +178,6 @@ function manualToAuto(state: BTreeManualState): { tree: BTree; degraded: boolean
     const build = (id: string, depth: number): BNode | null => {
       const n = byId.get(id);
       if (!n || depth > 10000) return null;
-      // En un nodo interno validado todos los slots están conectados; en una
-      // hoja todos son nulos.
       const children = n.slots
         .filter((slot): slot is string => slot !== null)
         .map((slot) => build(slot, depth + 1));
@@ -204,8 +194,6 @@ function manualToAuto(state: BTreeManualState): { tree: BTree; degraded: boolean
   for (const key of keys) tree = insertKey(tree, key, CATEDRA_POLICY);
   return { tree, degraded: true };
 }
-
-// ---------- Adaptador ----------
 
 export const btreeShare: PlaygroundShareAdapter = {
   serialize(mode, state) {

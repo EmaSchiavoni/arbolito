@@ -24,11 +24,10 @@ export function validateManualTree(
   const { byId, issues } = checkGraphStructure(nodes, rootId);
   if (!rootId || !byId.has(rootId)) return { valid: false, issues };
 
-  const minPtr = Math.ceil(p / 2); // punteros mínimos en nodos no-raíz no-hoja
-  const min = minPtr - 1; // claves mínimas en nodos no-raíz
+  const minPtr = Math.ceil(p / 2);
+  const min = minPtr - 1;
   const max = p - 1;
 
-  // 1. Claves ordenadas, sin duplicados, enteras, y slots coherentes.
   for (const n of nodes) {
     if (n.keys.length > max) {
       issues.push({ nodeId: n.id, message: `Tiene ${n.keys.length} claves, el máximo con p=${p} es ${max}.` });
@@ -65,8 +64,6 @@ export function validateManualTree(
     }
   }
 
-  // 2. Hijos: 0 o keys+1 (todos los slots conectados o ninguno). La raíz no
-  // única, si tiene hijos, debe tener al menos 2 punteros.
   for (const n of nodes) {
     const connected = n.slots.filter((s) => s !== null).length;
     if (connected !== 0 && connected !== n.slots.length) {
@@ -77,8 +74,6 @@ export function validateManualTree(
     }
   }
 
-  // 3. Orden de claves entre padre e hijos + hojas a igual profundidad.
-  // Los extremos null significan "sin cota" (funciona en ambos modos).
   const leafDepths = new Set<number>();
   const walked = new Set<string>();
   function checkOrder(nodeId: string, low: Key | null, high: Key | null, depth: number) {
@@ -114,7 +109,6 @@ export function validateManualTree(
     issues.push({ message: 'No todas las hojas están a la misma profundidad.' });
   }
 
-  // 4. Duplicados globales.
   const seen = new Map<Key, string>();
   for (const n of nodes) {
     for (const k of n.keys) {

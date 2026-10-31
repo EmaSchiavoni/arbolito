@@ -18,12 +18,9 @@ export interface BNode {
 export interface BTree {
   root: BNode | null;
   p: number;
-  // Modo del árbol, elegido por adelantado: las comparaciones difieren.
   keyType: KeyType;
 }
 
-// Normaliza una clave entrante al modo del árbol (defensivo: la UI no
-// debería enviar claves de otro modo).
 export function toTreeKey(tree: BTree, key: Key): Key {
   return toKey(tree.keyType, key);
 }
@@ -31,13 +28,9 @@ export function toTreeKey(tree: BTree, key: Key): Key {
 // Política del algoritmo: qué lado priorizar ante ambigüedades. Por defecto
 // la normalización de la cátedra (siempre la izquierda / predecesor).
 export interface BTreePolicy {
-  /** Al dividir con dos medianas candidatas (p par): cuál sube. */
   splitMedian: 'left' | 'right';
-  /** Al pedir prestado por subocupación: a qué hermano primero. */
   borrowFrom: 'left' | 'right';
-  /** Al fusionar por subocupación: con qué hermano primero. */
   mergeWith: 'left' | 'right';
-  /** Al borrar clave de nodo interno: con qué reemplazarla. */
   replaceWith: 'pred' | 'succ';
 }
 
@@ -60,7 +53,6 @@ export function maxKeys(p: number): number {
   return p - 1;
 }
 
-// ---------- Pasos detallados para el historial ----------
 // Eventos estructurales que emiten inserción y borrado (solo lo
 // estructural: desbordes, divisiones, préstamos, fusiones, raíz nueva).
 
@@ -169,7 +161,6 @@ export function contains(root: BNode | null, key: Key): boolean {
   return false;
 }
 
-// ---------- Inserción bottom-up ----------
 // Se inserta recursivamente y al volver se parte el nodo solo si desbordó
 // (p claves, una más que el máximo). Así el nodo a partir siempre tiene
 // cantidad impar de claves y ambos lados quedan con >= minKeys, para todo p.
@@ -210,7 +201,7 @@ function insertRec(
 ): { median: Key; right: BNode } | null {
   let i = 0;
   while (i < node.keys.length && cmpKey(key, node.keys[i]) > 0) i += 1;
-  if (i < node.keys.length && node.keys[i] === key) return null; // Duplicado.
+  if (i < node.keys.length && node.keys[i] === key) return null;
   if (node.children.length === 0) {
     node.keys.splice(i, 0, key);
     touched.add(node.id);
@@ -280,8 +271,6 @@ export function insertKeyLogged(
   return { tree: { p, root, keyType }, touched: [...touched], steps };
 }
 
-// ---------- Eliminación clásica ----------
-
 function getPredecessor(node: BNode): Key {
   let cur = node;
   while (cur.children.length > 0) cur = cur.children[cur.children.length - 1];
@@ -323,7 +312,6 @@ function fixChild(
     const rightSibling = index < parent.children.length - 1 ? parent.children[index + 1] : null;
     function tryBorrowLeft(): boolean {
       if (!leftSibling || leftSibling.keys.length <= min) return false;
-      // Préstamo desde la izquierda.
       const down = parent.keys[index - 1];
       child.keys.unshift(down);
       const up = leftSibling.keys.pop() as Key;
@@ -336,7 +324,6 @@ function fixChild(
     }
     function tryBorrowRight(): boolean {
       if (!rightSibling || rightSibling.keys.length <= min) return false;
-      // Préstamo desde la derecha.
       const down = parent.keys[index];
       child.keys.push(down);
       const up = rightSibling.keys.shift() as Key;
@@ -373,7 +360,7 @@ function fixChild(
         return;
       }
     }
-    return; // Sin hermanos: no hay nada que reparar (no debería pasar).
+    return;
   }
 }
 
@@ -381,7 +368,6 @@ function removeFromNode(node: BNode, key: Key, p: number, steps?: Step[], policy
   const idx = node.keys.findIndex((k) => k === key);
   if (idx !== -1) {
     if (node.children.length === 0) {
-      // Caso 1: hoja.
       node.keys.splice(idx, 1);
       steps?.push({ t: 'remove-leaf', key, after: [...node.keys] });
       return;
@@ -408,7 +394,7 @@ function removeFromNode(node: BNode, key: Key, p: number, steps?: Step[], policy
     }
     return;
   }
-  if (node.children.length === 0) return; // No existe.
+  if (node.children.length === 0) return;
   let i = 0;
   while (i < node.keys.length && cmpKey(key, node.keys[i]) > 0) i += 1;
   removeFromNode(node.children[i], key, p, steps, policy);

@@ -1,5 +1,3 @@
-// Claves de localStorage del Árbol B, en un solo lugar. Se usan tanto en los
-// playgrounds como en el adaptador de enlaces compartidos.
 import { createScopedStorage } from '@/common/storage/storage';
 
 export const btreeStorage = createScopedStorage('btree');
