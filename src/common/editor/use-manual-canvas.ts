@@ -19,7 +19,6 @@ interface ManualCanvasArgs<T extends ManualCanvasNode> {
   centerOffset: { x: number; y: number };
 }
 
-// Vista persistida, herramientas y recuadro de selección del editor manual.
 export function useManualCanvas<T extends ManualCanvasNode>({
   storageKey,
   nodes,

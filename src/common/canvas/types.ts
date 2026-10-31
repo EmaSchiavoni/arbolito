@@ -36,9 +36,7 @@ export interface TreeCanvasProps<T extends CanvasNode> {
   getNodeWidth?: (node: T) => number;
   getSlotCount?: (node: T) => number;
   getSlotX?: (node: T, slot: number) => number;
-  // Alto del nodo (de dónde sale la flecha). Por defecto NODE_HEIGHT.
   nodeHeight?: number;
-  // Anima el movimiento de los nodos al cambiar el layout (rotaciones).
   animateNodes?: boolean;
   animationDurationMs?: number;
   gridBackground?: boolean;
@@ -51,7 +49,6 @@ export interface TreeCanvasProps<T extends CanvasNode> {
   initialCenter?: { x: number; y: number } | null;
   // Vista guardada a restaurar al montar (tiene prioridad sobre el centro).
   initialView?: CanvasView | null;
-  // Notifica cada cambio de vista (paneo/zoom) al padre.
   onViewChange?: (view: CanvasView & { w: number; h: number }) => void;
   // Herramienta activa: captura los gestos del fondo y define el cursor.
   tool?: CanvasTool | null;

@@ -11,8 +11,6 @@ interface EdgePathArgs<T extends CanvasNode> {
   getSlotX?: (node: T, slot: number) => number;
 }
 
-// Curva que sale del slot inferior del nodo origen y entra por el centro
-// superior del destino.
 export function edgePath<T extends CanvasNode>({
   from,
   to,

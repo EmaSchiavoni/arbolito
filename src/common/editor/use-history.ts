@@ -10,11 +10,9 @@ export function useHistory<T>(limit = HISTORY_LIMIT) {
 
   function push(snapshot: T) {
     setUndoStack((s) => [...s, structuredClone(snapshot)].slice(-limit));
-    // Cualquier acción nueva invalida el rehacer.
     setRedoStack([]);
   }
 
-  // Devuelve el estado a restaurar, o null si no hay nada para deshacer.
   function undo(current: T): T | null {
     if (undoStack.length === 0) return null;
     const prev = undoStack[undoStack.length - 1];

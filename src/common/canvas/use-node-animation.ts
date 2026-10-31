@@ -3,8 +3,6 @@ import type { CanvasNode } from './types';
 
 type Position = { x: number; y: number };
 
-// Interpola el movimiento de los nodos cuando cambia el layout (por ejemplo,
-// tras una rotación). Devuelve la posición actual de cada nodo.
 export function useNodeAnimation<T extends CanvasNode>(
   nodes: T[],
   animateNodes: boolean | undefined,

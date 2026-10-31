@@ -10,20 +10,17 @@ export interface ToolPoint {
   screenY: number;
   clientX: number;
   clientY: number;
-  // El gesto arrancó sobre un nodo o un control interactivo.
+  // Queda por compatibilidad: hoy un gesto que empieza sobre [data-node] no llega a la tool.
   onNode: boolean;
   // El puntero superó el umbral de arrastre desde el press.
   dragged: boolean;
   event: ReactPointerEvent<Element>;
 }
 
-// Contrato único para las herramientas del canvas. Agregar una tool nueva es
-// crear un objeto que lo cumpla y renderizar su ToolButton en la toolbar.
 export interface CanvasTool {
   id: string;
   label: string;
   icon: ComponentType<{ className?: string }>;
-  // Valor CSS de cursor mientras la tool está activa (ej. 'crosshair').
   cursor?: string;
   // Cursor mientras se arrastra con la tool. Solo lo usan las tools fijas
   // (paneo), que muestran su cursor sin capturar los gestos del fondo.

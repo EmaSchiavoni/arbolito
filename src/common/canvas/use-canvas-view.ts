@@ -19,7 +19,6 @@ const MIN_K = 0.25;
 const MAX_K = 3;
 const clampK = (k: number) => Math.min(MAX_K, Math.max(MIN_K, k));
 
-// Paneo, zoom, pinch, rueda, teclado y recentrado del canvas.
 export function useCanvasView<T extends CanvasNode>({
   nodes,
   gridBackground,
@@ -34,9 +33,7 @@ export function useCanvasView<T extends CanvasNode>({
   const ref = React.useRef<HTMLDivElement>(null);
   const [pan, setPan] = React.useState<CanvasView>(() => initialView ?? { x: 16, y: 16, k: 1 });
   const panRef = React.useRef(pan);
-  // Arrastre de fondo en curso: solo cambia el cursor (grab → grabbing).
   const [panning, setPanning] = React.useState(false);
-  // El paneo dejó todos los nodos fuera de pantalla: se ofrece recuperarlos.
   const [showRecenter, setShowRecenter] = React.useState(false);
   // El chequeo se guarda en un ref para invocarlo desde listeners nativos
   // registrados una sola vez (rueda, teclado, resize).
@@ -70,8 +67,6 @@ export function useCanvasView<T extends CanvasNode>({
     function measure() {
       const r = target.getBoundingClientRect();
       sizeRef.current = { w: r.width, h: r.height };
-      // El tamaño cambió (resize, rotación del dispositivo): puede haber
-      // nodos visibles u ocultos distintos.
       checkRecenterRef.current();
     }
     measure();
@@ -109,7 +104,6 @@ export function useCanvasView<T extends CanvasNode>({
     applyPan({ k: k2, x: sx - (sx - cur.x) * r, y: sy - (sy - cur.y) * r });
   }
 
-  // Borrador del input de zoom: null = mostrar el valor real.
   const [zoomDraft, setZoomDraft] = React.useState<string | null>(null);
   const cancelBlur = React.useRef(false);
 
@@ -203,7 +197,6 @@ export function useCanvasView<T extends CanvasNode>({
     try {
       (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     } catch {
-      // noop
     }
     // La tool fija (paneo) no captura gestos: el fondo se arrastra normalmente.
     if (tool && !tool.pinned) {
@@ -326,7 +319,6 @@ export function useCanvasView<T extends CanvasNode>({
     };
   }, []);
 
-  // Teclado: Ctrl/Cmd + (+/-) zoom centrado, Ctrl/Cmd + 0 restablece.
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (!(e.ctrlKey || e.metaKey)) return;
@@ -370,7 +362,6 @@ export function useCanvasView<T extends CanvasNode>({
     checkRecenterRef.current = checkRecenter;
   });
 
-  // Cambió el árbol (inserción, borrado, layout): puede haber quedado fuera.
   React.useEffect(() => {
     checkRecenterRef.current();
   }, [nodes]);
@@ -412,7 +403,6 @@ export function useCanvasView<T extends CanvasNode>({
       }
     : undefined;
 
-  // Las tools fijas (paneo) muestran grab y, mientras se arrastra, grabbing.
   const cursor = tool?.cursor ? (panning && tool.draggingCursor ? tool.draggingCursor : tool.cursor) : undefined;
 
   return {
