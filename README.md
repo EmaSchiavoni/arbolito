@@ -15,6 +15,10 @@ Las contribuciones son bienvenidas. Antes de abrir un pull request, revisá:
 - [Cómo colaborar](https://arbolito.schiavoni.dev/docs#c%C3%B3mo-colaborar)
 - [Recomendaciones para que el PR sea integrado](https://arbolito.schiavoni.dev/docs#recomendaciones-para-que-el-pr-sea-integrado)
 
+## Issues
+
+Si encontrás un error o tenés una propuesta, abrí un issue en [GitHub Issues](https://github.com/EmaSchiavoni/arbolito/issues). Incluí los pasos para reproducirlo y, si aplica, una captura.
+
 ## Documentación
 
 La documentación para desarrolladores está en `docs/` y se publica en https://arbolito.schiavoni.dev/docs. Incluye introducción, arquitectura, convenciones, una guía para crear un playground, herramientas del canvas y enlaces compartidos.
