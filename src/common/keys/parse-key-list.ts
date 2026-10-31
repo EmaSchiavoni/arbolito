@@ -19,7 +19,6 @@ export type KeyMode = KeyType;
 const TOKEN_RE = /[+-]?\d+/g;
 const SEPARATORS = new Set([',', '.', '-']);
 
-// Enteros con un único separador entre ellos. Devuelve null si no aplica.
 function parseIntegerList(text: string): number[] | null {
   const tokens: { value: number; raw: string; start: number; end: number }[] = [];
   TOKEN_RE.lastIndex = 0;
@@ -56,7 +55,6 @@ function parseIntegerList(text: string): number[] | null {
 const MINUS_SENTINEL = '<MINUS/>';
 const MINUS_SIGN_RE = /(?<=^|[\s,.-])-(?=\d)/g;
 
-// Partición por un único separador. Devuelve null si hay mezcla o vacíos.
 function splitUniform(text: string): string[] | null {
   const masked = text.replace(MINUS_SIGN_RE, MINUS_SENTINEL);
   const present = new Set([...masked].filter((c) => SEPARATORS.has(c)));
@@ -69,7 +67,7 @@ function splitUniform(text: string): string[] | null {
     // Con separador explícito, los espacios internos serían otro separador.
     if (parts.some((s) => /\s/.test(s))) return null;
   } else {
-    return null; // Separadores mezclados.
+    return null;
   }
   parts = parts.map((s) => s.split(MINUS_SENTINEL).join('-'));
   if (parts.some((s) => s.length === 0)) return null;

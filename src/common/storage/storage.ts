@@ -12,7 +12,6 @@ export function save(key: string, value: unknown): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // Sin almacenamiento disponible: la app sigue funcionando en memoria.
   }
 }
 
@@ -47,7 +46,6 @@ export interface StoredView {
   k: number;
 }
 
-// Vista saneada o null si no hay nada guardado válido.
 export function loadView(key: string): StoredView | null {
   const v = load<StoredView | null>(key, null);
   if (!v || !Number.isFinite(v.x) || !Number.isFinite(v.y) || !Number.isFinite(v.k)) return null;

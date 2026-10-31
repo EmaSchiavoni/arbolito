@@ -3,8 +3,6 @@ import { Eye, EyeOff } from 'lucide-react';
 import { Badge } from '@/common/components/ui/badge';
 import { Button } from '@/common/components/ui/button';
 
-// Badges compactos con las características del árbol. El contenedor no tiene
-// fondo: solo los chips y el botón para ocultarlos/mostrarlos.
 export function TreeBadges({ items }: { items: string[] }) {
   const [visible, setVisible] = React.useState(true);
 

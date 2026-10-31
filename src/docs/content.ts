@@ -33,7 +33,6 @@ function withoutPrefix(name: string): string {
   return name.replace(/\.md$/i, '').replace(/^\d+[-_]/, '');
 }
 
-/** Convierte un nombre de archivo en un slug ASCII y estable. */
 export function slugify(value: string): string {
   return value
     .normalize('NFD')

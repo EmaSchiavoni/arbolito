@@ -11,7 +11,6 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
 }
 
-// Diálogo de confirmación estilo shadcn para acciones destructivas.
 export function ConfirmDialog({
   open,
   onOpenChange,

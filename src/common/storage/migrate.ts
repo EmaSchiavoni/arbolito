@@ -53,6 +53,5 @@ export function migrateStorage(): void {
     if (raw(GLOBAL_KEYS.lastPlayground) === null) save(GLOBAL_KEYS.lastPlayground, 'btree');
     save(MIGRATION_KEY, true);
   } catch {
-    // Sin almacenamiento: se arranca con valores por defecto.
   }
 }

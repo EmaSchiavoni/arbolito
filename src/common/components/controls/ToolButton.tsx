@@ -10,8 +10,6 @@ interface Props {
   className?: string;
 }
 
-// Botón genérico de herramienta: ícono, tooltip al hover y estado seleccionado
-// reutilizable por cualquier tool del canvas.
 export function ToolButton({ tool, active, onSelect, className }: Props) {
   const Icon = tool.icon;
   return (

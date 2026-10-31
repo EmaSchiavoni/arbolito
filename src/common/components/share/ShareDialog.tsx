@@ -39,7 +39,6 @@ const NATIVE_SHARE = {
   text: 'Mirá este árbol en Arbolito.',
 };
 
-// Alternativa a la hoja nativa: copiar el enlace o abrir una red social.
 export function ShareDialog({ open, onOpenChange, url }: ShareDialogProps) {
   const [copied, setCopied] = React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -57,7 +56,6 @@ export function ShareDialog({ open, onOpenChange, url }: ShareDialogProps) {
       toast({ description: 'Enlace copiado.' });
       return;
     }
-    // Sin portapapeles disponible al menos dejamos el enlace seleccionado.
     inputRef.current?.select();
     setCopied(false);
     toast({ description: 'No se pudo copiar el enlace.' });

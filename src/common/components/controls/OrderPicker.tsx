@@ -13,8 +13,6 @@ interface OrderPickerProps {
   onChange: (p: number) => void;
 }
 
-// Selector de orden: slider rápido (3-8) y un input editable para cualquier
-// valor entre 3 y 99.
 export function OrderPicker({ id, p, onChange }: OrderPickerProps) {
   const [draft, setDraft] = React.useState(String(p));
   const labelId = `${id}-label`;

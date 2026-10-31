@@ -30,8 +30,6 @@ export interface AppShellProps {
   share?: AppShellShare;
 }
 
-// Header global: logo, selector de playground, cambio de modo y configuración.
-// En mobile (y en modo inmersivo) todo se concentra en menús.
 export function AppShell({ playgroundId, mode, config, share }: AppShellProps) {
   const playground = getPlayground(playgroundId) ?? PLAYGROUNDS[0];
   const { hidden, showHeader, hideHeader } = useChrome();

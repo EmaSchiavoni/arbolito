@@ -1,5 +1,3 @@
-// Imagotipo del proyecto: mark del favicon + "Arbol" en monoespaciada.
-// El SVG usa currentColor para acompañar el tema claro/oscuro de la app.
 export function Logo() {
   return (
     <div className="flex shrink-0 items-center gap-2" aria-label="Arbol">

@@ -19,9 +19,6 @@ interface SharedTreeNoticeProps {
 
 const WARNING = 'Estás viendo un árbol compartido, el guardado automático está desactivado.';
 
-// Aviso no descartable de una sesión compartida. La cruz (o Escape) minimiza
-// el modal a un contenedor fijo arriba a la derecha; desde ahí se puede
-// expandir de nuevo o guardar.
 export function SharedTreeNotice({ visible, minimized, onMinimize, onExpand, onSave }: SharedTreeNoticeProps) {
   if (!visible) return null;
 

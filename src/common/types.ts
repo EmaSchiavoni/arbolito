@@ -1,10 +1,8 @@
-// Tipos y comparación de claves compartidos por todos los playgrounds.
 
 export type Key = number | string;
 
 export type KeyType = 'number' | 'string';
 
-// Comparador para claves homogéneas de cualquier modo.
 export function cmpKey(a: Key, b: Key): number {
   if (typeof a === 'number' && typeof b === 'number') return a - b;
   const x = String(a);

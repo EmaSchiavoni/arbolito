@@ -7,8 +7,6 @@ const BTreeManual = lazy(() => import('@/playgrounds/btree/ui/ManualPlayground')
 const AvlAuto = lazy(() => import('@/playgrounds/avl/ui/AutoPlayground').then((m) => ({ default: m.AutoPlayground })));
 const AvlManual = lazy(() => import('@/playgrounds/avl/ui/ManualPlayground').then((m) => ({ default: m.ManualPlayground })));
 
-// Única fuente de verdad para la navegación y las rutas: agregar un
-// playground es sumar una entrada a este arreglo.
 export const PLAYGROUNDS: PlaygroundDefinition[] = [
   {
     id: 'btree',

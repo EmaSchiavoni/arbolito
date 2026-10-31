@@ -53,7 +53,6 @@ export function useShareActions({ playgroundId, mode, share, canShare }: ShareAc
       text: 'Mirá este árbol en Arbolito.',
     });
     trackUi('share_result', { playground: playgroundId, mode, outcome, ms: msBucket(elapsedMs) });
-    // Compartido o cancelado por el usuario: no hace falta decir nada.
     if (outcome === 'shared' || outcome === 'cancelled') return;
     // Sin pistas para el usuario: si en realidad pudo compartir, cierra el
     // diálogo y listo.

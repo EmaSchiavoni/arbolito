@@ -1,6 +1,3 @@
-/* Estilos propios de la documentación. El resto del artículo usa las clases
-   `prose` de @tailwindcss/typography. */
-
 .docs-prose {
   --docs-code-bg: hsl(240 4.8% 95.9%);
   --docs-code-fg: hsl(240 10% 3.9%);
@@ -67,7 +64,6 @@
   height: auto;
 }
 
-/* Resaltado de sintaxis (rehype-highlight / highlight.js). */
 
 .docs-prose .hljs-comment,
 .docs-prose .hljs-quote {

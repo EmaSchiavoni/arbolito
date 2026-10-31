@@ -50,8 +50,6 @@ function AppFrame() {
   const location = useLocation();
   const { resetKey, active } = useSharedSession();
   const isLanding = location.pathname === '/';
-  // La landing y la documentación usan scroll normal; los playgrounds ocupan
-  // toda la ventana.
   const isScrollable =
     isLanding || location.pathname === '/docs' || location.pathname.startsWith('/docs/');
   // Al entrar a un enlace compartido desde la SPA hay que remontar la ruta

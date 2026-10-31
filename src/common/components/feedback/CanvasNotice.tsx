@@ -1,7 +1,6 @@
 import type * as React from 'react';
 import { cn } from '@/common/lib/utils';
 
-// Aviso flotante sobre el canvas (mensaje de estado o indicación de linking).
 export function CanvasNotice({
   hidden,
   children,

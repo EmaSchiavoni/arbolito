@@ -2,9 +2,6 @@ import * as React from 'react';
 import { useLocation } from 'react-router-dom';
 import { getPlayground } from '@/app/registry';
 
-// Único punto donde vive el texto SEO de cada ruta. Las etiquetas base están
-// en index.html y acá se reemplazan al navegar, para que cada playground se
-// presente como visualizador de árboles además de lugar de práctica.
 const SITE_URL = 'https://arbolito.schiavoni.dev';
 
 export { SITE_URL };
@@ -56,7 +53,6 @@ const NOT_FOUND_META: PageMeta = {
 };
 
 export function resolvePageMeta(pathname: string): PageMeta | null {
-  // La documentación maneja sus propios metadatos desde DocsPage/DocsIndex.
   if (pathname === '/docs' || pathname.startsWith('/docs/')) return null;
 
   const segments = pathname.split('/').filter(Boolean);

@@ -14,7 +14,6 @@ interface SaveSharedTreeDialogProps {
   onConfirm: (target: SaveTarget) => void;
 }
 
-// El guardado exige elegir explícitamente qué copias se sobrescriben.
 export function SaveSharedTreeDialog({
   open,
   onOpenChange,

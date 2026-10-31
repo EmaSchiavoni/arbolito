@@ -28,7 +28,6 @@ export function useSessionEngaged(): void {
   }, []);
 }
 
-/** Devuelve un emisor de `tool_use` ya contextualizado. */
 export function useToolTracker(playground: string, mode: Mode) {
   return React.useCallback(
     (tool: string, data?: AnalyticsData) => {

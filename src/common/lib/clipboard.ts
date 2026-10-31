@@ -1,10 +1,8 @@
-/** Copia texto al portapapeles con fallback para navegadores sin Clipboard API. */
 export async function copyText(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text);
     return true;
   } catch {
-    // Se intenta el método anterior.
   }
   try {
     const textarea = document.createElement('textarea');

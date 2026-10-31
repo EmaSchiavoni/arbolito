@@ -6,8 +6,6 @@ interface KeyTypeSelectorProps {
   onChange: (v: KeyType) => void;
 }
 
-// Segmentado 123 | Abc para elegir el tipo de clave. Siempre activo: si el
-// árbol ya tiene claves, el padre pide confirmación (vaciar) antes de cambiar.
 export function KeyTypeSelector({ value, onChange }: KeyTypeSelectorProps) {
   return (
     <ToggleGroup

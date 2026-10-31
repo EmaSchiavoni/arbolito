@@ -1,4 +1,4 @@
-// Analítica de uso (Umami, sin cookies).
+// Analítica de uso anónima (Umami, sin cookies) para mejorar la app.
 // El tracker se carga desde index.html; este módulo es el único punto de
 // entrada para emitir eventos: cola mientras el script carga, opt-out,
 // filtro de automatización y propiedades tipadas.
@@ -10,7 +10,6 @@
 export type AnalyticsValue = string | number | boolean;
 export type AnalyticsData = Record<string, AnalyticsValue | null | undefined>;
 
-/** De dónde salió la navegación hacia un playground. */
 export type NavSource = 'landing' | 'footer' | 'header' | 'direct' | 'internal';
 
 interface UmamiTracker {
@@ -67,13 +66,11 @@ export function isAnalyticsEnabled(): boolean {
   return enabled;
 }
 
-/** Desactiva la analítica en este navegador (persistente). */
 export function optOutAnalytics(): void {
   enabled = false;
   try {
     window.localStorage.setItem(OPT_OUT_KEY, '1');
   } catch {
-    // Sin storage: solo se desactiva para esta sesión.
   }
 }
 
@@ -101,7 +98,6 @@ function scheduleFlush(): void {
   }, FLUSH_INTERVAL_MS);
 }
 
-/** Encola o envía un evento. Nunca lanza. */
 export function track(event: string, data?: AnalyticsData): void {
   if (!isAnalyticsEnabled()) return;
   const payload = clean(data);
@@ -109,7 +105,6 @@ export function track(event: string, data?: AnalyticsData): void {
     try {
       window.umami.track(event, payload);
     } catch {
-      // Ignorado a propósito.
     }
     return;
   }
@@ -118,7 +113,6 @@ export function track(event: string, data?: AnalyticsData): void {
   scheduleFlush();
 }
 
-/** Emite el evento solo la primera vez por sesión de navegador. */
 export function trackOnce(key: string, event: string, data?: AnalyticsData): void {
   if (!isAnalyticsEnabled()) return;
   const storageKey = `arboles:analytics:${key}`;
@@ -126,12 +120,10 @@ export function trackOnce(key: string, event: string, data?: AnalyticsData): voi
     if (window.sessionStorage.getItem(storageKey) === '1') return;
     window.sessionStorage.setItem(storageKey, '1');
   } catch {
-    // Sin sessionStorage: se envía igual (el volumen es bajo).
   }
   track(event, data);
 }
 
-/** Emite como máximo una vez por clave cada `ms` milisegundos. */
 export function trackThrottled(key: string, event: string, data?: AnalyticsData, ms = 2000): void {
   const now = Date.now();
   const previous = lastSentAt.get(key) ?? 0;
@@ -140,27 +132,22 @@ export function trackThrottled(key: string, event: string, data?: AnalyticsData,
   track(event, data);
 }
 
-/** Acción de la interfaz que no es una operación del árbol. */
 export function trackUi(action: string, data?: AnalyticsData): void {
   track('ui_action', { action, ...data });
 }
 
-/** Cambio de configuración (orden p, tipo de clave, etc.). */
 export function trackConfig(setting: string, value: AnalyticsValue, extra?: AnalyticsData): void {
   track('config_change', { setting, value, ...extra });
 }
 
-/** Click hacia un sitio externo. */
 export function trackOutbound(destination: string, location: string): void {
   track('outbound_click', { destination, location });
 }
 
-/** CTA de la landing (anclas internas incluidas). */
 export function trackLandingCta(target: string, location: string): void {
   track('landing_cta', { target, location });
 }
 
-/** Marca el origen de la próxima navegación a un playground. */
 export function setNavSource(source: NavSource): void {
   pendingNav = { source, at: Date.now() };
 }
@@ -177,7 +164,6 @@ export function takeNavSource(): NavSource {
   return source;
 }
 
-/** Vuelca la cola cuando el tracker ya cargó. Idempotente. */
 export function initAnalytics(): void {
   if (typeof window === 'undefined') return;
   if (document.readyState === 'complete') {
